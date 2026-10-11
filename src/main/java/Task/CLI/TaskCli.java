@@ -1,6 +1,12 @@
 package Task.CLI;
 
+import Task.Model.Priority;
+import Task.Model.Task2;
 import Task.Service.TaskService;
+import common.exception.InvalidTaskException;
+import common.utils.ConsoleReader;
+
+import java.time.LocalDate;
 
 public class TaskCli {
     private final TaskService service;
@@ -22,6 +28,36 @@ public class TaskCli {
                 case 1 -> createNewTask();
                 case 0 -> exitTask = true;
                 default -> System.out.println("Invalid option. Choose ");
+            }
+        }
+    }
+
+    private void createNewTask(){
+        String title = ConsoleReader.readString("Title: ");
+        String body = ConsoleReader.readString("Description: ");
+        Priority priority = readPriority();
+        LocalDate dueDate = ConsoleReader
+                .readDateOptional("Optional. Due date dd/mm/yyyy")
+                .orElse(null);
+
+        try{
+            Task2 created= service.createTask(title, body.isBlank()? null:body,priority,dueDate);
+            System.out.println("Task created successfully: "+ created.getTitle());
+        } catch (InvalidTaskException error){
+            System.out.println(("Error: " + error.getMessage()));
+        }
+    }
+
+    private Priority readPriority(){
+        while (true){
+            String input = ConsoleReader.readString("Priority (1.High 2.Medium 3.Low");
+            switch (input){
+                case "" -> {return null;}
+                case "1" -> {return Priority.HIGH;}
+                case "2" -> {return Priority.MEDIUM;}
+                case "3" -> {return Priority.LOW;}
+                default -> System.out.println("Invalid option. Choose 1,2,3 or ENTER to continue");
+
             }
         }
     }
