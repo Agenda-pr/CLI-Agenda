@@ -17,7 +17,7 @@ public class Task2 {
         this.id = UUID.randomUUID();
         this.title = title;
         this.body = body;
-        this.priority = priority;
+        this.priority = (priority != null) ? priority: Priority.MEDIUM;
         this.completed = false;
         this.dueDate = dueDate;
         this.createdAt = LocalDateTime.now();
