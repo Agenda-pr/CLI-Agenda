@@ -1,11 +1,17 @@
 package Task.Repository;
 import Task.Model.Task;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class InRamRepository implements Repository{
+public class InRamRepository implements Repository {
     private final List<Task> taskList = new ArrayList<>();
+
+    @Override
+    public Task save(Task task) {
+        return null;
+    }
 
     @Override
     public String addTask(Task task) {

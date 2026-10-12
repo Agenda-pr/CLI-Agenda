@@ -1,11 +1,15 @@
 package Task.Repository;
 
 import Task.Model.Task;
-
 import java.util.List;
 import java.util.UUID;
 
-public class OtherExampleRepository implements Repository{
+public class OtherExampleRepository implements Repository {
+    @Override
+    public Task save(Task task) {
+        return null;
+    }
+
     @Override
     public String addTask(Task task) {
         return "Added on alternative repo";
