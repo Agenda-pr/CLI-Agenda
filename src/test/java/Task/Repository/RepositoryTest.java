@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RepositoriesTest {
+public class RepositoryTest {
     private InRamRepository repository;
 //    private OtherExampleRepository experimentalRepo;
     private TaskService provService;

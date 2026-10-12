@@ -1,3 +1,15 @@
+import Task.CLI.TaskCli;
+import Task.Repository.InRamRepository;
+import Task.Service.TaskService;
+
+public class Main {
+    public static void main (String[] args){
+        InRamRepository repository = new InRamRepository();
+        TaskService service = new TaskService(repository);
+        new TaskCli(service).showMenu();
+    }
+}
+
 //import Task.CLI.TaskCli;
 //import Task.Repository.Repository;
 //import Task.Service.TaskService;

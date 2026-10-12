@@ -19,6 +19,9 @@ public class TaskService {
         if(title == null || title.isBlank()){
             throw new InvalidTaskException("Task title cannot be empty or blank");
         }
+        if (dueDate!=null && dueDate.isBefore(LocalDate.now())){
+            throw new InvalidTaskException("Due date cannot be in the past");
+        }
         Task task = new Task(title.trim(), priority, dueDate);
         return repository.save(task);
     }

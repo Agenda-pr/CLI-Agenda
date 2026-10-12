@@ -5,6 +5,7 @@ import Task.Model.Task;
 import Task.Service.TaskService;
 import common.exception.InvalidTaskException;
 import common.utils.ConsoleReader;
+import common.utils.DateUtils;
 
 import java.time.LocalDate;
 
@@ -27,23 +28,31 @@ public class TaskCli {
             switch (option){
                 case 1 -> createNewTask();
                 case 0 -> exitTask = true;
-                default -> System.out.println("Invalid option. Choose ");
+                default -> System.out.println("Invalid option.");
             }
         }
     }
 
     private void createNewTask(){
-        String title = ConsoleReader.readString("Title: ");
+        String title = readTitle();
         Priority priority = readPriority();
-        LocalDate dueDate = ConsoleReader
-                .readDateOptional("Optional. Due date dd/mm/yyyy: ")
-                .orElse(null);
+        LocalDate dueDate = readDueDate();
 
         try{
             Task created= service.createTask(title,priority,dueDate);
             System.out.println("Task created successfully: "+ created.getTitle());
         } catch (InvalidTaskException error){
             System.out.println(("Error: " + error.getMessage()));
+        }
+    }
+
+    private String readTitle() {
+        while (true) {
+            String title = ConsoleReader.readString("Title: ");
+            if (!title.isBlank()) {
+                return title;
+            }
+            System.out.println("Title cannot be empty. Try again.");
         }
     }
 
@@ -58,6 +67,19 @@ public class TaskCli {
                 default -> System.out.println("Invalid option. Choose 1,2,3 or ENTER to continue");
 
             }
+        }
+    }
+
+    private LocalDate readDueDate() {
+        while (true) {
+            LocalDate date = ConsoleReader
+                    .readDateOptional("Optional. Due date " + DateUtils.DATE_PATTERN + ": ")
+                    .orElse(null);
+
+            if (date == null || !date.isBefore(LocalDate.now())) {
+                return date;
+            }
+            System.out.println("Due date cannot be in the past. Try again.");
         }
     }
 }
