@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 public class TaskService {
     private final Repository repository;
 
-
     public TaskService(Repository repository) {
         this.repository = repository;
     }
@@ -22,10 +21,6 @@ public class TaskService {
         }
         Task task = new Task(title.trim(), priority, dueDate);
         return repository.save(task);
-    }
-
-    public String addTask(Task task){
-        return this.repository.addTask(task);
     }
 
     public String printAllTasks(){

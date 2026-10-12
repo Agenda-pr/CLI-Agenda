@@ -10,13 +10,8 @@ public class InRamRepository implements Repository {
 
     @Override
     public Task save(Task task) {
-        return null;
-    }
-
-    @Override
-    public String addTask(Task task) {
         taskList.add(task);
-        return "Task added on memory";
+        return task;
     }
 
     @Override
