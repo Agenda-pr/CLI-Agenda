@@ -1,28 +1,37 @@
 package Task.Service;
 
 import Task.Model.Priority;
-import Task.Model.Task2;
-import Task.Repository.TaskRepository;
+import Task.Model.Task;
+import Task.Repository.Repository;
 import common.exception.InvalidTaskException;
 
 import java.time.LocalDate;
+import java.util.stream.Collectors;
 
 public class TaskService {
-    private final TaskRepository repository;
+    private final Repository repository;
 
 
-    public TaskService(TaskRepository repository) {
+    public TaskService(Repository repository) {
         this.repository = repository;
     }
 
-    public Task2 createTask(String title, String body, Priority priority, LocalDate dueDate){
+    public Task createTask(String title, Priority priority, LocalDate dueDate){
         if(title == null || title.isBlank()){
             throw new InvalidTaskException("Task title cannot be empty or blank");
         }
-        if (body == null || body.isBlank()){
-            throw new InvalidTaskException("Task description cannot be empty or blank");
-        }
-        Task2 task = new Task2(title.trim(), body.trim(), priority, dueDate);
+        Task task = new Task(title.trim(), priority, dueDate);
         return repository.save(task);
     }
+
+    public String addTask(Task task){
+        return this.repository.addTask(task);
+    }
+
+    public String printAllTasks(){
+        return this.repository.showAllTasks().stream()
+                .map(Task::getTitle)
+                .collect(Collectors.joining("\n"));
+    }
 }
+

@@ -1,7 +1,7 @@
 package Task.CLI;
 
 import Task.Model.Priority;
-import Task.Model.Task2;
+import Task.Model.Task;
 import Task.Service.TaskService;
 import common.exception.InvalidTaskException;
 import common.utils.ConsoleReader;
@@ -34,14 +34,13 @@ public class TaskCli {
 
     private void createNewTask(){
         String title = ConsoleReader.readString("Title: ");
-        String body = ConsoleReader.readString("Description: ");
         Priority priority = readPriority();
         LocalDate dueDate = ConsoleReader
                 .readDateOptional("Optional. Due date dd/mm/yyyy: ")
                 .orElse(null);
 
         try{
-            Task2 created= service.createTask(title, body.isBlank()? null:body,priority,dueDate);
+            Task created= service.createTask(title,priority,dueDate);
             System.out.println("Task created successfully: "+ created.getTitle());
         } catch (InvalidTaskException error){
             System.out.println(("Error: " + error.getMessage()));

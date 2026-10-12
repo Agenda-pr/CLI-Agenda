@@ -4,27 +4,25 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Task2 {
+public class Task {
     private final UUID id;
     private String title;
-    private String body;
     private Priority priority;
     private boolean completed;
     private LocalDate dueDate;
     private final LocalDateTime createdAt;
 
-    public Task2(String title, String body, Priority priority, LocalDate dueDate) {
+    public Task(String title, Priority priority, LocalDate dueDate) {
         this.id = UUID.randomUUID();
         this.title = title;
-        this.body = body;
         this.priority = (priority != null) ? priority: Priority.MEDIUM;
         this.completed = false;
         this.dueDate = dueDate;
         this.createdAt = LocalDateTime.now();
     }
 
-    public Task2(String title, String body, Priority priority) {
-        this(title, body, priority, null);
+    public Task(String title,  Priority priority) {
+        this(title, priority, null);
     }
 
     public UUID getId() {
@@ -33,10 +31,6 @@ public class Task2 {
 
     public String getTitle() {
         return title;
-    }
-
-    public String getBody() {
-        return body;
     }
 
     public Priority getPriority() {
@@ -57,10 +51,6 @@ public class Task2 {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
     }
 
     public void setPriority(Priority priority) {
