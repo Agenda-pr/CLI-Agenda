@@ -6,6 +6,8 @@ import Task.Repository.Repository;
 import common.exception.InvalidTaskException;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class TaskService {
@@ -26,10 +28,16 @@ public class TaskService {
         return repository.save(task);
     }
 
-    public String printAllTasks(){
-        return this.repository.showAllTasks().stream()
-                .map(Task::getTitle)
-                .collect(Collectors.joining("\n"));
+    public List<Task> listTasksForCreation(){
+        return repository.showAllTasks().stream()
+                .sorted(Comparator.comparing(Task::getCreatedAt))
+                .toList();
     }
+
+//    public String printAllTasks(){
+//        return this.repository.showAllTasks().stream()
+//                .map(Task::getTitle)
+//                .collect(Collectors.joining("\n"));
+//    }
 }
 

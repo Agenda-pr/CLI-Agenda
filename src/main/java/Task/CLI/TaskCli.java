@@ -8,6 +8,7 @@ import common.utils.ConsoleReader;
 import common.utils.DateUtils;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class TaskCli {
     private final TaskService service;
@@ -22,11 +23,14 @@ public class TaskCli {
         while(!exitTask){
             System.out.println("\n****TASKS****");
             System.out.println("1. Create task");
+            System.out.println("2. List tasks");
             System.out.println("0. Go back");
+
 
             int option = ConsoleReader.readInt("Choose an option: ");
             switch (option){
                 case 1 -> createNewTask();
+                case 2 -> listTasks();
                 case 0 -> exitTask = true;
                 default -> System.out.println("Invalid option.");
             }
@@ -81,5 +85,38 @@ public class TaskCli {
             }
             System.out.println("Due date cannot be in the past. Try again.");
         }
+    }
+
+    private void listTasks(){
+        List<Task> tasks = service.listTasksForCreation();
+        if (tasks.isEmpty()){
+            System.out.println("There isn't any task recorded. ");
+            return;
+        }
+        tasks.forEach(task -> System.out.println(formatedTask(task)));
+    }
+
+    private String formatedTask (Task task){
+        String due = (task.getDueDate() == null)
+                ? "without date"
+                :DateUtils.formatDate(task.getDueDate());
+
+        String completed = task.isCompleted()
+                ? "completed"
+                : "not completed";
+
+        return "ID "+task.getId() + " | "
+                + task.getTitle() + " | Due: " + due + " | Priority:"
+                + task.getPriority() + " | Status: " + completed + " | Created: "
+                + DateUtils.formatDateTime(task.getCreatedAt());
+
+//        return String.format("%s | %s | Due: %s | %s | %s | Created: %s",
+//                task.getId(),
+//                task.getTitle(),
+//                due,
+//                task.getPriority(),
+//                completed,
+//                DateUtils.formatDateTime(task.getCreatedAt()));
+
     }
 }
