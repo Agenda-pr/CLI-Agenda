@@ -37,7 +37,7 @@ public class TaskCli {
         String body = ConsoleReader.readString("Description: ");
         Priority priority = readPriority();
         LocalDate dueDate = ConsoleReader
-                .readDateOptional("Optional. Due date dd/mm/yyyy")
+                .readDateOptional("Optional. Due date dd/mm/yyyy: ")
                 .orElse(null);
 
         try{
@@ -50,7 +50,7 @@ public class TaskCli {
 
     private Priority readPriority(){
         while (true){
-            String input = ConsoleReader.readString("Priority (1.High 2.Medium 3.Low");
+            String input = ConsoleReader.readString("Priority 1.High 2.Medium 3.Low ");
             switch (input){
                 case "" -> {return null;}
                 case "1" -> {return Priority.HIGH;}
