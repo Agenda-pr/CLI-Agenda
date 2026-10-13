@@ -1,5 +1,6 @@
 package task.service;
 
+import common.exception.TaskNotFound;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
@@ -61,6 +62,16 @@ public class TaskService {
                 task.getDueDate(),
                 task.getCreatedAt()
         );
+    }
+
+    public TaskDto findTaskById (UUID id){
+        Task task = repository.findTask(id);
+
+        if (task == null){
+            throw new TaskNotFound("Task was not found ");
+        }
+
+        return this.toDto(task);
     }
 
 
