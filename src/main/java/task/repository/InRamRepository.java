@@ -1,4 +1,6 @@
 package task.repository;
+
+import task.dto.TaskDto;
 import task.model.Task;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,14 +11,22 @@ public class InRamRepository implements Repository {
 
     @Override
     public Task save(Task task) {
+        for (int i = 0; i < taskList.size(); i++) {
+            if (taskList.get(i).getId().equals(task.getId())) {
+                taskList.set(i, task);
+                return task;
+            }
+        }
         taskList.add(task);
         return task;
     }
+
 
     @Override
     public List<Task> showAllTasks() {
         return this.taskList;
     }
+
     // DUDANDO
     @Override
     public List<Task> filteredTaskList(String query) {
@@ -30,6 +40,4 @@ public class InRamRepository implements Repository {
                 .findFirst()
                 .orElse(null);
     }
-
-    // Debería haber un método para editar una task o eso va en service? porque si vas a editarla tendré que encontrarla y guardarla en la mismo posición, no?
 }

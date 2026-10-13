@@ -3,13 +3,11 @@ package task.service;
 import common.exception.TaskNotFound;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
-import task.model.Priority;
 import task.model.Task;
 import task.repository.Repository;
 import common.exception.InvalidTaskException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -73,6 +71,28 @@ public class TaskService {
 
         return this.toDto(task);
     }
+
+    public TaskDto updateTask(TaskDto taskDto) {
+        Task task = repository.findTask(taskDto.id());
+
+        if (task == null) {
+            throw new TaskNotFound("Task was not found");
+        }
+
+        validateTitle(taskDto.title());
+        validateDueDate(taskDto.dueDate());
+
+        task.setTitle(taskDto.title().trim());
+        task.setPriority(taskDto.priority());
+        task.setCompleted(taskDto.completed());
+        task.setDueDate(taskDto.dueDate());
+
+        Task saved = repository.save(task);
+
+        return toDto(saved);
+    }
+
+
 
 
 }

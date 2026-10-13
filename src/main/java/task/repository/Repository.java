@@ -1,5 +1,6 @@
 package task.repository;
 
+import task.dto.TaskDto;
 import task.model.Task;
 
 import java.util.List;
