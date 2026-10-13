@@ -33,9 +33,10 @@ public class TaskService {
         return toDto(savedTask);
     }
 
-    public List<Task> listTasksByCreation() {
+    public List<TaskDto> listTasksByCreation() {
         return repository.showAllTasks().stream()
                 .sorted(Comparator.comparing(Task::getCreatedAt))
+                .map(this::toDto)
                 .toList();
     }
 
