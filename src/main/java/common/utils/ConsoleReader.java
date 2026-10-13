@@ -34,9 +34,9 @@ public class ConsoleReader {
                 return Optional.empty();
             }
             try {
-                return Optional.of(LocalDate.parse(input, DATE_FORMAT));
+                return Optional.of(DateUtils.parseDate(input));
             } catch (DateTimeParseException error) {
-                System.out.println("Invalid date. dd/mm/aaaa");
+                System.out.println("Invalid date. Use: " +DateUtils.DATE_PATTERN);
             }
         }
     }
