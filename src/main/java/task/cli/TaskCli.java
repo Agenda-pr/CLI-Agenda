@@ -1,7 +1,8 @@
 package task.cli;
 
+import task.dto.CreateTaskDto;
+import task.dto.TaskDto;
 import task.model.Priority;
-import task.model.Task;
 import task.service.TaskService;
 import common.exception.InvalidTaskException;
 import common.utils.ConsoleReader;
@@ -43,10 +44,11 @@ public class TaskCli {
         LocalDate dueDate = readDueDate();
 
         try{
-            Task created= service.createTask(title,priority,dueDate);
-            System.out.println("Task created successfully: "+ created.getTitle());
+            CreateTaskDto createTaskDto = new CreateTaskDto(title, priority, dueDate);
+            TaskDto taskDto = service.createTask(createTaskDto);
+            System.out.println("Task created successfully: "+ taskDto.title());
         } catch (InvalidTaskException error){
-            System.out.println(("Error: " + error.getMessage()));
+            System.out.println("Error: " + error.getMessage());
         }
     }
 
@@ -94,35 +96,24 @@ public class TaskCli {
     }
 
     private void listTasks(){
-        List<Task> tasks = service.listTasksByCreation();
+        List<TaskDto> tasks = service.listTasksByCreation();
         if (tasks.isEmpty()){
             System.out.println("There isn't any task recorded. ");
             return;
         }
-        tasks.forEach(task -> System.out.println(formatedTask(task)));
+        tasks.forEach(taskDto -> System.out.println(formatedTask(taskDto)));
     }
 
-    private String formatedTask (Task task){
-        String due = (task.getDueDate() == null)
+    private String formatedTask (TaskDto taskDto){
+        String due = (taskDto.dueDate() == null)
                 ? "without date"
-                :DateUtils.formatDate(task.getDueDate());
+                :DateUtils.formatDate(taskDto.dueDate());
 
-        String completed = task.isCompleted()
-                ? "completed"
-                : "not completed";
+        String completed = taskDto.completed()? "completed" : "not completed";
 
-        return "ID "+task.getId() + " | "
-                + task.getTitle() + " | Due: " + due + " | Priority:"
-                + task.getPriority() + " | Status: " + completed + " | Created: "
-                + DateUtils.formatDateTime(task.getCreatedAt());
-
-//        return String.format("%s | %s | Due: %s | %s | %s | Created: %s",
-//                task.getId(),
-//                task.getTitle(),
-//                due,
-//                task.getPriority(),
-//                completed,
-//                DateUtils.formatDateTime(task.getCreatedAt()));
-
+        return "ID "+taskDto.id() + " | "
+                + taskDto.title() + " | Due: " + due + " | Priority:"
+                + taskDto.priority() + " | Status: " + completed + " | Created: "
+                + DateUtils.formatDateTime(taskDto.createdAt());
     }
 }
