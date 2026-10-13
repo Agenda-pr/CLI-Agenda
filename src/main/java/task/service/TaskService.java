@@ -28,9 +28,9 @@ public class TaskService {
                 createTaskDto.title().trim(),
                 createTaskDto.priority(),
                 createTaskDto.dueDate());
-        repository.save(task);
+        Task savedTask = repository.save(task);
 
-        return toDto(task);
+        return toDto(savedTask);
     }
 
     public List<Task> listTasksByCreation() {
