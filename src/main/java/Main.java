@@ -1,6 +1,6 @@
-import Task.CLI.TaskCli;
-import Task.Repository.InRamRepository;
-import Task.Service.TaskService;
+import task.cli.TaskCli;
+import task.repository.InRamRepository;
+import task.service.TaskService;
 
 public class Main {
     public static void main (String[] args){

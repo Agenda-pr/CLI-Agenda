@@ -1,9 +1,8 @@
-package Task.service;
+package task.service;
 
-import Task.Model.Priority;
-import Task.Model.Task;
-import Task.Repository.InRamRepository;
-import Task.Service.TaskService;
+import task.model.Priority;
+import task.model.Task;
+import task.repository.InRamRepository;
 import common.exception.InvalidTaskException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

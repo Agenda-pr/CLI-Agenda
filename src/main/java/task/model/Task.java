@@ -1,4 +1,4 @@
-package Task.Model;
+package task.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

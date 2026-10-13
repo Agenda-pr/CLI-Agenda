@@ -1,8 +1,8 @@
-package Task.CLI;
+package task.cli;
 
-import Task.Model.Priority;
-import Task.Model.Task;
-import Task.Service.TaskService;
+import task.model.Priority;
+import task.model.Task;
+import task.service.TaskService;
 import common.exception.InvalidTaskException;
 import common.utils.ConsoleReader;
 import common.utils.DateUtils;

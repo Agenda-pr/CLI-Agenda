@@ -1,5 +1,5 @@
-package Task.Repository;
-import Task.Model.Task;
+package task.repository;
+import task.model.Task;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

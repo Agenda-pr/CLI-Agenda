@@ -1,7 +1,7 @@
-package Task.Repository;
-import Task.Model.Priority;
-import Task.Model.Task;
-import Task.Service.TaskService;
+package task.repository;
+import task.model.Priority;
+import task.model.Task;
+import task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

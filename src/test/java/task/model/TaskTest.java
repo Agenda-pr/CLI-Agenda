@@ -1,4 +1,4 @@
-package Task.Model;
+package task.model;
 
 import org.junit.jupiter.api.Test;
 

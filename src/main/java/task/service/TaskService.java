@@ -1,8 +1,8 @@
-package Task.Service;
+package task.service;
 
-import Task.Model.Priority;
-import Task.Model.Task;
-import Task.Repository.Repository;
+import task.model.Priority;
+import task.model.Task;
+import task.repository.Repository;
 import common.exception.InvalidTaskException;
 
 import java.time.LocalDate;
