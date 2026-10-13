@@ -53,10 +53,13 @@ public class TaskCli {
     private String readTitle() {
         while (true) {
             String title = ConsoleReader.readString("Title: ");
-            if (!title.isBlank()) {
+            try {
+                service.validateTitle(title);
                 return title;
+            } catch (InvalidTaskException error) {
+                System.out.println("Title cannot be empty. Try again.");
             }
-            System.out.println("Title cannot be empty. Try again.");
+
         }
     }
 
@@ -80,15 +83,18 @@ public class TaskCli {
                     .readDateOptional("Optional. Due date " + DateUtils.DATE_PATTERN + ": ")
                     .orElse(null);
 
-            if (date == null || !date.isBefore(LocalDate.now())) {
+            try {
+                service.validateDueDate(date);
                 return date;
+            } catch (InvalidTaskException error){
+                System.out.println("Due date cannot be in the past. Try again.");
+
             }
-            System.out.println("Due date cannot be in the past. Try again.");
-        }
+    }
     }
 
     private void listTasks(){
-        List<Task> tasks = service.listTasksForCreation();
+        List<Task> tasks = service.listTasksByCreation();
         if (tasks.isEmpty()){
             System.out.println("There isn't any task recorded. ");
             return;

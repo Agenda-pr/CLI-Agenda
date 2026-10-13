@@ -68,12 +68,12 @@ public class TaskServiceTest {
 
         @Test
         void listTasksSortByCreationDate(){
-            assertEquals(List.of(task1,task2,task3), service.listTasksForCreation());
+            assertEquals(List.of(task1,task2,task3), service.listTasksByCreation());
         }
 
         @Test
         void listTasksReturnsAll(){
-            List<Task> listResult = service.listTasksForCreation();
+            List<Task> listResult = service.listTasksByCreation();
 
             assertEquals(3, listResult.size());
             assertTrue(listResult.containsAll(List.of(task1,task2,task3)));
