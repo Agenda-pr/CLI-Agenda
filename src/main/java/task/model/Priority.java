@@ -1,4 +1,4 @@
-package Task.Model;
+package task.model;
 
 public enum Priority {
    LOW, MEDIUM, HIGH
