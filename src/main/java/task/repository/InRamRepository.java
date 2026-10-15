@@ -14,17 +14,19 @@ public class InRamRepository implements Repository {
         for (int i = 0; i < taskList.size(); i++) {
             if (taskList.get(i).getId().equals(task.getId())) {
                 taskList.set(i, task);
-                return task;
+                return restoreFrom(task);
             }
         }
         taskList.add(task);
-        return task;
+        return restoreFrom(task);
     }
 
 
     @Override
     public List<Task> showAllTasks() {
-        return this.taskList;
+        return taskList.stream()
+                .map(this::restoreFrom)
+                .toList();
     }
 
     // DUDANDO
@@ -38,6 +40,19 @@ public class InRamRepository implements Repository {
         return this.taskList.stream()
                 .filter(task -> task.getId().equals(ID))
                 .findFirst()
+                .map(this::restoreFrom)
                 .orElse(null);
     }
+
+    private Task restoreFrom(Task task) {
+        return Task.restore(
+                task.getId(),
+                task.getTitle(),
+                task.getPriority(),
+                task.isCompleted(),
+                task.getDueDate(),
+                task.getCreatedAt()
+        );
+    }
+
 }
