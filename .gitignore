@@ -39,3 +39,6 @@ build/
 docs/task_dto_user_story.md
 docs/decisiones_diseno.md
 docs/edit_task_user_story.md
+
+### Local Credentials###
+.env
