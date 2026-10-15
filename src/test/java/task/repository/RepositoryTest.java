@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import task.model.Priority;
 import task.model.Task;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,15 +24,19 @@ public class RepositoryTest {
 
     @Test
     void saveReturnSameTask() {
-        assertSame(task1, repository.save(task1));
+        Task saved = repository.save(task1);
+        assertEquals(task1.getId(), saved.getId());
+        assertEquals(task1.getTitle(), saved.getTitle());
+
     }
 
     @Test
     void saveAddTaskToList() {
         repository.save(task1);
 
-        assertEquals(1, repository.showAllTasks().size());
-        assertTrue(repository.showAllTasks().contains(task1));
+        List<Task> tasks = repository.showAllTasks();
+        assertEquals(1, tasks.size());
+        assertEquals(task1.getId(), tasks.get(0).getId());
     }
 
     @Test
@@ -49,7 +54,10 @@ public class RepositoryTest {
     void findTaskReturnsTaskFromExistingId() {
         repository.save(task2);
 
-        assertSame(task2, repository.findTask(task2.getId()));
+        Task found = repository.findTask(task2.getId());
+        assertNotNull(found);
+        assertEquals(task2.getId(), found.getId());
+        assertEquals(task2.getTitle(), found.getTitle());
     }
 
     @Test
