@@ -23,7 +23,7 @@ public class TaskService {
         validateTitle(createTaskDto.title());
         validateDueDate(createTaskDto.dueDate());
 
-        Task task = new Task(
+        Task task = Task.create(
                 createTaskDto.title().trim(),
                 createTaskDto.priority(),
                 createTaskDto.dueDate());
