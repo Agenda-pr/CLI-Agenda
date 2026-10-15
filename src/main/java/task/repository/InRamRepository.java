@@ -1,6 +1,5 @@
 package task.repository;
 
-import task.dto.TaskDto;
 import task.model.Task;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,15 +9,14 @@ public class InRamRepository implements Repository {
     private final List<Task> taskList = new ArrayList<>();
 
     @Override
-    public Task save(Task task) {
+    public void save(Task task) {
         for (int i = 0; i < taskList.size(); i++) {
             if (taskList.get(i).getId().equals(task.getId())) {
                 taskList.set(i, task);
-                return restoreFrom(task);
+                return;
             }
         }
         taskList.add(task);
-        return restoreFrom(task);
     }
 
 
