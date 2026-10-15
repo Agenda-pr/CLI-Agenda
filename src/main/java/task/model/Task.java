@@ -12,17 +12,26 @@ public class Task {
     private LocalDate dueDate;
     private final LocalDateTime createdAt;
 
-    public Task(String title, Priority priority, LocalDate dueDate) {
-        this.id = UUID.randomUUID();
+    private Task(UUID id, String title, Priority priority, boolean completed, LocalDate dueDate, LocalDateTime createdAt) {
+        this.id = id;
         this.title = title;
-        this.priority = (priority != null) ? priority: Priority.MEDIUM;
-        this.completed = false;
+        this.priority = (priority != null) ? priority : Priority.MEDIUM;
+        this.completed = completed;
         this.dueDate = dueDate;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = createdAt;
     }
 
-    public Task(String title,  Priority priority) {
-        this(title, priority, null);
+
+    public static Task create(String title, Priority priority, LocalDate dueDate) {
+        return new Task(UUID.randomUUID(), title, priority, false, dueDate, LocalDateTime.now());
+    }
+
+    public static Task create(String title, Priority priority) {
+        return create(title, priority, null);
+    }
+
+    public static Task restore(UUID id, String title, Priority priority, boolean completed, LocalDate dueDate, LocalDateTime createdAt) {
+        return new Task(id, title, priority, completed, dueDate, createdAt);
     }
 
     public UUID getId() {

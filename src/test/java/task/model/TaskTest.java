@@ -10,7 +10,7 @@ public class TaskTest {
 
     @Test
     void constructorSetCorrectDefaults(){
-        Task task=new Task("Go to supermarket", null);
+        Task task = new Task("Go to supermarket", null);
 
         assertNotNull(task.getId());
         assertNotNull(task.getCreatedAt());
