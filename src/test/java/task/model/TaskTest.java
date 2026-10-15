@@ -3,6 +3,8 @@ package task.model;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,4 +38,24 @@ public class TaskTest {
 
         assertNotEquals(task1.getId(), task2.getId());
    }
+
+    @Test
+    void restoreReconstitutesTaskExactly() {
+        UUID id = UUID.randomUUID();
+        String title = "Historic Task";
+        Priority priority = Priority.HIGH;
+        boolean completed = true;
+        LocalDate dueDate = LocalDate.of(2025, 1, 15);
+        LocalDateTime createdAt = LocalDateTime.of(2024, 12, 1, 10, 0);
+
+        Task task = Task.restore(id, title, priority, completed, dueDate, createdAt);
+
+        assertEquals(id, task.getId());
+        assertEquals(title, task.getTitle());
+        assertEquals(priority, task.getPriority());
+        assertTrue(task.isCompleted());
+        assertEquals(dueDate, task.getDueDate());
+        assertEquals(createdAt, task.getCreatedAt());
+    }
+
 }
