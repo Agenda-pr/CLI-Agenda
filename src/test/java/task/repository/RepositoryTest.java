@@ -17,8 +17,8 @@ public class RepositoryTest {
     @BeforeEach
     public void ini() {
         repository = new InRamRepository();
-        task1 = new Task("Task 1", Priority.MEDIUM);
-        task2 = new Task("Task 2", Priority.LOW);
+        task1 = Task.create("Task 1", Priority.MEDIUM);
+        task2 = Task.create("Task 2", Priority.LOW);
     }
 
     @Test

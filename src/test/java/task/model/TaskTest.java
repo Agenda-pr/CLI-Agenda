@@ -10,7 +10,7 @@ public class TaskTest {
 
     @Test
     void constructorSetCorrectDefaults(){
-        Task task = new Task("Go to supermarket", null);
+        Task task = Task.create ("Go to supermarket", null);
 
         assertNotNull(task.getId());
         assertNotNull(task.getCreatedAt());
@@ -22,7 +22,7 @@ public class TaskTest {
    @Test
     void contructorSaveCorrectValues(){
        LocalDate date = LocalDate.of(2026,11,20);
-       Task task = new Task("Finish this issue", Priority.HIGH, date);
+       Task task = Task.create("Finish this issue", Priority.HIGH, date);
 
        assertEquals("Finish this issue", task.getTitle());
        assertEquals(Priority.HIGH, task.getPriority());
@@ -31,8 +31,8 @@ public class TaskTest {
 
    @Test
     void differentTasksHaveDifferentId() {
-        Task task1= new Task("Task1", Priority.LOW);
-        Task task2 = new Task("Task2", Priority.LOW);
+        Task task1= Task.create("Task1", Priority.LOW);
+        Task task2 = Task.create("Task2", Priority.LOW);
 
         assertNotEquals(task1.getId(), task2.getId());
    }
