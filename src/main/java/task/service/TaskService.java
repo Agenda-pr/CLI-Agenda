@@ -4,11 +4,10 @@ import common.exception.TaskNotFound;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Task;
+import task.model.TaskDueDate;
 import task.model.TaskTitle;
 import task.repository.Repository;
-import common.exception.InvalidTaskException;
 
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -21,12 +20,11 @@ public class TaskService {
     }
 
     public TaskDto createTask(CreateTaskDto createTaskDto) {
-        validateDueDate(createTaskDto.dueDate());
 
         Task task = Task.create(
                 new TaskTitle(createTaskDto.title()),
                 createTaskDto.priority(),
-                createTaskDto.dueDate());
+                TaskDueDate.create(createTaskDto.dueDate()));
         repository.save(task);
 
         return toDto(task);
@@ -39,27 +37,20 @@ public class TaskService {
                 .toList();
     }
 
-    public void validateDueDate(LocalDate date) {
-        if (date != null && date.isBefore(LocalDate.now())) {
-            throw new InvalidTaskException("Due date cannot be in the past");
-        }
-    }
-
     private TaskDto toDto(Task task) {
         return new TaskDto(
                 task.getId(),
                 task.getTitle().title(),
                 task.getPriority(),
                 task.isCompleted(),
-                task.getDueDate(),
-                task.getCreatedAt()
-        );
+                task.getDueDate() != null ? task.getDueDate().date() : null,
+                task.getCreatedAt());
     }
 
-    public TaskDto findTaskById (UUID id){
+    public TaskDto findTaskById(UUID id) {
         Task task = repository.findTask(id);
 
-        if (task == null){
+        if (task == null) {
             throw new TaskNotFound("Task was not found ");
         }
 
@@ -73,19 +64,14 @@ public class TaskService {
             throw new TaskNotFound("Task was not found");
         }
 
-        validateDueDate(taskDto.dueDate());
-
         task.setTitle(new TaskTitle(taskDto.title()));
         task.setPriority(taskDto.priority());
         task.setCompleted(taskDto.completed());
-        task.setDueDate(taskDto.dueDate());
+        task.setDueDate(TaskDueDate.create(taskDto.dueDate()));
 
         repository.save(task);
 
         return toDto(task);
     }
-
-
-
 
 }

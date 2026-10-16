@@ -1,6 +1,5 @@
 package task.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -9,10 +8,10 @@ public class Task {
     private TaskTitle title;
     private Priority priority;
     private boolean completed;
-    private LocalDate dueDate;
+    private TaskDueDate dueDate;
     private final LocalDateTime createdAt;
 
-    private Task(UUID id, TaskTitle title, Priority priority, boolean completed, LocalDate dueDate, LocalDateTime createdAt) {
+    private Task(UUID id, TaskTitle title, Priority priority, boolean completed, TaskDueDate dueDate, LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
         this.priority = (priority != null) ? priority : Priority.MEDIUM;
@@ -22,7 +21,7 @@ public class Task {
     }
 
 
-    public static Task create(TaskTitle title, Priority priority, LocalDate dueDate) {
+    public static Task create(TaskTitle title, Priority priority, TaskDueDate dueDate) {
         return new Task(UUID.randomUUID(), title, priority, false, dueDate, LocalDateTime.now());
     }
 
@@ -30,7 +29,7 @@ public class Task {
         return create(title, priority, null);
     }
 
-    public static Task restore(UUID id, TaskTitle title, Priority priority, boolean completed, LocalDate dueDate, LocalDateTime createdAt) {
+    public static Task restore(UUID id, TaskTitle title, Priority priority, boolean completed, TaskDueDate dueDate, LocalDateTime createdAt) {
         return new Task(id, title, priority, completed, dueDate, createdAt);
     }
 
@@ -50,7 +49,7 @@ public class Task {
         return completed;
     }
 
-    public LocalDate getDueDate() {
+    public TaskDueDate getDueDate() {
         return dueDate;
     }
 
@@ -70,7 +69,7 @@ public class Task {
         this.completed = completed;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public void setDueDate(TaskDueDate dueDate) {
         this.dueDate = dueDate;
     }
 }

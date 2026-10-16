@@ -23,7 +23,7 @@ public class TaskTest {
 
     @Test
     void contructorSaveCorrectValues() {
-        LocalDate date = LocalDate.of(2026, 11, 20);
+        TaskDueDate date = TaskDueDate.create(LocalDate.of(2026, 11, 20));
         Task task = Task.create(new TaskTitle("Finish this issue"), Priority.HIGH, date);
 
         assertEquals(new TaskTitle("Finish this issue"), task.getTitle());
@@ -45,7 +45,7 @@ public class TaskTest {
         TaskTitle title = new TaskTitle("Historic Task");
         Priority priority = Priority.HIGH;
         boolean completed = true;
-        LocalDate dueDate = LocalDate.of(2025, 1, 15);
+        TaskDueDate dueDate = TaskDueDate.restore(LocalDate.of(2025, 1, 15));
         LocalDateTime createdAt = LocalDateTime.of(2024, 12, 1, 10, 0);
 
         Task task = Task.restore(id, title, priority, completed, dueDate, createdAt);
