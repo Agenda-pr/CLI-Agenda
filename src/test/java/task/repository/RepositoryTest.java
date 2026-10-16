@@ -24,7 +24,8 @@ public class RepositoryTest {
 
     @Test
     void saveReturnSameTask() {
-        Task saved = repository.save(task1);
+        repository.save(task1);
+        Task saved = repository.findTask(task1.getId());
         assertEquals(task1.getId(), saved.getId());
         assertEquals(task1.getTitle(), saved.getTitle());
 
