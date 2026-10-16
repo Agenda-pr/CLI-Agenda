@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface Repository {
-    Task save(Task task);
+    void save(Task task);
     List<Task> showAllTasks();
     List<Task> filteredTaskList (String query); // No se si va
     Task findTask(UUID id); //    Optional<Task> findById;

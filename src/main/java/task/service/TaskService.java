@@ -23,13 +23,13 @@ public class TaskService {
         validateTitle(createTaskDto.title());
         validateDueDate(createTaskDto.dueDate());
 
-        Task task = new Task(
+        Task task = Task.create(
                 createTaskDto.title().trim(),
                 createTaskDto.priority(),
                 createTaskDto.dueDate());
-        Task savedTask = repository.save(task);
+        repository.save(task);
 
-        return toDto(savedTask);
+        return toDto(task);
     }
 
     public List<TaskDto> listTasksByCreation() {
@@ -87,9 +87,9 @@ public class TaskService {
         task.setCompleted(taskDto.completed());
         task.setDueDate(taskDto.dueDate());
 
-        Task saved = repository.save(task);
+        repository.save(task);
 
-        return toDto(saved);
+        return toDto(task);
     }
 
 

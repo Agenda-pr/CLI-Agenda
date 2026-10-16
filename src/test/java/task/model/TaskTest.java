@@ -3,6 +3,8 @@ package task.model;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,7 +12,7 @@ public class TaskTest {
 
     @Test
     void constructorSetCorrectDefaults(){
-        Task task=new Task("Go to supermarket", null);
+        Task task = Task.create ("Go to supermarket", null);
 
         assertNotNull(task.getId());
         assertNotNull(task.getCreatedAt());
@@ -22,7 +24,7 @@ public class TaskTest {
    @Test
     void contructorSaveCorrectValues(){
        LocalDate date = LocalDate.of(2026,11,20);
-       Task task = new Task("Finish this issue", Priority.HIGH, date);
+       Task task = Task.create("Finish this issue", Priority.HIGH, date);
 
        assertEquals("Finish this issue", task.getTitle());
        assertEquals(Priority.HIGH, task.getPriority());
@@ -31,9 +33,29 @@ public class TaskTest {
 
    @Test
     void differentTasksHaveDifferentId() {
-        Task task1= new Task("Task1", Priority.LOW);
-        Task task2 = new Task("Task2", Priority.LOW);
+        Task task1= Task.create("Task1", Priority.LOW);
+        Task task2 = Task.create("Task2", Priority.LOW);
 
         assertNotEquals(task1.getId(), task2.getId());
    }
+
+    @Test
+    void restoreReconstitutesTaskExactly() {
+        UUID id = UUID.randomUUID();
+        String title = "Historic Task";
+        Priority priority = Priority.HIGH;
+        boolean completed = true;
+        LocalDate dueDate = LocalDate.of(2025, 1, 15);
+        LocalDateTime createdAt = LocalDateTime.of(2024, 12, 1, 10, 0);
+
+        Task task = Task.restore(id, title, priority, completed, dueDate, createdAt);
+
+        assertEquals(id, task.getId());
+        assertEquals(title, task.getTitle());
+        assertEquals(priority, task.getPriority());
+        assertTrue(task.isCompleted());
+        assertEquals(dueDate, task.getDueDate());
+        assertEquals(createdAt, task.getCreatedAt());
+    }
+
 }
