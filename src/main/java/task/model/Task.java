@@ -6,13 +6,13 @@ import java.util.UUID;
 
 public class Task {
     private final UUID id;
-    private String title;
+    private TaskTitle title;
     private Priority priority;
     private boolean completed;
     private LocalDate dueDate;
     private final LocalDateTime createdAt;
 
-    private Task(UUID id, String title, Priority priority, boolean completed, LocalDate dueDate, LocalDateTime createdAt) {
+    private Task(UUID id, TaskTitle title, Priority priority, boolean completed, LocalDate dueDate, LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
         this.priority = (priority != null) ? priority : Priority.MEDIUM;
@@ -22,15 +22,15 @@ public class Task {
     }
 
 
-    public static Task create(String title, Priority priority, LocalDate dueDate) {
+    public static Task create(TaskTitle title, Priority priority, LocalDate dueDate) {
         return new Task(UUID.randomUUID(), title, priority, false, dueDate, LocalDateTime.now());
     }
 
-    public static Task create(String title, Priority priority) {
+    public static Task create(TaskTitle title, Priority priority) {
         return create(title, priority, null);
     }
 
-    public static Task restore(UUID id, String title, Priority priority, boolean completed, LocalDate dueDate, LocalDateTime createdAt) {
+    public static Task restore(UUID id, TaskTitle title, Priority priority, boolean completed, LocalDate dueDate, LocalDateTime createdAt) {
         return new Task(id, title, priority, completed, dueDate, createdAt);
     }
 
@@ -38,7 +38,7 @@ public class Task {
         return id;
     }
 
-    public String getTitle() {
+    public TaskTitle getTitle() {
         return title;
     }
 
@@ -58,7 +58,7 @@ public class Task {
         return createdAt;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(TaskTitle title) {
         this.title = title;
     }
 

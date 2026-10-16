@@ -3,6 +3,7 @@ package task.cli;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
+import task.model.TaskTitle;
 import task.service.TaskService;
 import common.exception.InvalidTaskException;
 import common.exception.TaskNotFound;
@@ -43,12 +44,12 @@ public class TaskCli {
     }
 
     private void createNewTask(){
-        String title = readTitle();
+        TaskTitle taskTitle = readTitle();
         Priority priority = readPriority();
         LocalDate dueDate = readDueDate();
 
         try{
-            CreateTaskDto createTaskDto = new CreateTaskDto(title, priority, dueDate);
+            CreateTaskDto createTaskDto = new CreateTaskDto(taskTitle.title(), priority, dueDate);
             TaskDto taskDto = service.createTask(createTaskDto);
             System.out.println("Task created successfully: "+ taskDto.title());
         } catch (InvalidTaskException error){
@@ -56,12 +57,11 @@ public class TaskCli {
         }
     }
 
-    private String readTitle() {
+    private TaskTitle readTitle() {
         while (true) {
             String title = ConsoleReader.readString("Title: ");
             try {
-                service.validateTitle(title);
-                return title;
+                return new TaskTitle(title);
             } catch (InvalidTaskException error) {
                 System.out.println("Title cannot be empty. Try again.");
             }

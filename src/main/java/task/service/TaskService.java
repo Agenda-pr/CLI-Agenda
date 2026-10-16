@@ -4,6 +4,7 @@ import common.exception.TaskNotFound;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Task;
+import task.model.TaskTitle;
 import task.repository.Repository;
 import common.exception.InvalidTaskException;
 
@@ -20,11 +21,10 @@ public class TaskService {
     }
 
     public TaskDto createTask(CreateTaskDto createTaskDto) {
-        validateTitle(createTaskDto.title());
         validateDueDate(createTaskDto.dueDate());
 
         Task task = Task.create(
-                createTaskDto.title().trim(),
+                new TaskTitle(createTaskDto.title()),
                 createTaskDto.priority(),
                 createTaskDto.dueDate());
         repository.save(task);
@@ -39,12 +39,6 @@ public class TaskService {
                 .toList();
     }
 
-    public void validateTitle(String title) {
-        if (title == null || title.isBlank()) {
-            throw new InvalidTaskException("Task title cannot be empty or blank");
-        }
-    }
-
     public void validateDueDate(LocalDate date) {
         if (date != null && date.isBefore(LocalDate.now())) {
             throw new InvalidTaskException("Due date cannot be in the past");
@@ -54,7 +48,7 @@ public class TaskService {
     private TaskDto toDto(Task task) {
         return new TaskDto(
                 task.getId(),
-                task.getTitle(),
+                task.getTitle().title(),
                 task.getPriority(),
                 task.isCompleted(),
                 task.getDueDate(),
@@ -79,10 +73,9 @@ public class TaskService {
             throw new TaskNotFound("Task was not found");
         }
 
-        validateTitle(taskDto.title());
         validateDueDate(taskDto.dueDate());
 
-        task.setTitle(taskDto.title().trim());
+        task.setTitle(new TaskTitle(taskDto.title()));
         task.setPriority(taskDto.priority());
         task.setCompleted(taskDto.completed());
         task.setDueDate(taskDto.dueDate());
