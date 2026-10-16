@@ -1,0 +1,5 @@
+ db.host=localhost
+   db.port=3306
+   db.name=agenda
+   db.user=agenda_user
+   db.password=change_me
