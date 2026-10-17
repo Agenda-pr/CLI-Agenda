@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.model.Priority;
 import task.model.Task;
+import task.model.TaskTitle;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,16 +19,16 @@ public class RepositoryTest {
     @BeforeEach
     public void ini() {
         repository = new InRamRepository();
-        task1 = Task.create("Task 1", Priority.MEDIUM);
-        task2 = Task.create("Task 2", Priority.LOW);
+        task1 = Task.create(new TaskTitle("Task 1"), Priority.MEDIUM);
+        task2 = Task.create(new TaskTitle("Task 2"), Priority.LOW);
     }
 
     @Test
     void saveReturnSameTask() {
-        Task saved = repository.save(task1);
+        repository.save(task1);
+        Task saved = repository.findTask(task1.getId());
         assertEquals(task1.getId(), saved.getId());
         assertEquals(task1.getTitle(), saved.getTitle());
-
     }
 
     @Test
@@ -42,12 +43,12 @@ public class RepositoryTest {
     @Test
     void saveUpdatesExistingTaskWithoutDuplicating() {
         repository.save(task1);
-        task1.setTitle("Task 1 Updated");
+        task1.setTitle(new TaskTitle("Task 1 Updated"));
 
         repository.save(task1);
 
         assertEquals(1, repository.showAllTasks().size());
-        assertEquals("Task 1 Updated", repository.findTask(task1.getId()).getTitle());
+        assertEquals(new TaskTitle("Task 1 Updated"), repository.findTask(task1.getId()).getTitle());
     }
 
     @Test

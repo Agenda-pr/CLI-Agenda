@@ -3,6 +3,8 @@ package task.cli;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
+import task.model.TaskDueDate;
+import task.model.TaskTitle;
 import task.service.TaskService;
 import common.exception.InvalidTaskException;
 import common.exception.TaskNotFound;
@@ -43,12 +45,15 @@ public class TaskCli {
     }
 
     private void createNewTask(){
-        String title = readTitle();
+        TaskTitle taskTitle = readTitle();
         Priority priority = readPriority();
-        LocalDate dueDate = readDueDate();
+        TaskDueDate dueDate = readDueDate();
 
         try{
-            CreateTaskDto createTaskDto = new CreateTaskDto(title, priority, dueDate);
+            CreateTaskDto createTaskDto = new CreateTaskDto(taskTitle.title(),
+                    priority,
+                    dueDate != null ? dueDate.date() : null);
+
             TaskDto taskDto = service.createTask(createTaskDto);
             System.out.println("Task created successfully: "+ taskDto.title());
         } catch (InvalidTaskException error){
@@ -56,12 +61,11 @@ public class TaskCli {
         }
     }
 
-    private String readTitle() {
+    private TaskTitle readTitle() {
         while (true) {
             String title = ConsoleReader.readString("Title: ");
             try {
-                service.validateTitle(title);
-                return title;
+                return new TaskTitle(title);
             } catch (InvalidTaskException error) {
                 System.out.println("Title cannot be empty. Try again.");
             }
@@ -83,15 +87,14 @@ public class TaskCli {
         }
     }
 
-    private LocalDate readDueDate() {
+    private TaskDueDate readDueDate() {
         while (true) {
             LocalDate date = ConsoleReader
                     .readDateOptional("Optional. Due date " + DateUtils.DATE_PATTERN + ": ")
                     .orElse(null);
 
             try {
-                service.validateDueDate(date);
-                return date;
+                return TaskDueDate.create(date);
             } catch (InvalidTaskException error){
                 System.out.println("Due date cannot be in the past. Try again.");
 
@@ -220,7 +223,7 @@ public class TaskCli {
             }
             try {
                 LocalDate date = DateUtils.parseDate(input);
-                service.validateDueDate(date);
+                TaskDueDate.create(date);
                 return date;
             } catch (DateTimeParseException error) {
                 System.out.println("Invalid date. Use: " + DateUtils.DATE_PATTERN);
