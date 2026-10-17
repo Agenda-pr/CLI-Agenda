@@ -44,3 +44,5 @@ docs/edit_task_user_story.md
 ### Local Credentials###
 .env
 
+ # Configuración local de la aplicación (credenciales)
+src/main/resources/application.properties
