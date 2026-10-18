@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RepositoryTest {
+public class InRamRepositoryTest {
     private InRamRepository repository;
     private Task task1;
     private Task task2;
@@ -64,5 +64,21 @@ public class RepositoryTest {
     @Test
     void findTaskByIDReturnsNullUnknowId() {
         assertNull(repository.findTaskByID(UUID.randomUUID()));
+    }
+
+    @Test
+    void deleteTaskByIDReturnsTrueExistingId() {
+        repository.save(task1);
+
+        boolean result = repository.deleteTaskByID(task1.getId());
+
+        assertTrue(result);
+        assertNull(repository.findTaskByID(task1.getId()));
+        assertTrue(repository.showAllTasks().isEmpty());
+    }
+
+    @Test
+    void deleteTaskByIDReturnsFalseUnknowId() {
+        assertFalse(repository.deleteTaskByID(UUID.randomUUID()));
     }
 }

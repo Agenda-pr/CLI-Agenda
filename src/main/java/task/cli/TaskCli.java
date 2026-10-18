@@ -18,45 +18,45 @@ import java.util.UUID;
 public class TaskCli {
     private final TaskService service;
 
-
     public TaskCli(TaskService service) {
         this.service = service;
     }
 
-    public void showMenu(){
-        boolean exitTask= false;
-        while(!exitTask){
+    public void showMenu() {
+        boolean exitTask = false;
+        while (!exitTask) {
             System.out.println("\n****TASKS****");
             System.out.println("1. Create task");
             System.out.println("2. List tasks");
             System.out.println("3. Edit task");
+            System.out.println("4. Delete task");
             System.out.println("0. Go back");
 
-
             int option = ConsoleReader.readInt("Choose an option: ");
-            switch (option){
+            switch (option) {
                 case 1 -> createNewTask();
                 case 2 -> listTasks();
                 case 3 -> editTask();
+                case 4 -> deleteTask();
                 case 0 -> exitTask = true;
                 default -> System.out.println("Invalid option.");
             }
         }
     }
 
-    private void createNewTask(){
+    private void createNewTask() {
         TaskTitle taskTitle = readTitle();
         Priority priority = readPriority();
         TaskDueDate dueDate = readDueDate();
 
-        try{
+        try {
             CreateTaskDto createTaskDto = new CreateTaskDto(taskTitle.title(),
                     priority,
                     dueDate != null ? dueDate.date() : null);
 
             TaskDto taskDto = service.createTask(createTaskDto);
-            System.out.println("Task created successfully: "+ taskDto.title());
-        } catch (InvalidTaskException error){
+            System.out.println("Task created successfully: " + taskDto.title());
+        } catch (InvalidTaskException error) {
             System.out.println("Error: " + error.getMessage());
         }
     }
@@ -73,14 +73,22 @@ public class TaskCli {
         }
     }
 
-    private Priority readPriority(){
-        while (true){
+    private Priority readPriority() {
+        while (true) {
             String input = ConsoleReader.readString("Priority 1.High 2.Medium 3.Low ");
-            switch (input){
-                case "" -> {return null;}
-                case "1" -> {return Priority.HIGH;}
-                case "2" -> {return Priority.MEDIUM;}
-                case "3" -> {return Priority.LOW;}
+            switch (input) {
+                case "" -> {
+                    return null;
+                }
+                case "1" -> {
+                    return Priority.HIGH;
+                }
+                case "2" -> {
+                    return Priority.MEDIUM;
+                }
+                case "3" -> {
+                    return Priority.LOW;
+                }
                 default -> System.out.println("Invalid option. Choose 1,2,3 or ENTER to continue");
 
             }
@@ -95,62 +103,48 @@ public class TaskCli {
 
             try {
                 return TaskDueDate.create(date);
-            } catch (InvalidTaskException error){
+            } catch (InvalidTaskException error) {
                 System.out.println("Due date cannot be in the past. Try again.");
 
             }
-    }
+        }
     }
 
-    private void listTasks(){
+    private boolean listTasks() {
         List<TaskDto> tasks = service.listTasksByCreation();
-        if (tasks.isEmpty()){
+        if (tasks.isEmpty()) {
             System.out.println("There isn't any task recorded. ");
-            return;
+            return false;
         }
         tasks.forEach(taskDto -> System.out.println(formatedTask(taskDto)));
+        return true;
     }
 
-    private String formatedTask (TaskDto taskDto){
+    private String formatedTask(TaskDto taskDto) {
         String due = (taskDto.dueDate() == null)
                 ? "without date"
-                :DateUtils.formatDate(taskDto.dueDate());
+                : DateUtils.formatDate(taskDto.dueDate());
 
-        String completed = taskDto.completed()? "completed" : "not completed";
+        String completed = taskDto.completed() ? "completed" : "not completed";
 
-        return "ID "+taskDto.id() + " | "
+        return "ID " + taskDto.id() + " | "
                 + taskDto.title() + " | Due: " + due + " | Priority:"
                 + taskDto.priority() + " | Status: " + completed + " | Created: "
                 + DateUtils.formatDateTime(taskDto.createdAt());
     }
+
     private void editTask() {
-        List<TaskDto> tasks = service.listTasksByCreation();
-
-        if (tasks.isEmpty()) {
-            System.out.println("There isn't any task recorded to edit.");
-            return;
-        }
-
         System.out.println("\n--- SELECT A TASK TO EDIT ---");
-        tasks.forEach(task -> System.out.println(formatedTask(task)));
-
-
-        String idInput = ConsoleReader.readString("\nEnter Task ID (or press ENTER to cancel): ");
-        if (idInput.isBlank()) {
+        if (!listTasks()) {
             return;
         }
 
-        UUID id;
-        try {
-            id = UUID.fromString(idInput);
-        } catch (IllegalArgumentException error) {
-            System.out.println("Invalid ID format.");
+        TaskDto taskToEdit = selectTask();
+        if (taskToEdit == null) {
             return;
         }
 
         try {
-            TaskDto taskToEdit = service.findTaskById(id);
-
             System.out.println("\nCurrent values:");
             System.out.println(formatedTask(taskToEdit));
             System.out.println("(Press ENTER to keep the current value)");
@@ -160,14 +154,12 @@ public class TaskCli {
 
             System.out.println("Task updated successfully.");
             System.out.println(formatedTask(editedTask));
-        } catch (TaskNotFound error) {
-            System.out.println("No task found with that ID.");
         } catch (InvalidTaskException error) {
             System.out.println("Error: " + error.getMessage());
         }
     }
 
-    private TaskDto editTaskSubMenu (TaskDto taskToEdit){
+    private TaskDto editTaskSubMenu(TaskDto taskToEdit) {
         boolean completed = readCompletedForEdit(taskToEdit.completed());
         Priority priority = readPriorityForEdit(taskToEdit.priority());
         LocalDate dueDate = readDueDateForEdit(taskToEdit.dueDate());
@@ -188,9 +180,15 @@ public class TaskCli {
                     .readString("Completed? (y/n) [current: " + currentText + "]: ")
                     .toLowerCase();
             switch (input) {
-                case "" -> { return current; }
-                case "y" -> { return true; }
-                case "n" -> { return false; }
+                case "" -> {
+                    return current;
+                }
+                case "y" -> {
+                    return true;
+                }
+                case "n" -> {
+                    return false;
+                }
                 default -> System.out.println("Invalid option. Type y, n or ENTER to keep the current value.");
             }
         }
@@ -201,10 +199,18 @@ public class TaskCli {
             String input = ConsoleReader
                     .readString("Priority 1.High 2.Medium 3.Low [current: " + current + "]: ");
             switch (input) {
-                case "" -> { return current; }
-                case "1" -> { return Priority.HIGH; }
-                case "2" -> { return Priority.MEDIUM; }
-                case "3" -> { return Priority.LOW; }
+                case "" -> {
+                    return current;
+                }
+                case "1" -> {
+                    return Priority.HIGH;
+                }
+                case "2" -> {
+                    return Priority.MEDIUM;
+                }
+                case "3" -> {
+                    return Priority.LOW;
+                }
                 default -> System.out.println("Invalid option. Choose 1, 2, 3 or ENTER to keep the current value.");
             }
         }
@@ -229,6 +235,63 @@ public class TaskCli {
                 System.out.println("Invalid date. Use: " + DateUtils.DATE_PATTERN);
             } catch (InvalidTaskException error) {
                 System.out.println("Due date cannot be in the past. Try again.");
+            }
+        }
+    }
+
+    private void deleteTask() {
+        System.out.println("\n--- SELECT A TASK TO DELETE ---");
+        if (!listTasks()) {
+            return;
+        }
+
+        TaskDto taskToDelete = selectTask();
+        if (taskToDelete == null) {
+            return;
+        }
+
+        System.out.println("\nSelected task:");
+        System.out.println(formatedTask(taskToDelete));
+
+        if (!confirmDelete()) {
+            System.out.println("Deletion cancelled.");
+            return;
+        }
+
+        service.deleteTaskByID(taskToDelete.id());
+        System.out.println("Task deleted successfully.");
+    }
+
+    private TaskDto selectTask() {
+        String idInput = ConsoleReader.readString("\nEnter Task ID (or press ENTER to cancel): ");
+        if (idInput.isBlank()) {
+            return null;
+        }
+
+        try {
+            UUID id = UUID.fromString(idInput);
+            return service.findTaskById(id);
+        } catch (IllegalArgumentException error) {
+            System.out.println("Invalid ID format.");
+        } catch (TaskNotFound error) {
+            System.out.println("No task found with that ID.");
+        }
+        return null;
+    }
+
+    private boolean confirmDelete() {
+        while (true) {
+            String input = ConsoleReader
+                    .readString("Are you sure you want to delete this task? (S/N): ")
+                    .toLowerCase();
+            switch (input) {
+                case "s", "y" -> {
+                    return true;
+                }
+                case "n" -> {
+                    return false;
+                }
+                default -> System.out.println("Invalid option. Type S or N.");
             }
         }
     }
