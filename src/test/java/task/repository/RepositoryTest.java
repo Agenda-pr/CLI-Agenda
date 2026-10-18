@@ -26,7 +26,7 @@ public class RepositoryTest {
     @Test
     void saveReturnSameTask() {
         repository.save(task1);
-        Task saved = repository.findTask(task1.getId());
+        Task saved = repository.findTaskByID(task1.getId());
         assertEquals(task1.getId(), saved.getId());
         assertEquals(task1.getTitle(), saved.getTitle());
     }
@@ -48,21 +48,21 @@ public class RepositoryTest {
         repository.save(task1);
 
         assertEquals(1, repository.showAllTasks().size());
-        assertEquals(new TaskTitle("Task 1 Updated"), repository.findTask(task1.getId()).getTitle());
+        assertEquals(new TaskTitle("Task 1 Updated"), repository.findTaskByID(task1.getId()).getTitle());
     }
 
     @Test
-    void findTaskReturnsTaskFromExistingId() {
+    void findTaskReturnsTaskByIDFromExistingId() {
         repository.save(task2);
 
-        Task found = repository.findTask(task2.getId());
+        Task found = repository.findTaskByID(task2.getId());
         assertNotNull(found);
         assertEquals(task2.getId(), found.getId());
         assertEquals(task2.getTitle(), found.getTitle());
     }
 
     @Test
-    void findTaskReturnsNullUnknowId() {
-        assertNull(repository.findTask(UUID.randomUUID()));
+    void findTaskByIDReturnsNullUnknowId() {
+        assertNull(repository.findTaskByID(UUID.randomUUID()));
     }
 }
