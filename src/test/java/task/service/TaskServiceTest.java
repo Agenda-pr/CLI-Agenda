@@ -218,4 +218,59 @@ public class TaskServiceTest {
             assertThrows(TaskNotFound.class, () -> service.deleteTaskByID(UUID.randomUUID()));
         }
     }
+
+    @Nested
+    class ListCompletedTask {
+        @Test
+        void listCompletedTaskReturnsOnlyCompletedTasks() {
+            TaskDto task1 = service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
+            TaskDto task2 = service.createTask(new CreateTaskDto("Task 2", Priority.HIGH, null));
+
+            service.updateTask(new TaskDto(task1.id(), task1.title(), task1.priority(), true, task1.dueDate(), task1.createdAt()));
+
+            List<TaskDto> completed = service.listCompletedTask();
+
+            assertEquals(1, completed.size());
+            assertEquals(task1.id(), completed.get(0).id());
+            assertTrue(completed.get(0).completed());
+        }
+
+        @Test
+        void listCompletedTaskReturnsEmptyListWhenNoTasksCompleted() {
+            service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
+            service.createTask(new CreateTaskDto("Task 2", Priority.HIGH, null));
+
+            List<TaskDto> completed = service.listCompletedTask();
+
+            assertTrue(completed.isEmpty());
+        }
+    }
+
+    @Nested
+    class ListPendingTask {
+        @Test
+        void listPendingTaskReturnsOnlyPendingTasks() {
+            TaskDto task1 = service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
+            TaskDto task2 = service.createTask(new CreateTaskDto("Task 2", Priority.HIGH, null));
+
+            service.updateTask(new TaskDto(task1.id(), task1.title(), task1.priority(), true, task1.dueDate(), task1.createdAt()));
+
+            List<TaskDto> pending = service.listPendingTask();
+
+            assertEquals(1, pending.size());
+            assertEquals(task2.id(), pending.get(0).id());
+            assertFalse(pending.get(0).completed());
+        }
+
+        @Test
+        void listPendingTaskReturnsEmptyListWhenAllTasksCompleted() {
+            TaskDto task1 = service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
+            service.updateTask(new TaskDto(task1.id(), task1.title(), task1.priority(), true, task1.dueDate(), task1.createdAt()));
+
+            List<TaskDto> pending = service.listPendingTask();
+
+            assertTrue(pending.isEmpty());
+        }
+    }
 }
+
