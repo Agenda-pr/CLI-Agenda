@@ -113,4 +113,27 @@ public class InRamNoteRepositoryTest {
         assertNotNull(notes);
         assertTrue(notes.isEmpty());
     }
+
+    @Test
+    void deleteNotesByTaskIdRemovesAllNotesForTargetTaskOnly() {
+        Note note3 = Note.create(taskId1, NoteContent.of("Second note for task 1"));
+        repository.saveNote(note1);
+        repository.saveNote(note2);
+        repository.saveNote(note3);
+
+        repository.deleteNotesByTaskId(taskId1.id());
+
+        assertTrue(repository.findNotesByTaskId(taskId1.id()).isEmpty());
+        assertEquals(1, repository.showAllNotes().size());
+        assertNotNull(repository.findNoteById(note2.getId()));
+    }
+
+    @Test
+    void deleteNotesByTaskIdDoesNothingWhenTaskHasNoNotes() {
+        repository.saveNote(note1);
+
+        repository.deleteNotesByTaskId(UUID.randomUUID());
+
+        assertEquals(1, repository.showAllNotes().size());
+    }
 }

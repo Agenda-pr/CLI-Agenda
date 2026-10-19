@@ -1,7 +1,6 @@
 package note.repository;
 
 import note.model.Note;
-import note.model.NoteTaskID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +47,11 @@ public class InRamNoteRepository implements NoteRepository{
                 .filter(n -> n.getTaskID().id().equals(taskId))
                 .map(this::restoreFrom)
                 .toList();
+    }
+
+    @Override
+    public void deleteNotesByTaskId(UUID taskId) {
+        noteList.removeIf(note -> note.getTaskID().id().equals(taskId));
     }
 
     private Note restoreFrom(Note note) {

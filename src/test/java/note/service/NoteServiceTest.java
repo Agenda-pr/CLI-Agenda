@@ -228,4 +228,32 @@ public class NoteServiceTest {
             assertThrows(NoteNotFound.class, () -> service.deleteNoteById(UUID.randomUUID()));
         }
     }
+
+    @Nested
+    class DeleteNotesByTaskId {
+        @Test
+        void deleteNotesByTaskIdRemovesAllTaskNotesAndKeepsOthers() {
+            Task otherTask = Task.create(TaskTitle.of("Otra Tarea"), Priority.LOW);
+            taskRepository.save(otherTask);
+
+            service.createNote(new CreateNoteDto(existingTask.getId(), "Nota 1 tarea principal"));
+            service.createNote(new CreateNoteDto(existingTask.getId(), "Nota 2 tarea principal"));
+            NoteDto otherNote = service.createNote(new CreateNoteDto(otherTask.getId(), "Nota otra tarea"));
+
+            service.deleteNotesByTaskId(existingTask.getId());
+
+            assertTrue(service.findNotesFromTask(existingTask.getId()).isEmpty());
+            assertEquals(1, noteRepository.showAllNotes().size());
+            assertEquals(otherNote.id(), service.findNoteById(otherNote.id()).id());
+        }
+
+        @Test
+        void deleteNotesByTaskIdDoesNothingWhenTaskHasNoNotes() {
+            service.createNote(new CreateNoteDto(existingTask.getId(), "Nota existente"));
+
+            service.deleteNotesByTaskId(UUID.randomUUID());
+
+            assertEquals(1, noteRepository.showAllNotes().size());
+        }
+    }
 }

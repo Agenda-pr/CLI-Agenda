@@ -1,7 +1,6 @@
 package note.repository;
 
 import note.model.Note;
-import note.model.NoteTaskID;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,4 +11,5 @@ public interface NoteRepository {
     Note findNoteById(UUID id);
     boolean deleteNoteById(UUID id);
     List<Note> findNotesByTaskId(UUID id);
+    void deleteNotesByTaskId(UUID taskId);
 }

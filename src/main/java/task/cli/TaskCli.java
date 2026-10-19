@@ -1,5 +1,6 @@
 package task.cli;
 
+import note.service.NoteService;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
@@ -17,9 +18,11 @@ import java.util.UUID;
 
 public class TaskCli {
     private final TaskService service;
+    private final NoteService noteService;
 
-    public TaskCli(TaskService service) {
+    public TaskCli(TaskService service, NoteService noteService) {
         this.service = service;
+        this.noteService = noteService;
     }
 
     public void showMenu() {
@@ -226,6 +229,7 @@ public class TaskCli {
             return;
         }
 
+        noteService.deleteNotesByTaskId(taskToDelete.id());
         service.deleteTaskByID(taskToDelete.id());
         System.out.println("Task deleted successfully.");
     }

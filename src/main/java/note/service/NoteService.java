@@ -78,6 +78,10 @@ public class NoteService {
         }
     }
 
+    public void deleteNotesByTaskId(UUID taskId){
+        noteRepository.deleteNotesByTaskId(taskId);
+    }
+
     private NoteDto toDto(Note note){
         return new NoteDto(
                 note.getId(),
