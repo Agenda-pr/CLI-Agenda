@@ -200,4 +200,22 @@ public class TaskServiceTest {
             assertThrows(InvalidTaskException.class, () -> service.updateTask(invalidDto));
         }
     }
+
+    @Nested
+    class DeleteTaskByID {
+        @Test
+        void deleteTaskByIDRemovesTaskFromRepository() {
+            TaskDto created = service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
+
+            service.deleteTaskByID(created.id());
+
+            assertTrue(repository.showAllTasks().isEmpty());
+            assertNull(repository.findTaskByID(created.id()));
+        }
+
+        @Test
+        void deleteTaskByIDThrowsExceptionUnknownId() {
+            assertThrows(TaskNotFound.class, () -> service.deleteTaskByID(UUID.randomUUID()));
+        }
+    }
 }

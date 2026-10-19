@@ -1,6 +1,5 @@
 package task.repository;
 
-import task.dto.TaskDto;
 import task.model.Task;
 
 import java.util.List;
@@ -10,5 +9,6 @@ public interface Repository {
     void save(Task task);
     List<Task> showAllTasks();
     List<Task> filteredTaskList (String query); // No se si va
-    Task findTask(UUID id); //    Optional<Task> findById;
+    Task findTaskByID(UUID id); //
+    boolean deleteTaskByID(UUID id);
 }

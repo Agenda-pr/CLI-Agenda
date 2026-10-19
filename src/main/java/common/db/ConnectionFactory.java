@@ -30,7 +30,6 @@ public class ConnectionFactory {
         } catch (SQLException error){
             throw new DatabaseException("Could not connect to the database at "+ url, error);
         }
-
     }
 
     private static String required(String key) {

@@ -34,12 +34,17 @@ public class InRamRepository implements Repository {
     }
 
     @Override
-    public Task findTask(UUID ID) {
+    public Task findTaskByID(UUID ID) {
         return this.taskList.stream()
                 .filter(task -> task.getId().equals(ID))
                 .findFirst()
                 .map(this::restoreFrom)
                 .orElse(null);
+    }
+
+    @Override
+    public boolean deleteTaskByID(UUID id) {
+        return taskList.removeIf(task -> task.getId().equals(id));
     }
 
     private Task restoreFrom(Task task) {
