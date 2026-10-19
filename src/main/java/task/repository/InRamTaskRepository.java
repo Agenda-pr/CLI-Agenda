@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class InRamRepository implements Repository {
+public class InRamTaskRepository implements TaskRepository {
     private final List<Task> taskList = new ArrayList<>();
 
     @Override
@@ -25,12 +25,6 @@ public class InRamRepository implements Repository {
         return taskList.stream()
                 .map(this::restoreFrom)
                 .toList();
-    }
-
-    // DUDANDO
-    @Override
-    public List<Task> filteredTaskList(String query) {
-        return List.of();
     }
 
     @Override
@@ -56,21 +50,6 @@ public class InRamRepository implements Repository {
                 task.getDueDate(),
                 task.getCreatedAt()
         );
-    }
-    @Override
-    public List<Task> listCompletedTasks(){
-        return taskList.stream()
-                .filter(Task::isCompleted)
-                .map(this::restoreFrom)
-                .toList();
-    }
-
-    @Override
-    public List<Task> listPendingTasks() {
-        return taskList.stream()
-                .filter(t -> !t.isCompleted())
-                .map(this::restoreFrom)
-                .toList();
     }
 
 }

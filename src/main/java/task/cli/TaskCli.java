@@ -1,5 +1,6 @@
 package task.cli;
 
+import note.service.NoteService;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
@@ -17,9 +18,11 @@ import java.util.UUID;
 
 public class TaskCli {
     private final TaskService service;
+    private final NoteService noteService;
 
-    public TaskCli(TaskService service) {
+    public TaskCli(TaskService service, NoteService noteService) {
         this.service = service;
+        this.noteService = noteService;
     }
 
     public void showMenu() {
@@ -28,20 +31,16 @@ public class TaskCli {
             System.out.println("\n****TASKS****");
             System.out.println("1. Create task");
             System.out.println("2. List tasks");
-            System.out.println("3. List completed tasks");
-            System.out.println("4. List pending tasks");
-            System.out.println("5. Edit task");
-            System.out.println("6. Delete task");
+            System.out.println("3. Edit task");
+            System.out.println("4. Delete task");
             System.out.println("0. Go back");
 
             int option = ConsoleReader.readInt("Choose an option: ");
             switch (option) {
                 case 1 -> createNewTask();
-                case 2 -> listTasks();
-                case 3 -> listCompletedTasks();
-                case 4 -> listPendingTasks();
-                case 5 -> editTask();
-                case 6 -> deleteTask();
+                case 2 -> listTasksMenu();
+                case 3 -> editTask();
+                case 4 -> deleteTask();
                 case 0 -> exitTask = true;
                 default -> System.out.println("Invalid option.");
             }
@@ -50,7 +49,7 @@ public class TaskCli {
 
     private void createNewTask() {
         TaskTitle taskTitle = readTitle();
-        Priority priority = readPriority();
+        Priority priority = readPriority(null);
         TaskDueDate dueDate = readDueDate();
 
         try {
@@ -73,16 +72,16 @@ public class TaskCli {
             } catch (InvalidTaskException error) {
                 System.out.println("Title cannot be empty. Try again.");
             }
-
         }
     }
 
-    private Priority readPriority() {
+    private Priority readPriority(Priority current) {
+        String currentText = (current == null) ? "" : " [current: " + current + "]";
         while (true) {
-            String input = ConsoleReader.readString("Priority 1.High 2.Medium 3.Low ");
+            String input = ConsoleReader.readString("Priority 1.High 2.Medium 3.Low" + currentText + " ");
             switch (input) {
                 case "" -> {
-                    return null;
+                    return current;
                 }
                 case "1" -> {
                     return Priority.HIGH;
@@ -93,8 +92,7 @@ public class TaskCli {
                 case "3" -> {
                     return Priority.LOW;
                 }
-                default -> System.out.println("Invalid option. Choose 1,2,3 or ENTER to continue");
-
+                default -> System.out.println("Invalid option. Choose 1, 2, 3 or ENTER to continue.");
             }
         }
     }
@@ -109,27 +107,47 @@ public class TaskCli {
                 return TaskDueDate.create(date);
             } catch (InvalidTaskException error) {
                 System.out.println("Due date cannot be in the past. Try again.");
-
             }
         }
     }
 
-    private void listTasks() {
-        List<TaskDto> tasks = service.listTasksByCreation();
-        printList(tasks,"There isn't any task recorded. ");
+    private void listTasksMenu() {
+        System.out.println("\n--- LIST & FILTER TASKS ---");
+        System.out.println("1. All tasks (by creation date)");
+        System.out.println("2. All tasks (by due date proximity)");
+        System.out.println("3. All tasks (by priority HIGH -> LOW)");
+        System.out.println("4. Filter by status: Pending");
+        System.out.println("5. Filter by status: Completed");
+        System.out.println("6. Filter by specific priority");
+        System.out.println("0. Cancel");
+
+        int option = ConsoleReader.readInt("Choose an option: ");
+        switch (option) {
+            case 1 -> listTasks();
+            case 2 -> printTaskList(service.listTasksByDueDate(), "There isn't any task recorded.");
+            case 3 -> printTaskList(service.listTasksOrderedByPriority(), "There isn't any task recorded.");
+            case 4 -> printTaskList(service.listTasksByStatus(false), "No pending tasks found.");
+            case 5 -> printTaskList(service.listTasksByStatus(true), "No completed tasks found.");
+            case 6 -> filterBySelectedPriority();
+            case 0 -> {}
+            default -> System.out.println("Invalid option.");
+        }
     }
 
-    private void listCompletedTasks(){
-        List<TaskDto> completedTaskList = service.listCompletedTask();
-        printList(completedTaskList, "There is not completed tasks");
+    private void filterBySelectedPriority() {
+        Priority priority = readPriority(null);
+        if (priority == null) {
+            System.out.println("Operation cancelled.");
+            return;
+        }
+        printTaskList(service.listTasksByPriority(priority), "No tasks found with priority " + priority + ".");
     }
 
-    private void listPendingTasks(){
-        List<TaskDto> pendingTaskList = service.listPendingTask();
-        printList(pendingTaskList, "There is not pending tasks");
+    private boolean listTasks() {
+        return printTaskList(service.listTasksByCreation(), "There isn't any task recorded. ");
     }
-    // Preguntar a sergi si esto es una chapuza o no
-    private boolean printList(List<TaskDto> tasks, String emptyMessage) {
+
+    private boolean printTaskList(List<TaskDto> tasks, String emptyMessage) {
         if (tasks.isEmpty()) {
             System.out.println(emptyMessage);
             return false;
@@ -137,7 +155,6 @@ public class TaskCli {
         tasks.forEach(taskDto -> System.out.println(formatedTask(taskDto)));
         return true;
     }
-
 
     private String formatedTask(TaskDto taskDto) {
         String due = (taskDto.dueDate() == null)
@@ -154,12 +171,7 @@ public class TaskCli {
 
     private void editTask() {
         System.out.println("\n--- SELECT A TASK TO EDIT ---");
-        List<TaskDto> tasks = service.listTasksByCreation();
-        if (!printList(tasks, "List is empty")) {
-            return;
-        }
-
-        TaskDto taskToEdit = selectTask();
+        TaskDto taskToEdit = listAndSelectTask();
         if (taskToEdit == null) {
             return;
         }
@@ -181,34 +193,16 @@ public class TaskCli {
 
     private TaskDto editTaskSubMenu(TaskDto taskToEdit) {
         boolean completed = readCompletedForEdit(taskToEdit.completed());
-        Priority priority = readPriorityForEdit(taskToEdit.priority());
+        Priority priority = readPriority(taskToEdit.priority());
         LocalDate dueDate = readDueDateForEdit(taskToEdit.dueDate());
 
         return new TaskDto(
-                taskToEdit.id(),
-                taskToEdit.title(),
-                priority,
-                completed,
-                dueDate,
-                taskToEdit.createdAt());
-    }
-
-    private void markTaskAsCompleted(){
-        System.out.println("\n--- SELECT A TASK TO MARK AS COMPLETED ---");
-        List<TaskDto> tasks = service.listTasksByCreation();
-        if (!printList(tasks, "There is no task to mark as completed.")) {
-            return;
-        }
-        TaskDto taskToEdit = selectTask();
-        if (taskToEdit == null) {
-            return;
-        }
-        String message = service.markTaskAsCompleted(taskToEdit.id())? "Task marked as completed":
-                "Task is already marked as completed.";
-
-        System.out.println(message);
-
-
+                    taskToEdit.id(),
+                    taskToEdit.title(),
+                    priority,
+                    completed,
+                    dueDate,
+                    taskToEdit.createdAt());
     }
 
     private boolean readCompletedForEdit(boolean current) {
@@ -228,28 +222,6 @@ public class TaskCli {
                     return false;
                 }
                 default -> System.out.println("Invalid option. Type y, n or ENTER to keep the current value.");
-            }
-        }
-    }
-
-    private Priority readPriorityForEdit(Priority current) {
-        while (true) {
-            String input = ConsoleReader
-                    .readString("Priority 1.High 2.Medium 3.Low [current: " + current + "]: ");
-            switch (input) {
-                case "" -> {
-                    return current;
-                }
-                case "1" -> {
-                    return Priority.HIGH;
-                }
-                case "2" -> {
-                    return Priority.MEDIUM;
-                }
-                case "3" -> {
-                    return Priority.LOW;
-                }
-                default -> System.out.println("Invalid option. Choose 1, 2, 3 or ENTER to keep the current value.");
             }
         }
     }
@@ -279,12 +251,7 @@ public class TaskCli {
 
     private void deleteTask() {
         System.out.println("\n--- SELECT A TASK TO DELETE ---");
-        List<TaskDto> tasks = service.listTasksByCreation();
-        if (!printList(tasks, "List is empty")) {
-            return;
-        }
-
-        TaskDto taskToDelete = selectTask();
+        TaskDto taskToDelete = listAndSelectTask();
         if (taskToDelete == null) {
             return;
         }
@@ -292,13 +259,21 @@ public class TaskCli {
         System.out.println("\nSelected task:");
         System.out.println(formatedTask(taskToDelete));
 
-        if (!confirmDelete()) {
+        if (!confirmAction("Are you sure you want to delete this task?")) {
             System.out.println("Deletion cancelled.");
             return;
         }
 
+        noteService.deleteNotesByTaskId(taskToDelete.id());
         service.deleteTaskByID(taskToDelete.id());
         System.out.println("Task deleted successfully.");
+    }
+
+    private TaskDto listAndSelectTask() {
+        if (!listTasks()) {
+            return null;
+        }
+        return selectTask();
     }
 
     private TaskDto selectTask() {
@@ -318,10 +293,10 @@ public class TaskCli {
         return null;
     }
 
-    private boolean confirmDelete() {
+    private boolean confirmAction(String message) {
         while (true) {
             String input = ConsoleReader
-                    .readString("Are you sure you want to delete this task? (S/N): ")
+                    .readString(message + " (S/N): ")
                     .toLowerCase();
             switch (input) {
                 case "s", "y" -> {
@@ -334,5 +309,4 @@ public class TaskCli {
             }
         }
     }
-
 }

@@ -1,22 +1,24 @@
 package task.service;
 
+import common.exception.InvalidTaskException;
 import common.exception.TaskNotFound;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
+import task.model.Priority;
 import task.model.Task;
 import task.model.TaskDueDate;
 import task.model.TaskTitle;
-import task.repository.Repository;
+import task.repository.TaskRepository;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 public class TaskService {
-    private final Repository repository;
+    private final TaskRepository taskRepository;
 
-    public TaskService(Repository repository) {
-        this.repository = repository;
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
     public TaskDto createTask(CreateTaskDto createTaskDto) {
@@ -25,15 +27,48 @@ public class TaskService {
                 TaskTitle.of(createTaskDto.title()),
                 createTaskDto.priority(),
                 TaskDueDate.create(createTaskDto.dueDate()));
-        repository.save(task);
+        taskRepository.save(task);
 
         return toDto(task);
     }
 
     public List<TaskDto> listTasksByCreation() {
-        return repository.showAllTasks().stream()
+        return taskRepository.showAllTasks().stream()
                 .sorted(Comparator.comparing(Task::getCreatedAt))
                 .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listTasksByStatus(boolean completed) {
+        return taskRepository.showAllTasks().stream()
+                .filter(task -> task.isCompleted() == completed)
+                .sorted(Comparator.comparing(Task::getCreatedAt))
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listTasksByPriority(Priority priority) {
+        if (priority == null) {
+            throw new InvalidTaskException("Priority cannot be null");
+        }
+        return taskRepository.showAllTasks().stream()
+                .filter(task -> task.getPriority() == priority)
+                .sorted(Comparator.comparing(Task::getCreatedAt))
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listTasksOrderedByPriority() {
+        return taskRepository.showAllTasks().stream()
+                .sorted(Comparator.comparing(Task::getPriority).reversed().thenComparing(Task::getCreatedAt))
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listTasksByDueDate() {
+        return taskRepository.showAllTasks().stream()
+                .map(this::toDto)
+                .sorted(Comparator.comparing(TaskDto::dueDate, Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList();
     }
 
@@ -48,39 +83,36 @@ public class TaskService {
     }
 
     public TaskDto findTaskById(UUID id) {
-        Task task = findTask(id);
+        Task task = taskRepository.findTaskByID(id);
+
+        if (task == null) {
+            throw new TaskNotFound("Task was not found ");
+        }
+
         return this.toDto(task);
     }
 
     public TaskDto updateTask(TaskDto taskDto) {
-        Task task = findTask(taskDto.id());
+        Task task = taskRepository.findTaskByID(taskDto.id());
+
+        if (task == null) {
+            throw new TaskNotFound("Task was not found");
+        }
 
         task.setTitle(TaskTitle.of(taskDto.title()));
         task.setPriority(taskDto.priority());
         task.setCompleted(taskDto.completed());
         task.setDueDate(TaskDueDate.create(taskDto.dueDate()));
 
-        repository.save(task);
+        taskRepository.save(task);
 
         return toDto(task);
     }
 
-    public void deleteTaskByID(UUID id) {
-        if (!repository.deleteTaskByID(id)) {
+    public void deleteTaskByID(UUID id){
+        if (!taskRepository.deleteTaskByID(id)){
             throw new TaskNotFound("Task not found on repository");
         }
-    }
-
-    public List<TaskDto> listCompletedTask(){
-        return repository.listCompletedTasks().stream()
-                .map(this::toDto)
-                .toList();
-    }
-
-    public List<TaskDto> listPendingTask(){
-        return repository.listPendingTasks().stream()
-                .map(this::toDto)
-                .toList();
     }
 
 }

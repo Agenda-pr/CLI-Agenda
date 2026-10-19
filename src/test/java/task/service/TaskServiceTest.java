@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
-import task.repository.InRamRepository;
+import task.repository.InRamTaskRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,12 +21,12 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskServiceTest {
-    private InRamRepository repository;
+    private InRamTaskRepository repository;
     private TaskService service;
 
     @BeforeEach
     void ini() {
-        repository = new InRamRepository();
+        repository = new InRamTaskRepository();
         service = new TaskService(repository);
     }
 
@@ -220,57 +220,68 @@ public class TaskServiceTest {
     }
 
     @Nested
-    class ListCompletedTask {
-        @Test
-        void listCompletedTaskReturnsOnlyCompletedTasks() {
-            TaskDto task1 = service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
-            TaskDto task2 = service.createTask(new CreateTaskDto("Task 2", Priority.HIGH, null));
+    class FilterAndSortTasks {
+        private TaskDto lowPendingLater;
+        private TaskDto highCompletedSooner;
+        private TaskDto mediumPendingNoDate;
 
-            service.updateTask(new TaskDto(task1.id(), task1.title(), task1.priority(), true, task1.dueDate(), task1.createdAt()));
+        @BeforeEach
+        void setUp() {
+            lowPendingLater = service.createTask(
+                    new CreateTaskDto("Low Later", Priority.LOW, LocalDate.now().plusDays(10)));
 
-            List<TaskDto> completed = service.listCompletedTask();
+            TaskDto createdHigh = service.createTask(
+                    new CreateTaskDto("High Sooner", Priority.HIGH, LocalDate.now().plusDays(2)));
+            highCompletedSooner = service.updateTask(new TaskDto(
+                    createdHigh.id(),
+                    createdHigh.title(),
+                    createdHigh.priority(),
+                    true,
+                    createdHigh.dueDate(),
+                    createdHigh.createdAt()));
 
-            assertEquals(1, completed.size());
-            assertEquals(task1.id(), completed.get(0).id());
-            assertTrue(completed.get(0).completed());
+            mediumPendingNoDate = service.createTask(
+                    new CreateTaskDto("Medium No Date", Priority.MEDIUM, null));
         }
 
         @Test
-        void listCompletedTaskReturnsEmptyListWhenNoTasksCompleted() {
-            service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
-            service.createTask(new CreateTaskDto("Task 2", Priority.HIGH, null));
+        void listTasksByStatusReturnsOnlyCompletedTasks() {
+            List<TaskDto> result = service.listTasksByStatus(true);
 
-            List<TaskDto> completed = service.listCompletedTask();
-
-            assertTrue(completed.isEmpty());
-        }
-    }
-
-    @Nested
-    class ListPendingTask {
-        @Test
-        void listPendingTaskReturnsOnlyPendingTasks() {
-            TaskDto task1 = service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
-            TaskDto task2 = service.createTask(new CreateTaskDto("Task 2", Priority.HIGH, null));
-
-            service.updateTask(new TaskDto(task1.id(), task1.title(), task1.priority(), true, task1.dueDate(), task1.createdAt()));
-
-            List<TaskDto> pending = service.listPendingTask();
-
-            assertEquals(1, pending.size());
-            assertEquals(task2.id(), pending.get(0).id());
-            assertFalse(pending.get(0).completed());
+            assertEquals(List.of(highCompletedSooner), result);
         }
 
         @Test
-        void listPendingTaskReturnsEmptyListWhenAllTasksCompleted() {
-            TaskDto task1 = service.createTask(new CreateTaskDto("Task 1", Priority.LOW, null));
-            service.updateTask(new TaskDto(task1.id(), task1.title(), task1.priority(), true, task1.dueDate(), task1.createdAt()));
+        void listTasksByStatusReturnsOnlyPendingTasks() {
+            List<TaskDto> result = service.listTasksByStatus(false);
 
-            List<TaskDto> pending = service.listPendingTask();
+            assertEquals(List.of(lowPendingLater, mediumPendingNoDate), result);
+        }
 
-            assertTrue(pending.isEmpty());
+        @Test
+        void listTasksByPriorityReturnsMatchingPriorityOnly() {
+            List<TaskDto> result = service.listTasksByPriority(Priority.HIGH);
+
+            assertEquals(List.of(highCompletedSooner), result);
+        }
+
+        @Test
+        void listTasksByPriorityThrowsExceptionWhenPriorityIsNull() {
+            assertThrows(InvalidTaskException.class, () -> service.listTasksByPriority(null));
+        }
+
+        @Test
+        void listTasksOrderedByPrioritySortsFromHighToLow() {
+            List<TaskDto> result = service.listTasksOrderedByPriority();
+
+            assertEquals(List.of(highCompletedSooner, mediumPendingNoDate, lowPendingLater), result);
+        }
+
+        @Test
+        void listTasksByDueDateSortsClosestFirstAndNullsLast() {
+            List<TaskDto> result = service.listTasksByDueDate();
+
+            assertEquals(List.of(highCompletedSooner, lowPendingLater, mediumPendingNoDate), result);
         }
     }
 }
-
