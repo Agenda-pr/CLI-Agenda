@@ -272,5 +272,37 @@ public class TaskServiceTest {
             assertTrue(pending.isEmpty());
         }
     }
+
+    @Nested
+    class MarkTaskAsCompleted {
+        @Test
+        void markTaskAsCompletedModifiesStateToCompletedAndReturnsTrue() {
+            TaskDto created = service.createTask(new CreateTaskDto("Valid Task", Priority.LOW, null));
+            assertFalse(created.completed());
+
+            boolean result = service.markTaskAsCompleted(created.id());
+
+            assertTrue(result);
+            TaskDto found = service.findTaskById(created.id());
+            assertTrue(found.completed());
+        }
+
+        @Test
+        void markTaskAsCompletedReturnsFalseWhenTaskAlreadyCompleted() {
+            TaskDto created = service.createTask(new CreateTaskDto("Already Completed", Priority.MEDIUM, null));
+            service.markTaskAsCompleted(created.id());
+
+            boolean result = service.markTaskAsCompleted(created.id());
+
+            assertFalse(result);
+            assertTrue(service.findTaskById(created.id()).completed());
+        }
+
+        @Test
+        void markTaskAsCompletedThrowsExceptionUnknownId() {
+            assertThrows(TaskNotFound.class, () -> service.markTaskAsCompleted(UUID.randomUUID()));
+        }
+    }
 }
+
 

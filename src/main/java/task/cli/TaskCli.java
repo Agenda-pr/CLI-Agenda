@@ -31,7 +31,8 @@ public class TaskCli {
             System.out.println("3. List completed tasks");
             System.out.println("4. List pending tasks");
             System.out.println("5. Edit task");
-            System.out.println("6. Delete task");
+            System.out.println("6. Mark a task as completed");
+            System.out.println("7. Delete task");
             System.out.println("0. Go back");
 
             int option = ConsoleReader.readInt("Choose an option: ");
@@ -41,7 +42,8 @@ public class TaskCli {
                 case 3 -> listCompletedTasks();
                 case 4 -> listPendingTasks();
                 case 5 -> editTask();
-                case 6 -> deleteTask();
+                case 6 -> markTaskAsCompleted();
+                case 7 -> deleteTask();
                 case 0 -> exitTask = true;
                 default -> System.out.println("Invalid option.");
             }
@@ -191,6 +193,24 @@ public class TaskCli {
                 completed,
                 dueDate,
                 taskToEdit.createdAt());
+    }
+
+    private void markTaskAsCompleted(){
+        System.out.println("\n--- SELECT A TASK TO MARK AS COMPLETED ---");
+        List<TaskDto> tasks = service.listTasksByCreation();
+        if (!printList(tasks, "There is no task to mark as completed.")) {
+            return;
+        }
+        TaskDto taskToEdit = selectTask();
+        if (taskToEdit == null) {
+            return;
+        }
+        String message = service.markTaskAsCompleted(taskToEdit.id())? "Task marked as completed":
+                "Task is already marked as completed.";
+
+        System.out.println(message);
+
+
     }
 
     private boolean readCompletedForEdit(boolean current) {
