@@ -28,16 +28,20 @@ public class TaskCli {
             System.out.println("\n****TASKS****");
             System.out.println("1. Create task");
             System.out.println("2. List tasks");
-            System.out.println("3. Edit task");
-            System.out.println("4. Delete task");
+            System.out.println("3. List completed tasks");
+            // List pending task
+            System.out.println("4. Edit task");
+            System.out.println("5. Delete task");
             System.out.println("0. Go back");
 
             int option = ConsoleReader.readInt("Choose an option: ");
             switch (option) {
                 case 1 -> createNewTask();
                 case 2 -> listTasks();
-                case 3 -> editTask();
-                case 4 -> deleteTask();
+                case 3 -> listTasks();
+                // List pending task
+                case 4 -> editTask();
+                case 5 -> deleteTask();
                 case 0 -> exitTask = true;
                 default -> System.out.println("Invalid option.");
             }
@@ -119,6 +123,24 @@ public class TaskCli {
         tasks.forEach(taskDto -> System.out.println(formatedTask(taskDto)));
         return true;
     }
+
+    private List<TaskDto> listCompletedTask(){
+        List<TaskDto> completedTaskList = service.listCompletedTask();
+
+        if(completedTaskList.isEmpty()){
+            System.out.println("There is not completed task");
+        }
+        return completedTaskList;
+    }
+
+    private void printList(List<TaskDto> tasks, String emptyMessage) {
+        if (tasks.isEmpty()) {
+            System.out.println(emptyMessage);
+            return;
+        }
+        tasks.forEach(taskDto -> System.out.println(formatedTask(taskDto)));
+    }
+
 
     private String formatedTask(TaskDto taskDto) {
         String due = (taskDto.dueDate() == null)

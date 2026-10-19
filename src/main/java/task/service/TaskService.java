@@ -80,4 +80,10 @@ public class TaskService {
         }
     }
 
+    public List<TaskDto> listCompletedTask(){
+        return repository.listCompletedTask().stream()
+                .map(this::toDto)
+                .toList();
+    }
+
 }

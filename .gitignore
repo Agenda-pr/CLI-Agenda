@@ -41,6 +41,7 @@ docs/decisiones_diseno.md
 docs/edit_task_user_story.md
 /docs/instrucciones_docker.md
 docs/deleteFiles.md
+docs/listaTareasCompletadas.md
 ### Local Credentials###
 .env
 
