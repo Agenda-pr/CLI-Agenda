@@ -11,5 +11,5 @@ public interface NoteRepository {
     List<Note> showAllNotes();
     Note findNoteById(UUID id);
     boolean deleteNoteById(UUID id);
-    List<Note> findNotesByTaskId(NoteTaskID id);
+    List<Note> findNotesByTaskId(UUID id);
 }

@@ -97,7 +97,7 @@ public class InRamNoteRepositoryTest {
         repository.saveNote(note2);
         repository.saveNote(note3);
 
-        List<Note> notesForTask1 = repository.findNotesByTaskId(taskId1);
+        List<Note> notesForTask1 = repository.findNotesByTaskId(taskId1.id());
 
         assertEquals(2, notesForTask1.size());
         assertTrue(notesForTask1.stream().anyMatch(n -> n.getId().equals(note1.getId())));
@@ -106,7 +106,7 @@ public class InRamNoteRepositoryTest {
 
     @Test
     void findNotesByTaskIdReturnsEmptyListForUnknownTask() {
-        NoteTaskID unknownTaskId = NoteTaskID.of(UUID.randomUUID());
+        UUID unknownTaskId = UUID.randomUUID();
 
         List<Note> notes = repository.findNotesByTaskId(unknownTaskId);
 

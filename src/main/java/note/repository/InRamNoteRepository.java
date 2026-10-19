@@ -43,9 +43,9 @@ public class InRamNoteRepository implements NoteRepository{
     }
 
     @Override
-    public List<Note> findNotesByTaskId(NoteTaskID id) {
+    public List<Note> findNotesByTaskId(UUID taskId) {
         return noteList.stream()
-                .filter(n -> n.getTaskID().equals(id))
+                .filter(n -> n.getTaskID().id().equals(taskId))
                 .map(this::restoreFrom)
                 .toList();
     }
