@@ -193,6 +193,24 @@ public class TaskCli {
                 taskToEdit.createdAt());
     }
 
+    private void markTaskAsCompleted(){
+        System.out.println("\n--- SELECT A TASK TO MARK AS COMPLETED ---");
+        List<TaskDto> tasks = service.listTasksByCreation();
+        if (!printList(tasks, "There is no task to mark as completed.")) {
+            return;
+        }
+        TaskDto taskToEdit = selectTask();
+        if (taskToEdit == null) {
+            return;
+        }
+        String message = service.markTaskAsCompleted(taskToEdit.id())? "Task marked as completed":
+                "Task is already marked as completed.";
+
+        System.out.println(message);
+
+
+    }
+
     private boolean readCompletedForEdit(boolean current) {
         String currentText = current ? "completed" : "not completed";
         while (true) {

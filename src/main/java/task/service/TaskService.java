@@ -48,21 +48,12 @@ public class TaskService {
     }
 
     public TaskDto findTaskById(UUID id) {
-        Task task = repository.findTaskByID(id);
-
-        if (task == null) {
-            throw new TaskNotFound("Task was not found ");
-        }
-
+        Task task = findTask(id);
         return this.toDto(task);
     }
 
     public TaskDto updateTask(TaskDto taskDto) {
-        Task task = repository.findTaskByID(taskDto.id());
-
-        if (task == null) {
-            throw new TaskNotFound("Task was not found");
-        }
+        Task task = findTask(taskDto.id());
 
         task.setTitle(TaskTitle.of(taskDto.title()));
         task.setPriority(taskDto.priority());
@@ -74,8 +65,8 @@ public class TaskService {
         return toDto(task);
     }
 
-    public void deleteTaskByID(UUID id){
-        if (!repository.deleteTaskByID(id)){
+    public void deleteTaskByID(UUID id) {
+        if (!repository.deleteTaskByID(id)) {
             throw new TaskNotFound("Task not found on repository");
         }
     }
