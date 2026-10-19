@@ -58,9 +58,17 @@ public class InRamRepository implements Repository {
         );
     }
     @Override
-    public List<Task> listCompletedTask(){
+    public List<Task> listCompletedTasks(){
         return taskList.stream()
                 .filter(Task::isCompleted)
+                .map(this::restoreFrom)
+                .toList();
+    }
+
+    @Override
+    public List<Task> listPendingTasks() {
+        return taskList.stream()
+                .filter(t -> !t.isCompleted())
                 .map(this::restoreFrom)
                 .toList();
     }

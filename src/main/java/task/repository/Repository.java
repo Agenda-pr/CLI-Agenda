@@ -11,5 +11,6 @@ public interface Repository {
     List<Task> filteredTaskList (String query); // No se si va
     Task findTaskByID(UUID id); //
     boolean deleteTaskByID(UUID id);
-    List<Task> listCompletedTask();
+    List<Task> listCompletedTasks();
+    List<Task> listPendingTasks();
 }

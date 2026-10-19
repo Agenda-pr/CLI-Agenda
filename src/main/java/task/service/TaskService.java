@@ -81,7 +81,13 @@ public class TaskService {
     }
 
     public List<TaskDto> listCompletedTask(){
-        return repository.listCompletedTask().stream()
+        return repository.listCompletedTasks().stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listPendingTask(){
+        return repository.listPendingTasks().stream()
                 .map(this::toDto)
                 .toList();
     }
