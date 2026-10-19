@@ -48,16 +48,12 @@ public class NoteCli {
 
     private void createNewNote() {
         System.out.println("\n--- SELECT A TASK TO ADD A NOTE ---");
-        if (!listTasks()) {
-            return;
-        }
-
-        TaskDto task = selectTask();
+        TaskDto task = listAndSelectTask();
         if (task == null) {
             return;
         }
 
-        String content = readContent();
+        String content = readContent(null);
 
         try {
             CreateNoteDto createDto = new CreateNoteDto(task.id(), content);
@@ -71,11 +67,7 @@ public class NoteCli {
 
     private void listNotesOfTask() {
         System.out.println("\n--- SELECT A TASK TO LIST ITS NOTES ---");
-        if (!listTasks()) {
-            return;
-        }
-
-        TaskDto task = selectTask();
+        TaskDto task = listAndSelectTask();
         if (task == null) {
             return;
         }
@@ -86,21 +78,12 @@ public class NoteCli {
 
     private void editNote() {
         System.out.println("\n--- SELECT A TASK TO EDIT ITS NOTES ---");
-        if (!listTasks()) {
-            return;
-        }
-
-        TaskDto task = selectTask();
+        TaskDto task = listAndSelectTask();
         if (task == null) {
             return;
         }
 
-        System.out.println("\nNotes for task [" + task.title() + "]:");
-        if (!listNotes(task.id())) {
-            return;
-        }
-
-        NoteDto noteToEdit = selectNote();
+        NoteDto noteToEdit = listAndSelectNote(task);
         if (noteToEdit == null) {
             return;
         }
@@ -108,7 +91,7 @@ public class NoteCli {
         System.out.println("\nCurrent note:");
         System.out.println(formattedNote(noteToEdit));
 
-        String newContent = readContentForEdit(noteToEdit.content());
+        String newContent = readContent(noteToEdit.content());
 
         try {
             NoteDto updateDto = new NoteDto(
@@ -128,21 +111,12 @@ public class NoteCli {
 
     private void deleteNote() {
         System.out.println("\n--- SELECT A TASK TO DELETE A NOTE ---");
-        if (!listTasks()) {
-            return;
-        }
-
-        TaskDto task = selectTask();
+        TaskDto task = listAndSelectTask();
         if (task == null) {
             return;
         }
 
-        System.out.println("\nNotes for task [" + task.title() + "]:");
-        if (!listNotes(task.id())) {
-            return;
-        }
-
-        NoteDto noteToDelete = selectNote();
+        NoteDto noteToDelete = listAndSelectNote(task);
         if (noteToDelete == null) {
             return;
         }
@@ -150,7 +124,7 @@ public class NoteCli {
         System.out.println("\nSelected note:");
         System.out.println(formattedNote(noteToDelete));
 
-        if (!confirmDelete()) {
+        if (!confirmAction("Are you sure you want to delete this note?")) {
             System.out.println("Deletion cancelled.");
             return;
         }
@@ -161,6 +135,21 @@ public class NoteCli {
         } catch (NoteNotFound error) {
             System.out.println("Error: " + error.getMessage());
         }
+    }
+
+    private TaskDto listAndSelectTask() {
+        if (!listTasks()) {
+            return null;
+        }
+        return selectTask();
+    }
+
+    private NoteDto listAndSelectNote(TaskDto task) {
+        System.out.println("\nNotes for task [" + task.title() + "]:");
+        if (!listNotes(task.id())) {
+            return null;
+        }
+        return selectNote();
     }
 
     private boolean listTasks() {
@@ -183,22 +172,14 @@ public class NoteCli {
         return true;
     }
 
-    private String readContent() {
-        while (true) {
-            String content = ConsoleReader.readString("Content: ");
-            try {
-                NoteContent.of(content);
-                return content;
-            } catch (NoteContentEmpty error) {
-                System.out.println("Content cannot be empty. Try again.");
-            }
-        }
-    }
+    private String readContent(String current) {
+        String prompt = (current == null)
+                ? "Content: "
+                : "Content [current: " + current + "] (press ENTER to keep): ";
 
-    private String readContentForEdit(String current) {
         while (true) {
-            String input = ConsoleReader.readString("Content [current: " + current + "] (press ENTER to keep): ");
-            if (input.isBlank()) {
+            String input = ConsoleReader.readString(prompt);
+            if (current != null && input.isBlank()) {
                 return current;
             }
             try {
@@ -244,10 +225,10 @@ public class NoteCli {
         return null;
     }
 
-    private boolean confirmDelete() {
+    private boolean confirmAction(String message) {
         while (true) {
             String input = ConsoleReader
-                    .readString("Are you sure you want to delete this note? (S/N): ")
+                    .readString(message + " (S/N): ")
                     .toLowerCase();
             switch (input) {
                 case "s", "y" -> {
@@ -263,7 +244,6 @@ public class NoteCli {
 
     private String formattedTask(TaskDto taskDto) {
         String due = (taskDto.dueDate() == null) ? "without date" : DateUtils.formatDate(taskDto.dueDate());
-
         String completed = taskDto.completed() ? "completed" : "not completed";
 
         return "ID " + taskDto.id() + " | "
