@@ -1,5 +1,4 @@
 package task.model;
-
 import common.exception.InvalidTaskException;
 
 public record TaskTitle(String title) {
