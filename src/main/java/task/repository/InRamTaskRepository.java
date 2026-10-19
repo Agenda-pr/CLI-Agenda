@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class InRamRepository implements Repository {
+public class InRamTaskRepository implements TaskRepository {
     private final List<Task> taskList = new ArrayList<>();
 
     @Override

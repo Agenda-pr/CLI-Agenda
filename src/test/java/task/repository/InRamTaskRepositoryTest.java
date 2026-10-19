@@ -11,14 +11,14 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class InRamRepositoryTest {
-    private InRamRepository repository;
+public class InRamTaskRepositoryTest {
+    private InRamTaskRepository repository;
     private Task task1;
     private Task task2;
 
     @BeforeEach
     public void ini() {
-        repository = new InRamRepository();
+        repository = new InRamTaskRepository();
         task1 = Task.create(TaskTitle.of("Task 1"), Priority.MEDIUM);
         task2 = Task.create(TaskTitle.of("Task 2"), Priority.LOW);
     }

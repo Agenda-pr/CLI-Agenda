@@ -6,17 +6,17 @@ import task.dto.TaskDto;
 import task.model.Task;
 import task.model.TaskDueDate;
 import task.model.TaskTitle;
-import task.repository.Repository;
+import task.repository.TaskRepository;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
 public class TaskService {
-    private final Repository repository;
+    private final TaskRepository taskRepository;
 
-    public TaskService(Repository repository) {
-        this.repository = repository;
+    public TaskService(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
     }
 
     public TaskDto createTask(CreateTaskDto createTaskDto) {
@@ -25,13 +25,13 @@ public class TaskService {
                 TaskTitle.of(createTaskDto.title()),
                 createTaskDto.priority(),
                 TaskDueDate.create(createTaskDto.dueDate()));
-        repository.save(task);
+        taskRepository.save(task);
 
         return toDto(task);
     }
 
     public List<TaskDto> listTasksByCreation() {
-        return repository.showAllTasks().stream()
+        return taskRepository.showAllTasks().stream()
                 .sorted(Comparator.comparing(Task::getCreatedAt))
                 .map(this::toDto)
                 .toList();
@@ -48,7 +48,7 @@ public class TaskService {
     }
 
     public TaskDto findTaskById(UUID id) {
-        Task task = repository.findTaskByID(id);
+        Task task = taskRepository.findTaskByID(id);
 
         if (task == null) {
             throw new TaskNotFound("Task was not found ");
@@ -58,7 +58,7 @@ public class TaskService {
     }
 
     public TaskDto updateTask(TaskDto taskDto) {
-        Task task = repository.findTaskByID(taskDto.id());
+        Task task = taskRepository.findTaskByID(taskDto.id());
 
         if (task == null) {
             throw new TaskNotFound("Task was not found");
@@ -69,13 +69,13 @@ public class TaskService {
         task.setCompleted(taskDto.completed());
         task.setDueDate(TaskDueDate.create(taskDto.dueDate()));
 
-        repository.save(task);
+        taskRepository.save(task);
 
         return toDto(task);
     }
 
     public void deleteTaskByID(UUID id){
-        if (!repository.deleteTaskByID(id)){
+        if (!taskRepository.deleteTaskByID(id)){
             throw new TaskNotFound("Task not found on repository");
         }
     }

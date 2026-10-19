@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
-import task.repository.InRamRepository;
+import task.repository.InRamTaskRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,12 +21,12 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TaskServiceTest {
-    private InRamRepository repository;
+    private InRamTaskRepository repository;
     private TaskService service;
 
     @BeforeEach
     void ini() {
-        repository = new InRamRepository();
+        repository = new InRamTaskRepository();
         service = new TaskService(repository);
     }
 

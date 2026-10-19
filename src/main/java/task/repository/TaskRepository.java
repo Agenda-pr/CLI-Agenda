@@ -5,7 +5,7 @@ import task.model.Task;
 import java.util.List;
 import java.util.UUID;
 
-public interface Repository {
+public interface TaskRepository {
     void save(Task task);
     List<Task> showAllTasks();
     List<Task> filteredTaskList (String query); // No se si va
