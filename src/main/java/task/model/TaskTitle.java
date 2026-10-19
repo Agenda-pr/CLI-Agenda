@@ -7,7 +7,7 @@ public record TaskTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new InvalidTaskException("Task title cannot be empty or blank");
         }
-        title = title.trim();
+        return new TaskTitle(title.trim());
     }
 
     public static TaskTitle of(String title) {
