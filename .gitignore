@@ -36,11 +36,7 @@ build/
 .DS_Store
 
 ### Docs / Local Notes ###
-docs/task_dto_user_story.md
-docs/decisiones_diseno.md
-docs/edit_task_user_story.md
-/docs/instrucciones_docker.md
-docs/deleteFiles.md
+docs/
 ### Local Credentials###
 .env
 
