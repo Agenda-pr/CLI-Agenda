@@ -48,21 +48,12 @@ public class TaskService {
     }
 
     public TaskDto findTaskById(UUID id) {
-        Task task = repository.findTaskByID(id);
-
-        if (task == null) {
-            throw new TaskNotFound("Task was not found ");
-        }
-
+        Task task = findTask(id);
         return this.toDto(task);
     }
 
     public TaskDto updateTask(TaskDto taskDto) {
-        Task task = repository.findTaskByID(taskDto.id());
-
-        if (task == null) {
-            throw new TaskNotFound("Task was not found");
-        }
+        Task task = findTask(taskDto.id());
 
         task.setTitle(TaskTitle.of(taskDto.title()));
         task.setPriority(taskDto.priority());
@@ -74,22 +65,42 @@ public class TaskService {
         return toDto(task);
     }
 
-    public void deleteTaskByID(UUID id){
-        if (!repository.deleteTaskByID(id)){
+    public void deleteTaskByID(UUID id) {
+        if (!repository.deleteTaskByID(id)) {
             throw new TaskNotFound("Task not found on repository");
         }
     }
 
-    public List<TaskDto> listCompletedTask(){
+    public List<TaskDto> listCompletedTask() {
         return repository.listCompletedTasks().stream()
                 .map(this::toDto)
                 .toList();
     }
 
-    public List<TaskDto> listPendingTask(){
+    public List<TaskDto> listPendingTask() {
         return repository.listPendingTasks().stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public boolean markTaskAsCompleted(UUID id) {
+        Task task = findTask(id);
+
+        if (task.isCompleted()) {
+            return false;
+        }
+
+        task.setCompleted(true);
+        repository.save(task);
+        return true;
+    }
+
+    private Task findTask(UUID id){
+        Task task = repository.findTaskByID(id);
+        if (task == null) {
+            throw new TaskNotFound("Task was not found");
+        }
+        return task;
     }
 
 }
