@@ -27,8 +27,8 @@ public class TaskDAOAdapter implements TaskDAO {
 
     @Override
     public void insert(Task task) {
-        try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(INSERT)) {
+        Connection connection = ConnectionFactory.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(INSERT)) {
             statement.setString(1, task.getId().toString());
             statement.setString(2, task.getTitle().title());
             statement.setString(3, task.getPriority().name());
@@ -43,8 +43,8 @@ public class TaskDAOAdapter implements TaskDAO {
 
     @Override
     public boolean update(Task task) {
-        try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE)) {
+        Connection connection = ConnectionFactory.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(UPDATE)) {
             statement.setString(1, task.getTitle().title());
             statement.setString(2, task.getPriority().name());
             statement.setBoolean(3, task.isCompleted());
@@ -58,8 +58,8 @@ public class TaskDAOAdapter implements TaskDAO {
 
     @Override
     public Optional<Task> findById(UUID id) {
-        try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID)) {
+        Connection connection = ConnectionFactory.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID)) {
             statement.setString(1, id.toString());
             try (ResultSet result = statement.executeQuery()) {
                 if (result.next()) {
@@ -75,8 +75,8 @@ public class TaskDAOAdapter implements TaskDAO {
     @Override
     public List<Task> findAll() {
         List<Task> tasks = new ArrayList<>();
-        try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(SELECT_ALL);
+        Connection connection = ConnectionFactory.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_ALL);
              ResultSet result = statement.executeQuery()) {
             while (result.next()) {
                 tasks.add(mapRow(result));
@@ -89,8 +89,8 @@ public class TaskDAOAdapter implements TaskDAO {
 
     @Override
     public boolean deleteById(UUID id) {
-        try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement statement = connection.prepareStatement(DELETE)) {
+        Connection connection = ConnectionFactory.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(DELETE)) {
             statement.setString(1, id.toString());
             return statement.executeUpdate() > 0;
         } catch (SQLException error) {
