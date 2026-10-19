@@ -22,7 +22,7 @@ public class TaskService {
     public TaskDto createTask(CreateTaskDto createTaskDto) {
 
         Task task = Task.create(
-                TaskTitle.of(createTaskDto.title()),
+                new TaskTitle(createTaskDto.title()),
                 createTaskDto.priority(),
                 TaskDueDate.create(createTaskDto.dueDate()));
         repository.save(task);
@@ -64,7 +64,7 @@ public class TaskService {
             throw new TaskNotFound("Task was not found");
         }
 
-        task.setTitle(TaskTitle.of(taskDto.title()));
+        task.setTitle(new TaskTitle(taskDto.title()));
         task.setPriority(taskDto.priority());
         task.setCompleted(taskDto.completed());
         task.setDueDate(TaskDueDate.create(taskDto.dueDate()));

@@ -65,7 +65,7 @@ public class TaskCli {
         while (true) {
             String title = ConsoleReader.readString("Title: ");
             try {
-                return TaskTitle.of(title);
+                return new TaskTitle(title);
             } catch (InvalidTaskException error) {
                 System.out.println("Title cannot be empty. Try again.");
             }

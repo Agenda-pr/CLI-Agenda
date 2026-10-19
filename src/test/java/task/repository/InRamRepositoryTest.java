@@ -19,8 +19,8 @@ public class InRamRepositoryTest {
     @BeforeEach
     public void ini() {
         repository = new InRamRepository();
-        task1 = Task.create(TaskTitle.of("Task 1"), Priority.MEDIUM);
-        task2 = Task.create(TaskTitle.of("Task 2"), Priority.LOW);
+        task1 = Task.create(new TaskTitle("Task 1"), Priority.MEDIUM);
+        task2 = Task.create(new TaskTitle("Task 2"), Priority.LOW);
     }
 
     @Test
@@ -43,12 +43,12 @@ public class InRamRepositoryTest {
     @Test
     void saveUpdatesExistingTaskWithoutDuplicating() {
         repository.save(task1);
-        task1.setTitle(TaskTitle.of("Task 1 Updated"));
+        task1.setTitle(new TaskTitle("Task 1 Updated"));
 
         repository.save(task1);
 
         assertEquals(1, repository.showAllTasks().size());
-        assertEquals(TaskTitle.of("Task 1 Updated"), repository.findTaskByID(task1.getId()).getTitle());
+        assertEquals(new TaskTitle("Task 1 Updated"), repository.findTaskByID(task1.getId()).getTitle());
     }
 
     @Test
