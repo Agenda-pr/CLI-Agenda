@@ -1,6 +1,5 @@
 package note.model;
 import common.exception.NoteContentEmpty;
-import common.exception.TaskIDNull;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -11,8 +10,6 @@ public class Note {
     private final LocalDateTime createdAt;
 
     private Note(UUID id, NoteTaskID taskID, NoteContent content, LocalDateTime createdAt) {
-        if (taskID == null) throw new TaskIDNull();
-        if (content == null) throw new NoteContentEmpty();
         this.id = id;
         this.taskID = taskID;
         this.content = content;

@@ -1,7 +1,6 @@
 package note.model;
 
 import common.exception.NoteContentEmpty;
-import common.exception.TaskIDNull;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -30,20 +29,6 @@ public class NoteTest {
         Note note2 = Note.create(taskId, NoteContent.of("Nota 2"));
 
         assertNotEquals(note1.getId(), note2.getId());
-    }
-
-    @Test
-    void createWithNullTaskIdThrowsTaskIDNull() {
-        NoteContent content = NoteContent.of("Nota válida");
-
-        assertThrows(TaskIDNull.class, () -> Note.create(null, content));
-    }
-
-    @Test
-    void createWithNullContentThrowsNoteContentEmpty() {
-        NoteTaskID taskId = NoteTaskID.of(UUID.randomUUID());
-
-        assertThrows(NoteContentEmpty.class, () -> Note.create(taskId, null));
     }
 
     @Test
