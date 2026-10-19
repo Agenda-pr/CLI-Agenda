@@ -1,8 +1,10 @@
 package task.service;
 
+import common.exception.InvalidTaskException;
 import common.exception.TaskNotFound;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
+import task.model.Priority;
 import task.model.Task;
 import task.model.TaskDueDate;
 import task.model.TaskTitle;
@@ -34,6 +36,39 @@ public class TaskService {
         return taskRepository.showAllTasks().stream()
                 .sorted(Comparator.comparing(Task::getCreatedAt))
                 .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listTasksByStatus(boolean completed) {
+        return taskRepository.showAllTasks().stream()
+                .filter(task -> task.isCompleted() == completed)
+                .sorted(Comparator.comparing(Task::getCreatedAt))
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listTasksByPriority(Priority priority) {
+        if (priority == null) {
+            throw new InvalidTaskException("Priority cannot be null");
+        }
+        return taskRepository.showAllTasks().stream()
+                .filter(task -> task.getPriority() == priority)
+                .sorted(Comparator.comparing(Task::getCreatedAt))
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listTasksOrderedByPriority() {
+        return taskRepository.showAllTasks().stream()
+                .sorted(Comparator.comparing(Task::getPriority).reversed().thenComparing(Task::getCreatedAt))
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<TaskDto> listTasksByDueDate() {
+        return taskRepository.showAllTasks().stream()
+                .map(this::toDto)
+                .sorted(Comparator.comparing(TaskDto::dueDate, Comparator.nullsLast(Comparator.naturalOrder())))
                 .toList();
     }
 

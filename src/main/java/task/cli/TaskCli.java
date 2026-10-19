@@ -38,7 +38,7 @@ public class TaskCli {
             int option = ConsoleReader.readInt("Choose an option: ");
             switch (option) {
                 case 1 -> createNewTask();
-                case 2 -> listTasks();
+                case 2 -> listTasksMenu();
                 case 3 -> editTask();
                 case 4 -> deleteTask();
                 case 0 -> exitTask = true;
@@ -111,10 +111,45 @@ public class TaskCli {
         }
     }
 
+    private void listTasksMenu() {
+        System.out.println("\n--- LIST & FILTER TASKS ---");
+        System.out.println("1. All tasks (by creation date)");
+        System.out.println("2. All tasks (by due date proximity)");
+        System.out.println("3. All tasks (by priority HIGH -> LOW)");
+        System.out.println("4. Filter by status: Pending");
+        System.out.println("5. Filter by status: Completed");
+        System.out.println("6. Filter by specific priority");
+        System.out.println("0. Cancel");
+
+        int option = ConsoleReader.readInt("Choose an option: ");
+        switch (option) {
+            case 1 -> listTasks();
+            case 2 -> printTaskList(service.listTasksByDueDate(), "There isn't any task recorded.");
+            case 3 -> printTaskList(service.listTasksOrderedByPriority(), "There isn't any task recorded.");
+            case 4 -> printTaskList(service.listTasksByStatus(false), "No pending tasks found.");
+            case 5 -> printTaskList(service.listTasksByStatus(true), "No completed tasks found.");
+            case 6 -> filterBySelectedPriority();
+            case 0 -> {}
+            default -> System.out.println("Invalid option.");
+        }
+    }
+
+    private void filterBySelectedPriority() {
+        Priority priority = readPriority(null);
+        if (priority == null) {
+            System.out.println("Operation cancelled.");
+            return;
+        }
+        printTaskList(service.listTasksByPriority(priority), "No tasks found with priority " + priority + ".");
+    }
+
     private boolean listTasks() {
-        List<TaskDto> tasks = service.listTasksByCreation();
+        return printTaskList(service.listTasksByCreation(), "There isn't any task recorded. ");
+    }
+
+    private boolean printTaskList(List<TaskDto> tasks, String emptyMessage) {
         if (tasks.isEmpty()) {
-            System.out.println("There isn't any task recorded. ");
+            System.out.println(emptyMessage);
             return false;
         }
         tasks.forEach(taskDto -> System.out.println(formatedTask(taskDto)));

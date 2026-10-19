@@ -8,7 +8,6 @@ import java.util.UUID;
 public interface TaskRepository {
     void save(Task task);
     List<Task> showAllTasks();
-    List<Task> filteredTaskList (String query); // No se si va
-    Task findTaskByID(UUID id); //
+    Task findTaskByID(UUID id);
     boolean deleteTaskByID(UUID id);
 }

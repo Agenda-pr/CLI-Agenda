@@ -27,12 +27,6 @@ public class InRamTaskRepository implements TaskRepository {
                 .toList();
     }
 
-    // DUDANDO
-    @Override
-    public List<Task> filteredTaskList(String query) {
-        return List.of();
-    }
-
     @Override
     public Task findTaskByID(UUID ID) {
         return this.taskList.stream()
