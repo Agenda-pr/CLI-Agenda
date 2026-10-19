@@ -71,36 +71,16 @@ public class TaskService {
         }
     }
 
-    public List<TaskDto> listCompletedTask() {
+    public List<TaskDto> listCompletedTask(){
         return repository.listCompletedTasks().stream()
                 .map(this::toDto)
                 .toList();
     }
 
-    public List<TaskDto> listPendingTask() {
+    public List<TaskDto> listPendingTask(){
         return repository.listPendingTasks().stream()
                 .map(this::toDto)
                 .toList();
-    }
-
-    public boolean markTaskAsCompleted(UUID id) {
-        Task task = findTask(id);
-
-        if (task.isCompleted()) {
-            return false;
-        }
-
-        task.setCompleted(true);
-        repository.save(task);
-        return true;
-    }
-
-    private Task findTask(UUID id){
-        Task task = repository.findTaskByID(id);
-        if (task == null) {
-            throw new TaskNotFound("Task was not found");
-        }
-        return task;
     }
 
 }

@@ -42,7 +42,6 @@ docs/edit_task_user_story.md
 /docs/instrucciones_docker.md
 docs/deleteFiles.md
 docs/listaTareasCompletadas.md
-docs/marcarTareaComoCompletada.md
 ### Local Credentials###
 .env
 

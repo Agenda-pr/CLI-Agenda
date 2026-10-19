@@ -31,8 +31,7 @@ public class TaskCli {
             System.out.println("3. List completed tasks");
             System.out.println("4. List pending tasks");
             System.out.println("5. Edit task");
-            System.out.println("6. Mark a task as completed");
-            System.out.println("7. Delete task");
+            System.out.println("6. Delete task");
             System.out.println("0. Go back");
 
             int option = ConsoleReader.readInt("Choose an option: ");
@@ -42,8 +41,7 @@ public class TaskCli {
                 case 3 -> listCompletedTasks();
                 case 4 -> listPendingTasks();
                 case 5 -> editTask();
-                case 6 -> markTaskAsCompleted();
-                case 7 -> deleteTask();
+                case 6 -> deleteTask();
                 case 0 -> exitTask = true;
                 default -> System.out.println("Invalid option.");
             }
