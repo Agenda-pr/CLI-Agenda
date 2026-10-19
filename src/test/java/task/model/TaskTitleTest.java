@@ -12,14 +12,14 @@ public class TaskTitleTest {
 
     @Test
     void createsValidTaskTitle() {
-        TaskTitle taskTitle = new TaskTitle("Comprar Gofio");
+        TaskTitle taskTitle = TaskTitle.of("Comprar Gofio");
 
         assertEquals("Comprar Gofio", taskTitle.title());
     }
 
     @Test
     void trimsLeadingAndTrailingSpaces() {
-        TaskTitle taskTitle = new TaskTitle("   Comprar Gofio   ");
+        TaskTitle taskTitle = TaskTitle.of("   Comprar Gofio   ");
 
         assertEquals("Comprar Gofio", taskTitle.title());
     }
@@ -28,13 +28,13 @@ public class TaskTitleTest {
     @NullAndEmptySource
     @ValueSource(strings = {"   ", "\t", "\n"})
     void throwsExceptionWhenTitleIsInvalid(String invalidTitle) {
-        assertThrows(InvalidTaskException.class, () -> new TaskTitle(invalidTitle));
+        assertThrows(InvalidTaskException.class, () -> TaskTitle.of(invalidTitle));
     }
 
     @Test
     void twoTaskTitlesWithSameValueAreEqual() {
-        TaskTitle title1 = new TaskTitle("Ir a la playita");
-        TaskTitle title2 = new TaskTitle("Ir a la playita");
+        TaskTitle title1 = TaskTitle.of("Ir a la playita");
+        TaskTitle title2 = TaskTitle.of("Ir a la playita");
 
         assertEquals(title1, title2);
         assertEquals(title1.hashCode(), title2.hashCode());
