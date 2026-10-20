@@ -10,8 +10,10 @@ import task.model.TaskDueDate;
 import task.model.TaskTitle;
 import task.repository.TaskRepository;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class TaskService {
@@ -102,7 +104,11 @@ public class TaskService {
         task.setTitle(TaskTitle.of(taskDto.title()));
         task.setPriority(taskDto.priority());
         task.setCompleted(taskDto.completed());
-        task.setDueDate(TaskDueDate.create(taskDto.dueDate()));
+
+        LocalDate currentDueDate = task.getDueDate() != null ? task.getDueDate().date() : null;
+        if (!Objects.equals(currentDueDate, taskDto.dueDate())) {
+            task.setDueDate(TaskDueDate.create(taskDto.dueDate()));
+        }
 
         taskRepository.save(task);
 

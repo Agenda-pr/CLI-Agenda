@@ -11,6 +11,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
+import task.model.Task;
+import task.model.TaskDueDate;
+import task.model.TaskTitle;
 import task.repository.InRamTaskRepository;
 
 import java.time.LocalDate;
@@ -198,6 +201,34 @@ public class TaskServiceTest {
             );
 
             assertThrows(InvalidTaskException.class, () -> service.updateTask(invalidDto));
+        }
+
+        @Test
+        void updateTaskAllowsCompletingOverdueTaskKeepingSameDueDate() {
+            LocalDate pastDate = LocalDate.now().minusDays(5);
+            Task overdueTask = Task.restore(
+                    UUID.randomUUID(),
+                    TaskTitle.of("Overdue Task"),
+                    Priority.MEDIUM,
+                    false,
+                    TaskDueDate.restore(pastDate),
+                    LocalDateTime.now().minusDays(10)
+            );
+            repository.save(overdueTask);
+
+            TaskDto updateDto = new TaskDto(
+                    overdueTask.getId(),
+                    "Overdue Task",
+                    Priority.MEDIUM,
+                    true,
+                    pastDate,
+                    overdueTask.getCreatedAt()
+            );
+
+            TaskDto result = service.updateTask(updateDto);
+
+            assertTrue(result.completed());
+            assertEquals(pastDate, result.dueDate());
         }
     }
 
