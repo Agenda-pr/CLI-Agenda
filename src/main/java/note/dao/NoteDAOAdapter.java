@@ -4,12 +4,10 @@ import common.db.ConnectionFactory;
 import common.exception.DatabaseException;
 import note.model.Note;
 import note.model.NoteContent;
-import task.model.Priority;
-import task.model.Task;
-import task.model.TaskDueDate;
-import task.model.TaskTitle;
+import note.model.NoteTaskID;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,7 +29,7 @@ public class NoteDAOAdapter implements NoteDAO {
         Connection connection = ConnectionFactory.getConnection();
         try (PreparedStatement statement = connection.prepareStatement(INSERT)) {
             statement.setString(1, note.getId().toString());
-            statement.setString(2, note.getTaskID().toString());
+            statement.setString(2, note.getTaskID().id().toString());
             statement.setString(3, note.getContent().content());
             statement.setTimestamp(4, Timestamp.valueOf(note.getCreatedAt()));
             statement.executeUpdate();
@@ -70,18 +68,34 @@ public class NoteDAOAdapter implements NoteDAO {
 
     @Override
     public List<Note> findAll() {
-        return List.of();
+        List<Note> notes = new ArrayList<>();
+        Connection connection = ConnectionFactory.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(SELECT_ALL);
+             ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                notes.add(mapRow(result));
+            }
+            return notes;
+        } catch (SQLException error) {
+            throw new DatabaseException("Could not list notes", error);
+        }
     }
 
     @Override
     public boolean deleteById(UUID id) {
-        return false;
+        Connection connection = ConnectionFactory.getConnection();
+        try (PreparedStatement statement = connection.prepareStatement(DELETE)) {
+            statement.setString(1, id.toString());
+            return statement.executeUpdate() > 0;
+        } catch (SQLException error) {
+            throw new DatabaseException("Could not delete note", error);
+        }
     }
 
     private Note mapRow(ResultSet result) throws SQLException {
-        Date dueDate = result.getDate("due_date");
         return Note.restore(
                 UUID.fromString(result.getString("id")),
+                NoteTaskID.of(UUID.fromString(result.getString("task_id"))),
                 NoteContent.of(result.getString("content")),
                 result.getTimestamp("created_at").toLocalDateTime()
         );
