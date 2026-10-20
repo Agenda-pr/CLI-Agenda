@@ -118,21 +118,4 @@ public class TaskInputReader {
             }
         }
     }
-
-    public static boolean confirmAction(String message) {
-        while (true) {
-            String input = ConsoleReader
-                    .readString(message + " (S/N): ")
-                    .toLowerCase();
-            switch (input) {
-                case "s", "y" -> {
-                    return true;
-                }
-                case "n" -> {
-                    return false;
-                }
-                default -> System.out.println("Invalid option. Type S or N.");
-            }
-        }
-    }
 }
