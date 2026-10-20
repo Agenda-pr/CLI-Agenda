@@ -44,8 +44,4 @@ public class Note {
         }
         this.content = content;
     }
-
-    public void setContentFromText(String content) {
-        this.content = NoteContent.of(content);
-    }
 }

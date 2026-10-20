@@ -179,7 +179,7 @@ public class TaskCli {
         System.out.println("\nSelected task:");
         System.out.println(TaskFormatter.format(taskToDelete));
 
-        if (!TaskInputReader.confirmAction("Are you sure you want to delete this task?")) {
+        if (!ConsoleReader.confirmAction("Are you sure you want to delete this task?")) {
             System.out.println("Deletion cancelled.");
             return;
         }

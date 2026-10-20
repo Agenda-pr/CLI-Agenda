@@ -1,14 +1,12 @@
 package common.utils;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class ConsoleReader {
     private static final Scanner SCANNER = new Scanner(System.in);
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private ConsoleReader(){}
 
@@ -37,6 +35,21 @@ public class ConsoleReader {
                 return Optional.of(DateUtils.parseDate(input));
             } catch (DateTimeParseException error) {
                 System.out.println("Invalid date. Use: " +DateUtils.DATE_PATTERN);
+            }
+        }
+    }
+
+    public static boolean confirmAction(String message) {
+        while (true) {
+            String input = readString(message + " (S/N): ").toLowerCase();
+            switch (input) {
+                case "s", "y" -> {
+                    return true;
+                }
+                case "n" -> {
+                    return false;
+                }
+                default -> System.out.println("Invalid option. Type S or N.");
             }
         }
     }

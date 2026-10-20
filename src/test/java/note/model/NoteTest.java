@@ -62,20 +62,4 @@ public class NoteTest {
 
         assertThrows(NoteContentEmpty.class, () -> note.setContent(null));
     }
-
-    @Test
-    void setContentFromTextUpdatesContentSuccessfully() {
-        Note note = Note.create(NoteTaskID.of(UUID.randomUUID()), NoteContent.of("Original"));
-
-        note.setContentFromText("Nuevo texto desde String");
-
-        assertEquals("Nuevo texto desde String", note.getContent().content());
-    }
-
-    @Test
-    void setContentFromTextWithInvalidTextThrowsNoteContentEmpty() {
-        Note note = Note.create(NoteTaskID.of(UUID.randomUUID()), NoteContent.of("Original"));
-
-        assertThrows(NoteContentEmpty.class, () -> note.setContentFromText("   "));
-    }
 }
