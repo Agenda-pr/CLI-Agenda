@@ -183,6 +183,13 @@ public class TaskCli {
             System.out.println("Deletion cancelled.");
             return;
         }
+        //TODO
+        //try {
+        //    service.deleteTaskByID(taskToDelete.id());
+        //    System.out.println("Task deleted successfully.");
+        //} catch (TaskNotFound error) {
+        //    System.out.println("Error: " + error.getMessage());
+        //}
 
         noteService.deleteNotesByTaskId(taskToDelete.id());
         service.deleteTaskByID(taskToDelete.id());
