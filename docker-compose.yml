@@ -21,5 +21,21 @@ services:
       retries: 10
       start_period: 30s
 
+  app:
+    build: .
+    container_name: agenda-app
+    profiles: ["app"]
+    depends_on:
+      mysql:
+        condition: service_healthy   # No inicia 'app' hasta que MySQL esté listo y saludable
+    stdin_open: true                 # Mantiene la entrada estándar abierta (equivale a -i)
+    tty: true                        # Conecta una terminal simulada (equivale a -t)
+    environment:
+      DB_HOST: mysql                 # Nombre del servicio MySQL en la red interna de Docker
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE}     # Reutiliza el nombre de la BD de tu archivo .env
+      DB_USER: ${MYSQL_USER}         # Reutiliza el usuario de tu archivo .env
+      DB_PASSWORD: ${MYSQL_PASSWORD} # Reutiliza la contraseña de tu archivo .env
+
 volumes:
   mysql-data:
