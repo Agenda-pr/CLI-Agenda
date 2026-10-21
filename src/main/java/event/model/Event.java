@@ -32,7 +32,7 @@ public class Event {
     }
     // Cuando se celebre el evento, se chequea la periodicidad y si es distinta a none se vuelve a crear un VO de la fecha de celebración
     public void nextCelebDate() {
-        LocalDate current = celebDate.date();
+        LocalDate current = this.celebDate.date();
         switch (eventRecurrenceType) {
             case NONE -> {}
             case DAILY -> this.celebDate = EventCelebDate.of(current.plusDays(1));
