@@ -1,6 +1,7 @@
 package event.repository;
 
 import event.model.Event;
+import event.model.EventTaskId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,12 @@ public class InRamEventRepository implements EventRepository {
     @Override
     public boolean deleteEventById(UUID id) {
         return eventList.removeIf(event -> event.getId().equals(id));
+    }
+
+    @Override
+    public void removeTaskFromAllEvents(UUID taskId) {
+        EventTaskId eventTaskId = EventTaskId.of(taskId);
+        eventList.forEach(event -> event.removeTaskId(eventTaskId));
     }
 
     private Event restoreFrom(Event event) {

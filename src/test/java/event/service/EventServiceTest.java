@@ -336,6 +336,19 @@ public class EventServiceTest {
             assertTrue(updated.taskIds().isEmpty());
             assertTrue(service.findEventById(existingEvent.id()).taskIds().isEmpty());
         }
+
+        @Test
+        void removeTaskFromAllEventsRemovesTaskFromEveryEvent() {
+            EventDto secondEvent = service.createEvent(
+                    new CreateEventDto("Cena", LocalDate.now().plusDays(10), EventRecurrenceType.NONE));
+            service.addTaskToEvent(existingEvent.id(), existingTask.getId());
+            service.addTaskToEvent(secondEvent.id(), existingTask.getId());
+
+            service.removeTaskFromAllEvents(existingTask.getId());
+
+            assertTrue(service.findEventById(existingEvent.id()).taskIds().isEmpty());
+            assertTrue(service.findEventById(secondEvent.id()).taskIds().isEmpty());
+        }
     }
 
     @Nested

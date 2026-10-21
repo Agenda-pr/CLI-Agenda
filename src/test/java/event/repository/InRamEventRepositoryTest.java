@@ -3,6 +3,7 @@ package event.repository;
 import event.model.Event;
 import event.model.EventCelebDate;
 import event.model.EventRecurrenceType;
+import event.model.EventTaskId;
 import event.model.EventTitle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,5 +92,21 @@ public class InRamEventRepositoryTest {
     @Test
     void deleteEventByIdReturnsFalseUnknownId() {
         assertFalse(repository.deleteEventById(UUID.randomUUID()));
+    }
+
+    @Test
+    void removeTaskFromAllEventsRemovesTaskIdFromEveryEvent() {
+        UUID targetTaskId = UUID.randomUUID();
+        UUID otherTaskId = UUID.randomUUID();
+        event1.addTaskId(EventTaskId.of(targetTaskId));
+        event1.addTaskId(EventTaskId.of(otherTaskId));
+        event2.addTaskId(EventTaskId.of(targetTaskId));
+        repository.save(event1);
+        repository.save(event2);
+
+        repository.removeTaskFromAllEvents(targetTaskId);
+
+        assertEquals(List.of(EventTaskId.of(otherTaskId)), repository.findEventById(event1.getId()).getTaskIds());
+        assertTrue(repository.findEventById(event2.getId()).getTaskIds().isEmpty());
     }
 }

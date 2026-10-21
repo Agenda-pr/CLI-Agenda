@@ -2,6 +2,7 @@ package task.cli;
 
 import common.exception.InvalidTaskException;
 import common.utils.ConsoleReader;
+import event.service.EventService;
 import note.service.NoteService;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
@@ -14,10 +15,12 @@ import java.util.List;
 public class TaskCli {
     private final TaskService service;
     private final NoteService noteService;
+    private final EventService eventService;
 
-    public TaskCli(TaskService service, NoteService noteService) {
+    public TaskCli(TaskService service, NoteService noteService, EventService eventService) {
         this.service = service;
         this.noteService = noteService;
+        this.eventService = eventService;
     }
 
     public void showMenu() {
@@ -192,6 +195,7 @@ public class TaskCli {
         //}
 
         noteService.deleteNotesByTaskId(taskToDelete.id());
+        eventService.removeTaskFromAllEvents(taskToDelete.id());
         service.deleteTaskByID(taskToDelete.id());
         System.out.println("Task deleted successfully.");
     }
