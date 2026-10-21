@@ -9,7 +9,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-
 public class ConnectionFactory {
     private static final String CONFIG_FILE = "application.properties";
     private static final String CONFIG_TEMPLATE = CONFIG_FILE + ".example";
@@ -45,11 +44,11 @@ public class ConnectionFactory {
     }
 
     private static Connection openConnection() {
-        String host = required("db.host");
-        String port = required("db.port");
-        String name = required("db.name");
-        String user = required("db.user");
-        String password = required("db.password");
+        String host = getEnvOrProperty("DB_HOST","db.host");
+        String port = getEnvOrProperty("DB_PORT", "db.port");
+        String name = getEnvOrProperty("DB_NAME", "db.name");
+        String user = getEnvOrProperty("DB_USER", "db.user");
+        String password = getEnvOrProperty("DB_PASSWORD", "db.password");
 
         String url = "jdbc:mysql://" + host + ":" + port + "/" + name;
         try {
@@ -57,6 +56,14 @@ public class ConnectionFactory {
         } catch (SQLException error) {
             throw new DatabaseException("Could not connect to the database at " + url, error);
         }
+    }
+
+    private static String getEnvOrProperty(String envKey, String propKey) {
+        String envValue = System.getenv(envKey);
+        if (envValue != null && !envValue.isBlank()) {
+            return envValue.trim();
+        }
+        return required(propKey);
     }
 
     private static String required(String key) {
