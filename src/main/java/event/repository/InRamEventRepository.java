@@ -47,7 +47,8 @@ public class InRamEventRepository implements EventRepository {
                 event.getTitle(),
                 event.getCelebDate(),
                 event.getEventRecurrenceType(),
-                event.getCreatedAt()
+                event.getCreatedAt(),
+                event.getTaskIds()
         );
     }
 }

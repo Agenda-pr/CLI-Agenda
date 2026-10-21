@@ -3,6 +3,7 @@ package event.model;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,14 +19,6 @@ public class EventTest {
         assertNotNull(event.getCreatedAt());
         assertEquals(EventTitle.of("Dentista"), event.getTitle());
         assertEquals(date, event.getCelebDate());
-        assertEquals(EventRecurrenceType.NONE, event.getEventRecurrenceType());
-    }
-
-    @Test
-    void createWithNullRecurrenceDefaultsToNone() {
-        EventCelebDate date = EventCelebDate.of(LocalDate.of(2026, 11, 20));
-        Event event = Event.create(EventTitle.of("Dentista"), date, null);
-
         assertEquals(EventRecurrenceType.NONE, event.getEventRecurrenceType());
     }
 
@@ -55,14 +48,16 @@ public class EventTest {
         EventCelebDate celebDate = EventCelebDate.of(LocalDate.of(2020, 6, 10));
         EventRecurrenceType recurrence = EventRecurrenceType.YEARLY;
         LocalDate createdAt = LocalDate.of(2020, 1, 1);
+        List<EventTaskId> taskIds = List.of(EventTaskId.of(UUID.randomUUID()));
 
-        Event event = Event.restore(id, title, celebDate, recurrence, createdAt);
+        Event event = Event.restore(id, title, celebDate, recurrence, createdAt, taskIds);
 
         assertEquals(id, event.getId());
         assertEquals(title, event.getTitle());
         assertEquals(celebDate, event.getCelebDate());
         assertEquals(recurrence, event.getEventRecurrenceType());
         assertEquals(createdAt, event.getCreatedAt());
+        assertEquals(taskIds, event.getTaskIds());
     }
 
     @Test
@@ -128,5 +123,32 @@ public class EventTest {
         event.nextCelebDate();
 
         assertEquals(LocalDate.of(2027, 10, 21), event.getCelebDate().date());
+    }
+
+    @Test
+    void addTaskIdAddsTaskWithoutDuplicates() {
+        Event event = Event.create(
+                EventTitle.of("Fiesta"),
+                EventCelebDate.of(LocalDate.of(2026, 10, 21)));
+        EventTaskId taskId = EventTaskId.of(UUID.randomUUID());
+
+        event.addTaskId(taskId);
+        event.addTaskId(taskId);
+
+        assertEquals(1, event.getTaskIds().size());
+        assertTrue(event.getTaskIds().contains(taskId));
+    }
+
+    @Test
+    void removeTaskIdRemovesTaskFromEvent() {
+        Event event = Event.create(
+                EventTitle.of("Fiesta"),
+                EventCelebDate.of(LocalDate.of(2026, 10, 21)));
+        EventTaskId taskId = EventTaskId.of(UUID.randomUUID());
+        event.addTaskId(taskId);
+
+        event.removeTaskId(taskId);
+
+        assertTrue(event.getTaskIds().isEmpty());
     }
 }
