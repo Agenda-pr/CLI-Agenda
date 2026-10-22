@@ -194,8 +194,6 @@ public class TaskCli {
         } catch (TaskNotFound error) {
             System.out.println("Error: " + error.getMessage());
         }
-
-        System.out.println("Task deleted successfully.");
     }
 
     private TaskDto listAndSelectTask() {
