@@ -10,5 +10,5 @@ public interface EventRepository {
     List<Event> showAllEvents();
     Event findEventById(UUID id);
     boolean deleteEventById(UUID id);
-    void removeTaskFromAllEvents(UUID taskId);
+    // void removeTaskFromAllEvents(UUID taskId);
 }

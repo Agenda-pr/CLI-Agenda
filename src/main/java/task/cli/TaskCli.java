@@ -1,9 +1,8 @@
 package task.cli;
 
 import common.exception.InvalidTaskException;
+import common.exception.TaskNotFound;
 import common.utils.ConsoleReader;
-import event.service.EventService;
-import note.service.NoteService;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
@@ -14,13 +13,9 @@ import java.util.List;
 
 public class TaskCli {
     private final TaskService service;
-    private final NoteService noteService;
-    private final EventService eventService;
 
-    public TaskCli(TaskService service, NoteService noteService, EventService eventService) {
+    public TaskCli(TaskService service) {
         this.service = service;
-        this.noteService = noteService;
-        this.eventService = eventService;
     }
 
     public void showMenu() {
@@ -186,18 +181,13 @@ public class TaskCli {
             System.out.println("Deletion cancelled.");
             return;
         }
-        //TODO
-        //try {
-        //    service.deleteTaskByID(taskToDelete.id());
-        //    System.out.println("Task deleted successfully.");
-        //} catch (TaskNotFound error) {
-        //    System.out.println("Error: " + error.getMessage());
-        //}
 
-        noteService.deleteNotesByTaskId(taskToDelete.id());
-        eventService.removeTaskFromAllEvents(taskToDelete.id());
-        service.deleteTaskByID(taskToDelete.id());
-        System.out.println("Task deleted successfully.");
+        try {
+            service.deleteTaskByID(taskToDelete.id());
+            System.out.println("Task deleted successfully.");
+        } catch (TaskNotFound error) {
+            System.out.println("Error: " + error.getMessage());
+        }
     }
 
     private TaskDto listAndSelectTask() {
