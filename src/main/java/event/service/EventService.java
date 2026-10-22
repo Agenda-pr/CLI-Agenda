@@ -135,9 +135,11 @@ public class EventService {
         return toDto(event);
     }
 
+    /*
     public void removeTaskFromAllEvents(UUID taskId) {
         eventRepository.removeTaskFromAllEvents(taskId);
     }
+    */
 
     public void deleteEventById(UUID id) {
         if (!eventRepository.deleteEventById(id)) {

@@ -3,8 +3,6 @@ package task.cli;
 import common.exception.InvalidTaskException;
 import common.exception.TaskNotFound;
 import common.utils.ConsoleReader;
-import event.service.EventService;
-import note.service.NoteService;
 import task.dto.CreateTaskDto;
 import task.dto.TaskDto;
 import task.model.Priority;
@@ -15,13 +13,9 @@ import java.util.List;
 
 public class TaskCli {
     private final TaskService service;
-    private final NoteService noteService;
-    private final EventService eventService;
 
-    public TaskCli(TaskService service, NoteService noteService, EventService eventService) {
+    public TaskCli(TaskService service) {
         this.service = service;
-        this.noteService = noteService;
-        this.eventService = eventService;
     }
 
     public void showMenu() {

@@ -337,6 +337,7 @@ public class EventServiceTest {
             assertTrue(service.findEventById(existingEvent.id()).taskIds().isEmpty());
         }
 
+        /*
         @Test
         void removeTaskFromAllEventsRemovesTaskFromEveryEvent() {
             EventDto secondEvent = service.createEvent(
@@ -349,6 +350,7 @@ public class EventServiceTest {
             assertTrue(service.findEventById(existingEvent.id()).taskIds().isEmpty());
             assertTrue(service.findEventById(secondEvent.id()).taskIds().isEmpty());
         }
+        */
     }
 
     @Nested

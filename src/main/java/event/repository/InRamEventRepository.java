@@ -42,11 +42,13 @@ public class InRamEventRepository implements EventRepository {
         return eventList.removeIf(event -> event.getId().equals(id));
     }
 
+    /*
     @Override
     public void removeTaskFromAllEvents(UUID taskId) {
         EventTaskId eventTaskId = EventTaskId.of(taskId);
         eventList.forEach(event -> event.removeTaskId(eventTaskId));
     }
+    */
 
     private Event restoreFrom(Event event) {
         return Event.restore(
