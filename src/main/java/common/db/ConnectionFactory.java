@@ -16,7 +16,8 @@ public class ConnectionFactory {
 
     private static Connection sharedConnection;
 
-    private ConnectionFactory() {}
+    private ConnectionFactory() {
+    }
 
     public static synchronized Connection getConnection() {
         try {
@@ -36,7 +37,6 @@ public class ConnectionFactory {
             try {
                 sharedConnection.close();
             } catch (SQLException ignored) {
-                // nothing useful to do while shutting down
             } finally {
                 sharedConnection = null;
             }
@@ -44,7 +44,7 @@ public class ConnectionFactory {
     }
 
     private static Connection openConnection() {
-        String host = getEnvOrProperty("DB_HOST","db.host");
+        String host = getEnvOrProperty("DB_HOST", "db.host");
         String port = getEnvOrProperty("DB_PORT", "db.port");
         String name = getEnvOrProperty("DB_NAME", "db.name");
         String user = getEnvOrProperty("DB_USER", "db.user");
@@ -78,11 +78,9 @@ public class ConnectionFactory {
         Properties properties = new Properties();
         try (InputStream input = ConnectionFactory.class
                 .getClassLoader().getResourceAsStream(CONFIG_FILE)) {
-            if (input == null) {
-                throw new DatabaseException(CONFIG_FILE + " not found. Copy "
-                        + CONFIG_TEMPLATE + " to " + CONFIG_FILE);
+            if (input != null) {
+                properties.load(input);
             }
-            properties.load(input);
         } catch (IOException error) {
             throw new DatabaseException("Could not read " + CONFIG_FILE, error);
         }
