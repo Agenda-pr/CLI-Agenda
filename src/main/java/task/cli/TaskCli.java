@@ -1,6 +1,7 @@
 package task.cli;
 
 import common.exception.InvalidTaskException;
+import common.exception.TaskNotFound;
 import common.utils.ConsoleReader;
 import event.service.EventService;
 import note.service.NoteService;
@@ -186,17 +187,14 @@ public class TaskCli {
             System.out.println("Deletion cancelled.");
             return;
         }
-        //TODO
-        //try {
-        //    service.deleteTaskByID(taskToDelete.id());
-        //    System.out.println("Task deleted successfully.");
-        //} catch (TaskNotFound error) {
-        //    System.out.println("Error: " + error.getMessage());
-        //}
 
-        noteService.deleteNotesByTaskId(taskToDelete.id());
-        eventService.removeTaskFromAllEvents(taskToDelete.id());
-        service.deleteTaskByID(taskToDelete.id());
+        try {
+            service.deleteTaskByID(taskToDelete.id());
+            System.out.println("Task deleted successfully.");
+        } catch (TaskNotFound error) {
+            System.out.println("Error: " + error.getMessage());
+        }
+
         System.out.println("Task deleted successfully.");
     }
 
