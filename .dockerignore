@@ -1,0 +1,8 @@
+.git
+.idea
+*.iml
+.env
+target
+docs
+db
+src/main/resources/application.properties
