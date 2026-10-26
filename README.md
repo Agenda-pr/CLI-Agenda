@@ -291,6 +291,19 @@ La numeración de los archivos garantiza que las tablas dependientes se creen en
 
 ## 🧩 Patrones detectados por IA
 
+| Patrón | Dónde se usa en el código | Justificación técnica |
+|---|---|---|
+| **Repository** | `TaskRepository`, `NoteRepository`, `EventRepository` e implementaciones `DAO*` / `InRam*` | Desacopla la lógica de negocio de la tecnología de persistencia, permitiendo alternar entre MySQL y memoria sin modificar los servicios. |
+| **DAO (Data Access Object)** | `TaskDAO`, `NoteDAO`, `EventDAO` | Encapsula el acceso de bajo nivel a la base de datos, separando las sentencias SQL y JDBC del resto de la arquitectura. |
+| **Adapter** | `TaskDAOAdapter`, `NoteDAOAdapter`, `EventDAOAdapter` | Adapta la API técnica de bajo nivel de JDBC (`PreparedStatement`, `ResultSet`) a las interfaces limpias definidas por los DAO. |
+| **Singleton** | `ConnectionFactory` (instancia estática `sharedConnection`) | Garantiza la reutilización de una única conexión física compartida con MySQL, eliminando el sobrecoste de negociación TCP/TLS en cada consulta. |
+| **Factory Method** | Métodos estáticos `create()` en entidades (`Task`, `Event`, `Note`) y `ConnectionFactory.getConnection()` | Centraliza la instanciación garantizando que los objetos nazcan con un estado inicial válido, identificadores UUID y fechas consistentes. |
+| **Reconstitution / Static Restoration** | Métodos estáticos `restore()` en entidades y Value Objects | Permite reconstruir objetos desde persistencia respetando sus identificadores y marcas temporales originales sin ejecutar validaciones de nueva creación. |
+| **Dependency Injection (Constructor)** | `TaskService`, `NoteService`, `EventService`, clases CLI y `AppInitializer` | Reduce el acoplamiento y maximiza la testabilidad al recibir las dependencias por constructor en lugar de instanciarlas internamente. |
+| **DTO (Data Transfer Object)** | Java Records `TaskDto`, `CreateTaskDto`, `EventDto`, `CreateEventDto`, `NoteDto`, `CreateNoteDto` | Transporta instantáneas de datos inmutables hacia y desde la capa de presentación (CLI), evitando exponer las entidades del dominio. |
+| **Value Object (DDD)** | Java Records `TaskTitle`, `TaskDueDate`, `EventCelebDate`, `EventTaskId`, `NoteContent`, `NoteTaskID` | Encapsula reglas de negocio atómicas y auto-validación, garantizando inmutabilidad y asegurando que no existan datos inconsistentes en el dominio. |
+| **Bootstrapper / Initializer** | `AppInitializer.init()` | Centraliza el ensamblado del árbol completo de dependencias de la aplicación (DAO $\rightarrow$ Repositorio $\rightarrow$ Servicio $\rightarrow$ CLI) en el arranque del sistema. |
+
 
 
 ---
