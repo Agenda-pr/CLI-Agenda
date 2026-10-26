@@ -74,6 +74,44 @@
             pointer-events: none;
             z-index: 50;
         }
+
+        /* Latido y brillo para el principio KISS */
+        @keyframes kissHeartbeat {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.15);
+            }
+            15% {
+                transform: scale(1.05);
+                box-shadow: 0 0 28px rgba(16, 185, 129, 0.7), inset 0 0 15px rgba(16, 185, 129, 0.3);
+            }
+            30% {
+                transform: scale(1.01);
+                box-shadow: 0 0 18px rgba(16, 185, 129, 0.4), inset 0 0 10px rgba(16, 185, 129, 0.2);
+            }
+            45% {
+                transform: scale(1.08);
+                box-shadow: 0 0 35px rgba(16, 185, 129, 0.85), inset 0 0 20px rgba(16, 185, 129, 0.4);
+            }
+            65% {
+                transform: scale(1);
+            }
+        }
+        .kiss-pulse-glow {
+            animation: kissHeartbeat 2.0s infinite ease-in-out;
+        }
+
+        @keyframes textShine {
+            0%, 100% {
+                text-shadow: 0 0 8px rgba(52, 211, 153, 0.4), 0 0 16px rgba(16, 185, 129, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(52, 211, 153, 1), 0 0 32px rgba(16, 185, 129, 0.9);
+            }
+        }
+        .text-glow-emerald {
+            animation: textShine 1.8s infinite ease-in-out;
+        }
     </style>
 </head>
 <body class="h-full flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
@@ -346,8 +384,34 @@
         <!-- ==========================================
              SLIDE 4: DECISIÓN 3 - UUID & RESTORE
         =========================================== -->
-        <section id="slide-4" class="slide flex-col max-w-5xl mx-auto w-full py-4">
-            <div class="mb-6">
+        <section id="slide-4" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative min-h-[460px] justify-center">
+
+            <!-- INTRO CINEMÁTICA / MEME DE DRAKE (AUTO_INCREMENT vs UUID) -->
+            <div id="uuid-intro-overlay" onclick="finishUuidJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-slate-950 transition-all duration-700 transform scale-90 opacity-0" id="drake-meme-card">
+                    <img src="Drake-Meme.png" alt="Drake Meme UUID vs Auto-increment" class="w-[350px] sm:w-[490px] h-auto block select-none">
+                    
+                    <!-- Panel Superior: Drake rechaza AUTO_INCREMENT (desplazado más a la izquierda y arriba) -->
+                    <div class="absolute top-[2%] left-[45%] w-[51%] h-[46%] flex items-center justify-center p-2 text-center">
+                        <div id="drake-top-text" class="font-mono text-xs sm:text-base font-black text-slate-900 bg-red-100/95 border-2 border-red-500/70 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-xl leading-tight transition-all duration-500 opacity-0 transform -translate-y-2">
+                            AUTO_INCREMENT<br>
+                            <span class="text-red-600 font-extrabold text-[11px] sm:text-sm">id = 1, 2, 3... ❌</span>
+                        </div>
+                    </div>
+
+                    <!-- Panel Inferior: Drake aprueba UUID (desplazado más a la izquierda y arriba) -->
+                    <div class="absolute top-[51%] left-[45%] w-[51%] h-[46%] flex items-center justify-center p-2 text-center">
+                        <div id="drake-bottom-text" class="font-mono text-xs sm:text-base font-black text-slate-900 bg-cyan-100/95 border-2 border-cyan-500/70 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-xl leading-tight transition-all duration-500 opacity-0 transform translate-y-2">
+                            UUID en Java<br>
+                            <span class="text-cyan-800 font-bold text-[11px] sm:text-xs">3fa85f64-5717... ✨</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="uuid-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
                 <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 3 &bull; Persistencia e Identidad</span>
                 <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Identidad con UUID y método factoría <code>restore()</code></h2>
             </div>
@@ -397,171 +461,144 @@
 }</code></pre>
                 </div>
             </div>
-        </section>
-
-        <!-- ==========================================
-             SLIDE 5: DECISIÓN 4 - RELACIÓN EVENT -> TASK
-        =========================================== -->
-        <section id="slide-5" class="slide flex-col max-w-5xl mx-auto w-full py-4">
-            <div class="mb-6">
-                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 4 &bull; Principio Open/Closed</span>
-                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Relación Event &rarr; Task sin tocar el modelo Task</h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                <div class="space-y-5">
-                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
-                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-yellow-400"></span> Contexto y Reto
-                        </h4>
-                        <p class="text-sm text-slate-300 leading-relaxed">
-                            El módulo <code>task</code> ya estaba completamente terminado, testeado y cerrado. Al incorporar la Epic de <em>Events</em>, se requería vincular tareas a eventos <strong>sin romper ni modificar las clases existentes de Task</strong>.
-                        </p>
-                    </div>
-
-                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
-                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Solución elegante
-                        </h4>
-                        <ul class="text-sm text-slate-300 space-y-2.5">
-                            <li class="flex items-start gap-2">
-                                <span class="text-cyan-400 font-bold">&bull;</span>
-                                <span><code>Event</code> contiene una lista <code>List&lt;EventTaskId&gt;</code>. La referencia vive en el evento.</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="text-cyan-400 font-bold">&bull;</span>
-                                <span><strong>Desvincular &ne; Borrar:</strong> Desvincular una tarea desde el evento solo quita la asociación; la tarea continúa viva en la agenda general.</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-surface border border-borderSubtle flex flex-col justify-center h-full">
-                    <h4 class="text-xs font-mono uppercase text-slate-400 mb-4">Esquema conceptual</h4>
-                    <div class="space-y-4 font-mono text-xs">
-                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300">
-                            <strong>Event (Agregado Principal)</strong>
-                            <div class="text-slate-400 mt-1 pl-3 border-l border-slate-700">
-                                id: UUID<br>
-                                title: EventTitle<br>
-                                taskIds: List&lt;EventTaskId&gt;  <span class="text-emerald-400">&larr; Apunta a tareas</span>
-                            </div>
-                        </div>
-                        <div class="text-center text-slate-500 font-sans text-xs">
-                            &darr; No hay acoplamiento bidireccional
-                        </div>
-                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-slate-300">
-                            <strong>Task (Inalterado)</strong>
-                            <div class="text-slate-500 mt-1 pl-3 border-l border-slate-700">
-                                id: UUID &bull; title: TaskTitle &bull; dueDate: TaskDueDate
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
 
         <!-- ==========================================
-             SLIDE 6: DECISIÓN 5 - DESCARTE DE OBSERVER
+             SLIDE 5: DECISIÓN 4 - DESCARTE DE OBSERVER
         =========================================== -->
-        <section id="slide-6" class="slide flex-col max-w-5xl mx-auto w-full py-4">
-            <div class="mb-6">
-                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 5 &bull; Pragmatismo KISS / YAGNI</span>
-                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Descarte formal del Patrón Observer</h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                <div class="space-y-4">
-                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
-                        <h4 class="text-xs font-mono uppercase text-red-400 mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-ban"></i> Por qué se descartó Observer
-                        </h4>
-                        <ul class="text-xs sm:text-sm text-slate-300 space-y-2">
-                            <li>1. <strong>Incompatible con CLI síncrona:</strong> Un hilo emitiendo notificaciones asíncronas corrompería la consola mientras el usuario introduce datos en el <code>Scanner</code>.</li>
-                            <li>2. <strong>Efecto "Pull disfrazado de Push":</strong> La vista (CLI) le pedía al servicio que notificara a la propia vista.</li>
-                            <li>3. <strong>Consumidor único:</strong> No existen múltiples suscriptores heterogéneos.</li>
-                        </ul>
+        <section id="slide-5" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative">
+            
+            <!-- INTRO CINEMÁTICA / EXPECTATIVA vs REALIDAD KISS (SLIDE 5) -->
+            <div id="observer-intro-overlay" onclick="finishObserverJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="w-full max-w-3xl px-4 flex flex-col items-center">
+                    
+                    <div class="mb-5 text-center">
+                        <span id="observer-badge" class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2">
+                            ARQUITECTURA PRAGMÁTICA &bull; KISS / YAGNI
+                        </span>
+                        <h3 id="observer-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2">
+                            Sobreingeniería vs Necesidad
+                        </h3>
                     </div>
 
-                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
-                        <h4 class="text-xs font-mono uppercase text-emerald-400 mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-check"></i> Solución adoptada
-                        </h4>
-                        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                            Consulta directa mediante <code>listUpcomingEvents(daysAhead)</code> con cálculo automático de recurrencias en tiempo real (<code>DAILY</code>, <code>WEEKLY</code>, <code>MONTHLY</code>, <code>YEARLY</code>).
-                        </p>
-                    </div>
-                </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full items-stretch">
+                        <!-- CAJA IZQUIERDA: La sobreingeniería GoF (se rechaza) -->
+                        <div id="observer-gof-box" class="relative rounded-2xl bg-slate-900/90 border border-red-500/30 p-5 flex flex-col justify-between transition-all duration-700 opacity-0 transform -translate-x-4 shadow-xl">
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-3 border-b border-slate-800 pb-2">
+                                    <span class="text-red-400 font-bold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-diagram-project"></i> Patrón Observer GoF
+                                    </span>
+                                    <span class="text-slate-500 text-[10px]">Expectativa</span>
+                                </div>
+                                <div class="font-mono text-[11px] sm:text-xs space-y-1.5 text-slate-300 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
+                                    <div class="flex items-center gap-2 text-purple-400"><i class="fa-solid fa-cube text-[10px]"></i> <span>interface EventSubject</span></div>
+                                    <div class="text-slate-500 pl-4 text-[10px]">↳ class EventPublisher</div>
+                                    <div class="text-slate-500 pl-4 text-[10px]">↳ class NotificationThread (Background)</div>
+                                    <div class="flex items-center gap-2 text-purple-400"><i class="fa-solid fa-cube text-[10px]"></i> <span>interface EventObserver</span></div>
+                                    <div class="text-slate-500 pl-4 text-[10px]">↳ class CliEventObserver</div>
+                                </div>
+                                <div class="text-[11px] text-slate-400 mt-3 font-mono">
+                                    8+ clases para 1 solo consumidor síncrono.
+                                </div>
+                            </div>
 
-                <!-- Formateo visual -->
-                <div class="rounded-xl bg-slate-950 border border-slate-800 p-6 font-mono text-xs shadow-2xl">
-                    <div class="text-slate-500 mb-3 border-b border-slate-800 pb-2">Salida en terminal (EventCli)</div>
-                    <div class="space-y-3">
-                        <div>
-                            <span class="text-amber-400 font-bold">TODAY:</span>
-                            <div class="pl-4 text-slate-300 mt-1">
-                                &bull; Daily standup [DAILY] &bull; Tareas asociadas: 2
+                            <!-- Sello de rechazo / tacha gigante que cae -->
+                            <div id="observer-stamp" class="absolute inset-0 bg-red-950/90 backdrop-blur-[2px] rounded-2xl border-2 border-red-500 flex flex-col items-center justify-center p-4 text-center transition-all duration-500 opacity-0 transform scale-110 pointer-events-none">
+                                <span class="text-3xl sm:text-4xl font-black text-red-400 tracking-wider font-mono transform -rotate-6 border-4 border-red-500 px-4 py-1.5 rounded-xl shadow-2xl">
+                                    ¡YAGNI! ❌
+                                </span>
+                                <p class="text-xs text-red-200 mt-3 font-semibold max-w-xs">
+                                    Hilos asíncronos rompen el <code>Scanner(System.in)</code> mientras el usuario escribe.
+                                </p>
                             </div>
                         </div>
-                        <div>
-                            <span class="text-cyan-400 font-bold">SOON:</span>
-                            <div class="pl-4 text-slate-300 mt-1">
-                                &bull; Entrega Proyecto (28/10/2026) [YEARLY]
+
+                        <!-- CAJA DERECHA: La solución KISS (triunfa) -->
+                        <div id="observer-kiss-box" class="rounded-2xl bg-slate-900/90 border border-emerald-500/40 p-5 flex flex-col justify-between transition-all duration-700 opacity-0 transform translate-x-4 shadow-xl shadow-emerald-500/5">
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-3 border-b border-slate-800 pb-2">
+                                    <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Principio KISS
+                                    </span>
+                                    <span class="text-emerald-400 font-semibold text-[10px] bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">Solución Real</span>
+                                </div>
+                                <div class="font-mono text-[11px] sm:text-xs text-slate-300 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
+                                    <div class="text-slate-500 text-[10px] mb-1">// Consulta directa en el punto exacto</div>
+                                    <div class="text-emerald-300 font-bold">eventService.listUpcomingEvents(7);</div>
+                                </div>
+                                <p class="text-xs text-slate-300 mt-3 leading-relaxed">
+                                    Si la CLI es quien sabe cuándo necesita los eventos, una llamada directa (pull) es 100% predecible, monohilo y limpia.
+                                </p>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                                <div id="observer-kiss-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-400/60 text-emerald-300 font-mono text-xs font-black tracking-wide transition-all duration-700">
+                                    <i id="observer-kiss-icon" class="fa-solid fa-heart-pulse text-emerald-400 text-xs"></i>
+                                    <span id="observer-kiss-text" class="transition-all duration-700">Keep It Simple, Stupid ✨</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500 font-mono">1 línea &bull; Cero carreras</span>
                             </div>
                         </div>
                     </div>
-                    <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-500">
-                        Limpio, predecible y sin hilos en segundo plano colisionando con System.out.
+
+                    <div id="observer-hint" class="mt-5 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2">
+                        <span>Haz clic para ver el detalle de la decisión</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- ==========================================
-             SLIDE 7: DECISIÓN 6 - REPOSITORY & INRAM
-        =========================================== -->
-        <section id="slide-7" class="slide flex-col max-w-5xl mx-auto w-full py-4">
-            <div class="mb-6">
-                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 6 &bull; Patrón Repository</span>
-                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Interfaz Repository y conservación de InRam</h2>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                <div class="space-y-5">
-                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
-                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Desacoplamiento total de Persistencia
-                        </h4>
-                        <p class="text-sm text-slate-300 leading-relaxed">
-                            Los servicios solo conocen la interfaz <code>TaskRepository</code>. El paso de trabajar en memoria a MySQL con <code>DAOTaskRepository</code> requirió <strong>cero cambios</strong> en los servicios o en la CLI.
-                        </p>
-                    </div>
-
-                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
-                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Por qué NO eliminamos los repositorios InRam
-                        </h4>
-                        <p class="text-sm text-slate-300 leading-relaxed">
-                            Al conectar MySQL, las clases <code>InRam*Repository</code> no se borraron. Se conservan como base para una futura <strong>capa de caché L1 en memoria</strong> y para ejecutar suites de tests ultrarrápidas sin levantar Docker.
-                        </p>
-                    </div>
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="observer-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 4 &bull; Pragmatismo KISS / YAGNI</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Descarte formal del Patrón Observer</h2>
                 </div>
 
-                <div class="p-6 rounded-2xl bg-surface border border-borderSubtle">
-                    <h4 class="text-xs font-mono uppercase text-slate-400 mb-4">Contrato de Repositorio</h4>
-                    <div class="space-y-3 font-mono text-xs">
-                        <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-yellow-300">
-                            &laquo;interface&raquo; TaskRepository
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-red-400 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-ban"></i> Por qué se descartó Observer
+                            </h4>
+                            <ul class="text-xs sm:text-sm text-slate-300 space-y-2">
+                                <li>1. <strong>Incompatible con CLI síncrona:</strong> Un hilo emitiendo notificaciones asíncronas corrompería la consola mientras el usuario introduce datos en el <code>Scanner</code>.</li>
+                                <li>2. <strong>Efecto "Pull disfrazado de Push":</strong> La vista (CLI) le pedía al servicio que notificara a la propia vista.</li>
+                                <li>3. <strong>Consumidor único:</strong> No existen múltiples suscriptores heterogéneos.</li>
+                            </ul>
                         </div>
-                        <div class="grid grid-cols-2 gap-3 pt-2">
-                            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
-                                <span class="text-cyan-400 font-bold">InRamTaskRepo</span>
-                                <p class="text-[11px] text-slate-500 mt-1">Map&lt;UUID, Task&gt;<br>Tests &amp; Caché</p>
+
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-emerald-400 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-check"></i> Solución adoptada
+                            </h4>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Consulta directa mediante <code>listUpcomingEvents(daysAhead)</code> con cálculo automático de recurrencias en tiempo real (<code>DAILY</code>, <code>WEEKLY</code>, <code>MONTHLY</code>, <code>YEARLY</code>).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Formateo visual -->
+                    <div class="rounded-xl bg-slate-950 border border-slate-800 p-6 font-mono text-xs shadow-2xl">
+                        <div class="text-slate-500 mb-3 border-b border-slate-800 pb-2">Salida en terminal (EventCli)</div>
+                        <div class="space-y-3">
+                            <div>
+                                <span class="text-amber-400 font-bold">TODAY:</span>
+                                <div class="pl-4 text-slate-300 mt-1">
+                                    &bull; Daily standup [DAILY] &bull; Tareas asociadas: 2
+                                </div>
                             </div>
-                            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
-                                <span class="text-emerald-400 font-bold">DAOTaskRepo</span>
-                                <p class="text-[11px] text-slate-500 mt-1">MySQL JDBC<br>Persistencia real</p>
+                            <div>
+                                <span class="text-cyan-400 font-bold">SOON:</span>
+                                <div class="pl-4 text-slate-300 mt-1">
+                                    &bull; Entrega Proyecto (28/10/2026) [YEARLY]
+                                </div>
                             </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-500">
+                            Limpio, predecible y sin hilos en segundo plano colisionando con System.out.
                         </div>
                     </div>
                 </div>
@@ -569,45 +606,306 @@
         </section>
 
         <!-- ==========================================
-             SLIDE 8: DECISIÓN 7 - INYECCIÓN MANUAL
+             SLIDE 6: DECISIÓN 5 - REPOSITORY & INRAM
         =========================================== -->
-        <section id="slide-8" class="slide flex-col max-w-5xl mx-auto w-full py-4">
-            <div class="mb-6">
-                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 7 &bull; Inversión de Dependencias</span>
-                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Inyección manual con <code>AppInitializer</code></h2>
+        <section id="slide-6" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative">
+            
+            <!-- INTRO CINEMÁTICA / PLUG & PLAY CON SVGs (SLIDE 6) -->
+            <div id="repo-intro-overlay" onclick="finishRepoJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="w-full max-w-2xl px-4 flex flex-col items-center">
+                    
+                    <!-- Cabecera -->
+                    <div class="mb-4 text-center">
+                        <span id="repo-badge" class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2">
+                            DESACOPLAMIENTO DE PERSISTENCIA &bull; PATRÓN REPOSITORY
+                        </span>
+                        <h3 id="repo-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2">
+                            Arquitectura Plug &amp; Play: ¿Por qué NO borrar InRam? 🔌
+                        </h3>
+                    </div>
+
+                    <!-- EL SOCKET / CONTRATO INTERFACE -->
+                    <div id="repo-socket-box" class="w-full p-4 rounded-2xl bg-slate-900/90 border-2 border-dashed border-slate-700 shadow-2xl flex items-center justify-between gap-3 font-mono transition-all duration-700 opacity-0 transform -translate-y-3">
+                        <div class="flex items-center gap-3">
+                            <div id="repo-socket-icon" class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400 transition-colors duration-500">
+                                <i class="fa-solid fa-plug text-sm"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Interfaz del Dominio</span>
+                                <span class="text-xs sm:text-sm font-bold text-yellow-300">«interface» TaskRepository</span>
+                            </div>
+                        </div>
+                        <div id="repo-socket-status" class="text-xs px-3 py-1 rounded-full bg-slate-950 text-slate-400 border border-slate-800 font-semibold transition-all duration-500">
+                            Esperando módulo...
+                        </div>
+                    </div>
+
+                    <!-- MÓDULOS PLUG & PLAY (RAM Y MYSQL CON ICONOS SVG) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-4">
+                        
+                        <!-- MÓDULO 1: RAM CHIP (InRamTaskRepository) -->
+                        <div id="repo-ram-card" class="rounded-2xl bg-slate-900/90 border-2 border-slate-800 p-4 flex flex-col items-center text-center transition-all duration-700 opacity-0 transform translate-y-4">
+                            <div id="repo-ram-svg-box" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 mb-2.5 transition-all duration-500 shadow-lg">
+                                <svg class="w-12 h-12 sm:w-14 sm:h-14" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Chip PCB -->
+                                    <rect x="12" y="14" width="56" height="52" rx="8" fill="#082f49" stroke="#06b6d4" stroke-width="2"/>
+                                    <!-- Pins top/bottom -->
+                                    <path d="M22 14V7M34 14V7M46 14V7M58 14V7" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+                                    <path d="M22 66V73M34 66V73M46 66V73M58 66V73" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+                                    <!-- Silicon core -->
+                                    <rect x="23" y="25" width="34" height="28" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+                                    <path d="M30 34H50M30 40H44M30 46H48" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round"/>
+                                    <circle cx="48" cy="40" r="2" fill="#38bdf8"/>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-cyan-300">InRamTaskRepository</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Map&lt;UUID, Task&gt; &bull; 0ms latencia</div>
+                            <div id="repo-ram-badge" class="mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono transition-all duration-500">
+                                Modo memoria
+                            </div>
+                        </div>
+
+                        <!-- MÓDULO 2: MYSQL DATABASE (DAOTaskRepository) -->
+                        <div id="repo-mysql-card" class="rounded-2xl bg-slate-900/90 border-2 border-slate-800 p-4 flex flex-col items-center text-center transition-all duration-700 opacity-0 transform translate-y-4">
+                            <div id="repo-mysql-svg-box" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 mb-2.5 transition-all duration-500 shadow-lg">
+                                <svg class="w-12 h-12 sm:w-14 sm:h-14" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Disk 1 Top -->
+                                    <ellipse cx="40" cy="22" rx="26" ry="10" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+                                    <ellipse cx="40" cy="22" rx="12" ry="4.5" fill="#022c22" stroke="#34d399" stroke-width="1.5"/>
+                                    <!-- Disk 2 Middle -->
+                                    <path d="M14 22V38C14 43.5 25.5 48 40 48C54.5 48 66 43.5 66 38V22" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+                                    <ellipse cx="40" cy="38" rx="26" ry="10" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+                                    <!-- Disk 3 Bottom -->
+                                    <path d="M14 38V54C14 59.5 25.5 64 40 64C54.5 64 66 59.5 66 54V38" fill="#022c22" stroke="#10b981" stroke-width="2"/>
+                                    <!-- Indicator lights -->
+                                    <circle cx="23" cy="40" r="2.5" fill="#34d399"/>
+                                    <circle cx="23" cy="56" r="2.5" fill="#34d399"/>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-emerald-300">DAOTaskRepository</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">MySQL JDBC &bull; Docker Compose</div>
+                            <div id="repo-mysql-badge" class="mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono transition-all duration-500">
+                                Persistencia real
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- MENSAJE DINÁMICO DE CONEXIÓN -->
+                    <div id="repo-msg-banner" class="mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2">
+                    </div>
+
+                    <div id="repo-hint" class="mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2">
+                        <span>Haz clic para ver el detalle de la decisión</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                <div class="space-y-5">
-                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
-                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Pure DI sin sobrecargar con Spring
-                        </h4>
-                        <p class="text-sm text-slate-300 leading-relaxed">
-                            Para una herramienta CLI, incluir un framework pesado como Spring Boot penalizaría el tiempo de arranque de la terminal y añadiría complejidad innecesaria. La inyección manual por constructor proporciona el mismo desacoplamiento con total claridad.
-                        </p>
-                    </div>
-
-                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
-                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Flujo de ensamblaje ordenado
-                        </h4>
-                        <p class="text-xs font-mono text-slate-300">
-                            DAO &rarr; Repositorio &rarr; Servicio &rarr; CLI &rarr; MainMenuCli
-                        </p>
-                        <p class="text-xs text-slate-400 mt-2">
-                            La clase <code>Main</code> queda reducida a un orquestador de 10 líneas que arranca la app y asegura el cierre de la conexión en su cláusula <code>finally</code>.
-                        </p>
-                    </div>
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="repo-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 5 &bull; Patrón Repository</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Interfaz Repository y conservación de InRam</h2>
                 </div>
 
-                <!-- Código -->
-                <div class="rounded-xl bg-slate-950 border border-slate-800 overflow-hidden font-mono text-xs shadow-2xl">
-                    <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-slate-400">
-                        <span>AppInitializer.java</span>
-                        <span class="text-[10px] text-cyan-400 font-sans">Cableado de dependencias</span>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-5">
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Desacoplamiento total de Persistencia
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Los servicios solo conocen la interfaz <code>TaskRepository</code>. El paso de trabajar en memoria a MySQL con <code>DAOTaskRepository</code> requirió <strong>cero cambios</strong> en los servicios o en la CLI.
+                            </p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Por qué NO eliminamos los repositorios InRam
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Al conectar MySQL, las clases <code>InRam*Repository</code> no se borraron. Se conservan como base para una futura <strong>capa de caché L1 en memoria</strong> y para ejecutar suites de tests ultrarrápidas sin levantar Docker.
+                            </p>
+                        </div>
                     </div>
-                    <pre class="p-5 text-slate-300 overflow-x-auto leading-relaxed"><code><span class="text-purple-400">public static</span> <span class="text-yellow-300">MainMenuCli</span> <span class="text-blue-400">init</span>() {
+
+                    <div class="p-6 rounded-2xl bg-surface border border-borderSubtle">
+                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-4">Contrato de Repositorio</h4>
+                        <div class="space-y-3 font-mono text-xs">
+                            <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-yellow-300">
+                                &laquo;interface&raquo; TaskRepository
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 pt-2">
+                                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
+                                    <span class="text-cyan-400 font-bold">InRamTaskRepo</span>
+                                    <p class="text-[11px] text-slate-500 mt-1">Map&lt;UUID, Task&gt;<br>Tests &amp; Caché</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
+                                    <span class="text-emerald-400 font-bold">DAOTaskRepo</span>
+                                    <p class="text-[11px] text-slate-500 mt-1">MySQL JDBC<br>Persistencia real</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 7: DECISIÓN 6 - INYECCIÓN MANUAL
+        =========================================== -->
+        <section id="slide-7" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative">
+            
+            <!-- INTRO CINEMÁTICA / CADENA DE MONTAJE (SLIDE 7) -->
+            <div id="di-intro-overlay" onclick="finishDiJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="w-full max-w-3xl px-4 flex flex-col items-center">
+                    
+                    <!-- Cabecera -->
+                    <div class="mb-5 text-center">
+                        <span id="di-badge" class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2">
+                            CABLEADO DE ARQUITECTURA &bull; INVERSIÓN DE DEPENDENCIAS
+                        </span>
+                        <h3 id="di-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2">
+                            La Cadena de Montaje en <code>AppInitializer</code> ⚙️
+                        </h3>
+                    </div>
+
+                    <!-- CADENA DE MONTAJE (4 PASOS HORIZONTALES) -->
+                    <div class="w-full max-w-2xl flex flex-wrap sm:flex-nowrap items-center justify-center gap-2 sm:gap-2.5">
+                        
+                        <!-- PASO 1: DAO -->
+                        <div id="di-step-1" class="flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3">
+                            <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">1. Datos</div>
+                            <div class="w-8 h-8 rounded-lg bg-blue-950/80 border border-blue-500/40 flex items-center justify-center text-blue-400 mx-auto mb-1.5 text-xs">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-blue-300">TaskDAO</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 font-mono">Adapter SQL</div>
+                        </div>
+
+                        <!-- FLECHA 1 -->
+                        <div id="di-arrow-1" class="text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block">
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </div>
+
+                        <!-- PASO 2: REPO -->
+                        <div id="di-step-2" class="flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3">
+                            <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">2. Dominio</div>
+                            <div class="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400 mx-auto mb-1.5 text-xs">
+                                <i class="fa-solid fa-box-archive"></i>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-cyan-300">TaskRepo</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 font-mono">(dao)</div>
+                        </div>
+
+                        <!-- FLECHA 2 -->
+                        <div id="di-arrow-2" class="text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block">
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </div>
+
+                        <!-- PASO 3: SERVICE -->
+                        <div id="di-step-3" class="flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3">
+                            <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">3. Lógica</div>
+                            <div class="w-8 h-8 rounded-lg bg-purple-950/80 border border-purple-500/40 flex items-center justify-center text-purple-400 mx-auto mb-1.5 text-xs">
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-purple-300">TaskService</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 font-mono">(repo)</div>
+                        </div>
+
+                        <!-- FLECHA 3 -->
+                        <div id="di-arrow-3" class="text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block">
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </div>
+
+                        <!-- PASO 4: CLI -->
+                        <div id="di-step-4" class="flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3">
+                            <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">4. Vista</div>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto mb-1.5 text-xs">
+                                <i class="fa-solid fa-terminal"></i>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-emerald-300">TaskCli</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 font-mono">(service)</div>
+                        </div>
+
+                    </div>
+
+                    <!-- FLECHA CONECTORA AL PRODUCTO FINAL -->
+                    <div id="di-arrow-down" class="my-2.5 text-slate-600 transition-all duration-500 opacity-0 transform -translate-y-1">
+                        <i class="fa-solid fa-arrow-down text-sm"></i>
+                    </div>
+
+                    <!-- PRODUCTO TERMINADO: MAINMENUCLI LISTO PARA MAIN -->
+                    <div id="di-final-card" class="w-full max-w-xl p-3.5 px-5 rounded-2xl bg-slate-900/95 border-2 border-slate-800 shadow-2xl flex items-center justify-between gap-4 font-mono transition-all duration-700 opacity-0 transform scale-95">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-400/40 flex items-center justify-center text-emerald-400">
+                                <i class="fa-solid fa-circle-check text-base"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Producto final ensamblado</span>
+                                <span class="text-xs sm:text-sm font-bold text-white">return new MainMenuCli(...)</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold">
+                                ¡Listo para arrancar! 🚀
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- MENSAJE DE IMPACTO: MAIN QUEDA IMPOLUTO -->
+                    <div id="di-summary-banner" class="mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2">
+                        <span class="text-cyan-300 font-bold">Main.java queda impoluto:</span> apenas 10 líneas. Cero operadores <code>new</code> dispersos por el código.
+                    </div>
+
+                    <div id="di-hint" class="mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2">
+                        <span>Haz clic para ver el código de ensamblaje</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="di-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 6 &bull; Inversión de Dependencias</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Inyección manual con <code>AppInitializer</code></h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-5">
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Inyección centralizada en una clase
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Se aisló todo el cableado e instanciación de dependencias en <code>AppInitializer</code>. Cada capa recibe sus colaboradoras estrictamente por constructor, evitando dispersar operadores <code>new</code> por el proyecto y facilitando el testing.
+                            </p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Main limpio y orquestador
+                            </h4>
+                            <p class="text-xs font-mono text-slate-300">
+                                DAO &rarr; Repositorio &rarr; Servicio &rarr; CLI &rarr; MainMenuCli
+                            </p>
+                            <p class="text-xs text-slate-400 mt-2">
+                                La clase <code>Main</code> queda reducida a apenas 10 líneas legibles: delega el ensamblaje completo a <code>AppInitializer.init()</code> y se enfoca exclusivamente en arrancar y cerrar la conexión en <code>finally</code>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Código -->
+                    <div class="rounded-xl bg-slate-950 border border-slate-800 overflow-hidden font-mono text-xs shadow-2xl">
+                        <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-slate-400">
+                            <span>AppInitializer.java</span>
+                            <span class="text-[10px] text-cyan-400 font-sans">Cableado de dependencias</span>
+                        </div>
+                        <pre class="p-5 text-slate-300 overflow-x-auto leading-relaxed"><code><span class="text-purple-400">public static</span> <span class="text-yellow-300">MainMenuCli</span> <span class="text-blue-400">init</span>() {
     <span class="text-slate-500">// 1. Capa de Datos (DAO + Repo)</span>
     <span class="text-yellow-300">TaskDAO</span> dao = <span class="text-purple-400">new</span> <span class="text-yellow-300">TaskDAOAdapter</span>();
     <span class="text-yellow-300">TaskRepository</span> repo = <span class="text-purple-400">new</span> <span class="text-yellow-300">DAOTaskRepository</span>(dao);
@@ -620,16 +918,17 @@
 
     <span class="text-purple-400">return new</span> <span class="text-yellow-300">MainMenuCli</span>(cli, noteCli, eventCli);
 }</code></pre>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- ==========================================
-             SLIDE 9: DECISIÓN 8 - SINGLETON CONNECTIONFACTORY
+             SLIDE 8: DECISIÓN 7 - SINGLETON CONNECTIONFACTORY
         =========================================== -->
-        <section id="slide-9" class="slide flex-col max-w-5xl mx-auto w-full py-4">
+        <section id="slide-8" class="slide flex-col max-w-5xl mx-auto w-full py-4">
             <div class="mb-6">
-                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 8 &bull; Rendimiento JDBC</span>
+                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 7 &bull; Rendimiento JDBC</span>
                 <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Patrón Singleton en <code>ConnectionFactory</code></h2>
             </div>
 
@@ -678,11 +977,11 @@
         </section>
 
         <!-- ==========================================
-             SLIDE 10: DECISIÓN 9 - INFRAESTRUCTURA & DOCKER
+             SLIDE 9: DECISIÓN 8 - INFRAESTRUCTURA & DOCKER
         =========================================== -->
-        <section id="slide-10" class="slide flex-col max-w-5xl mx-auto w-full py-4">
+        <section id="slide-9" class="slide flex-col max-w-5xl mx-auto w-full py-4">
             <div class="mb-6">
-                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 9 &bull; Infraestructura y DevOps</span>
+                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 8 &bull; Infraestructura y DevOps</span>
                 <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Ejecución dual y Docker Multi-stage</h2>
             </div>
 
@@ -719,9 +1018,9 @@
         </section>
 
         <!-- ==========================================
-             SLIDE 11: DEMO EN VIVO
+             SLIDE 10: DEMO EN VIVO
         =========================================== -->
-        <section id="slide-11" class="slide flex-col justify-center items-center text-center max-w-4xl mx-auto py-8">
+        <section id="slide-10" class="slide flex-col justify-center items-center text-center max-w-4xl mx-auto py-8">
             <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl mb-6 border border-emerald-500/20">
                 <i class="fa-solid fa-play"></i>
             </div>
@@ -801,7 +1100,7 @@
 
     <!-- Script de control de diapositivas y lluvia -->
     <script>
-        const totalSlides = 12;
+        const totalSlides = 11;
         let currentSlide = 0;
 
         const slideTitles = [
@@ -810,12 +1109,11 @@
             "Decisión 1: Value Objects (DDD)",
             "Decisión 2: Barrera de DTOs",
             "Decisión 3: Identidad UUID y restore()",
-            "Decisión 4: Relación Event -> Task",
-            "Decisión 5: Descarte de Observer (KISS)",
-            "Decisión 6: Interfaz Repository e InRam",
-            "Decisión 7: Inyección manual (AppInitializer)",
-            "Decisión 8: Singleton en ConnectionFactory",
-            "Decisión 9: Ejecución dual y Docker",
+            "Decisión 4: Descarte de Observer (KISS)",
+            "Decisión 5: Interfaz Repository e InRam",
+            "Decisión 6: Inyección manual (AppInitializer)",
+            "Decisión 7: Singleton en ConnectionFactory",
+            "Decisión 8: Ejecución dual y Docker",
             "Demostración en Vivo"
         ];
 
@@ -856,6 +1154,10 @@
             // Gestión de las intros cinemáticas
             manageVoSlideAnimation();
             manageDtoSlideAnimation();
+            manageUuidSlideAnimation();
+            manageObserverSlideAnimation();
+            manageRepoSlideAnimation();
+            manageDiSlideAnimation();
         }
 
         // ========================================================
@@ -1081,6 +1383,509 @@
                 content.classList.remove('opacity-0', 'pointer-events-none');
                 content.classList.add('opacity-100');
             }, 4600));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA MEME DRAKE UUID (SLIDE 4)
+        // ========================================================
+        let uuidTimers = [];
+
+        function cleanUpUuidEffects() {
+            uuidTimers.forEach(t => clearTimeout(t));
+            uuidTimers = [];
+        }
+
+        function finishUuidJokeImmediately() {
+            cleanUpUuidEffects();
+            const overlay = document.getElementById('uuid-intro-overlay');
+            const content = document.getElementById('uuid-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageUuidSlideAnimation() {
+            cleanUpUuidEffects();
+
+            const overlay = document.getElementById('uuid-intro-overlay');
+            const card = document.getElementById('drake-meme-card');
+            const topText = document.getElementById('drake-top-text');
+            const bottomText = document.getElementById('drake-bottom-text');
+            const content = document.getElementById('uuid-real-content');
+
+            if (!overlay || !card || !topText || !bottomText || !content) return;
+
+            if (currentSlide !== 4) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 4: Ocultar contenido y arrancar meme
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset visual
+            card.classList.remove('opacity-100', 'scale-100');
+            card.classList.add('opacity-0', 'scale-90');
+
+            topText.classList.remove('opacity-100', 'translate-y-0');
+            topText.classList.add('opacity-0', '-translate-y-2');
+
+            bottomText.classList.remove('opacity-100', 'translate-y-0');
+            bottomText.classList.add('opacity-0', 'translate-y-2');
+
+            // PASO 1 (0.3s): Aparece el meme de Drake escalando suavemente
+            uuidTimers.push(setTimeout(() => {
+                card.classList.remove('opacity-0', 'scale-90');
+                card.classList.add('opacity-100', 'scale-100');
+            }, 300));
+
+            // PASO 2 (0.7s): Aparece el texto de rechazo "AUTO_INCREMENT ❌"
+            uuidTimers.push(setTimeout(() => {
+                topText.classList.remove('opacity-0', '-translate-y-2');
+                topText.classList.add('opacity-100', 'translate-y-0');
+            }, 700));
+
+            // PASO 3 (1.6s): Aparece el texto de aprobación "UUID en Java ✨"
+            uuidTimers.push(setTimeout(() => {
+                bottomText.classList.remove('opacity-0', 'translate-y-2');
+                bottomText.classList.add('opacity-100', 'translate-y-0');
+            }, 1600));
+
+            // PASO 4 (5.0s): Desvanecimiento del meme (+0.5s duración)
+            uuidTimers.push(setTimeout(() => {
+                card.classList.remove('opacity-100', 'scale-100');
+                card.classList.add('opacity-0', 'scale-105');
+            }, 5000));
+
+            // PASO 5 (5.6s): Revelar contenido completo de la diapositiva
+            uuidTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 5600));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA EXPECTATIVA vs REALIDAD KISS (SLIDE 5)
+        // ========================================================
+        let observerTimers = [];
+
+        function cleanUpObserverEffects() {
+            observerTimers.forEach(t => clearTimeout(t));
+            observerTimers = [];
+        }
+
+        function finishObserverJokeImmediately() {
+            cleanUpObserverEffects();
+            const overlay = document.getElementById('observer-intro-overlay');
+            const content = document.getElementById('observer-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageObserverSlideAnimation() {
+            cleanUpObserverEffects();
+
+            const overlay = document.getElementById('observer-intro-overlay');
+            const badge = document.getElementById('observer-badge');
+            const title = document.getElementById('observer-title');
+            const gofBox = document.getElementById('observer-gof-box');
+            const stamp = document.getElementById('observer-stamp');
+            const kissBox = document.getElementById('observer-kiss-box');
+            const kissBadge = document.getElementById('observer-kiss-badge');
+            const kissText = document.getElementById('observer-kiss-text');
+            const hint = document.getElementById('observer-hint');
+            const content = document.getElementById('observer-real-content');
+
+            if (!overlay || !badge || !title || !gofBox || !stamp || !kissBox || !hint || !content) return;
+
+            if (currentSlide !== 5) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 5: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset de estilos
+            badge.classList.remove('opacity-100', 'translate-y-0');
+            badge.classList.add('opacity-0', '-translate-y-2');
+
+            title.classList.remove('opacity-100', 'translate-y-0');
+            title.classList.add('opacity-0', '-translate-y-2');
+
+            gofBox.classList.remove('opacity-100', 'translate-x-0');
+            gofBox.classList.add('opacity-0', '-translate-x-4');
+
+            stamp.classList.remove('opacity-100', 'scale-100');
+            stamp.classList.add('opacity-0', 'scale-110');
+
+            kissBox.classList.remove('opacity-100', 'translate-x-0');
+            kissBox.classList.add('opacity-0', 'translate-x-4');
+
+            if (kissBadge) kissBadge.classList.remove('kiss-pulse-glow');
+            if (kissText) kissText.classList.remove('text-glow-emerald');
+
+            hint.classList.remove('opacity-100');
+            hint.classList.add('opacity-0');
+
+            // PASO 1 (0.3s): Título y badge ("Sobreingeniería vs Necesidad")
+            observerTimers.push(setTimeout(() => {
+                badge.classList.remove('opacity-0', '-translate-y-2');
+                badge.classList.add('opacity-100', 'translate-y-0');
+
+                title.classList.remove('opacity-0', '-translate-y-2');
+                title.classList.add('opacity-100', 'translate-y-0');
+            }, 300));
+
+            // PASO 2 (0.7s): Entra la caja de sobreingeniería GoF (tiempo extendido para leer)
+            observerTimers.push(setTimeout(() => {
+                gofBox.classList.remove('opacity-0', '-translate-x-4');
+                gofBox.classList.add('opacity-100', 'translate-x-0');
+            }, 700));
+
+            // PASO 3 (4.2s): ¡Estampado de YAGNI / DESCARTADO! (da 3.5s para leer tranquilamente)
+            observerTimers.push(setTimeout(() => {
+                stamp.classList.remove('opacity-0', 'scale-110');
+                stamp.classList.add('opacity-100', 'scale-100');
+            }, 4200));
+
+            // PASO 4 (5.8s): Entra la solución KISS en estático para leer primero
+            observerTimers.push(setTimeout(() => {
+                kissBox.classList.remove('opacity-0', 'translate-x-4');
+                kissBox.classList.add('opacity-100', 'translate-x-0');
+            }, 5800));
+
+            // PASO 4.5 (7.0s): Tras 1.2s de lectura, arranca el latido y el brillo esmeralda
+            observerTimers.push(setTimeout(() => {
+                if (kissBadge) kissBadge.classList.add('kiss-pulse-glow');
+                if (kissText) kissText.classList.add('text-glow-emerald');
+            }, 7000));
+
+            // PASO 5 (7.8s): Pista de continuar
+            observerTimers.push(setTimeout(() => {
+                hint.classList.remove('opacity-0');
+                hint.classList.add('opacity-100');
+            }, 7800));
+
+            // PASO 6 (12.2s): Desvanecer y mostrar contenido real (segunda caja dura >6.4s en total)
+            observerTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 12200));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA PLUG & PLAY CON SVGs (SLIDE 6)
+        // ========================================================
+        let repoTimers = [];
+
+        function cleanUpRepoEffects() {
+            repoTimers.forEach(t => clearTimeout(t));
+            repoTimers = [];
+        }
+
+        function finishRepoJokeImmediately() {
+            cleanUpRepoEffects();
+            const overlay = document.getElementById('repo-intro-overlay');
+            const content = document.getElementById('repo-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageRepoSlideAnimation() {
+            cleanUpRepoEffects();
+
+            const overlay = document.getElementById('repo-intro-overlay');
+            const badge = document.getElementById('repo-badge');
+            const title = document.getElementById('repo-title');
+            const socket = document.getElementById('repo-socket-box');
+            const socketIcon = document.getElementById('repo-socket-icon');
+            const socketStatus = document.getElementById('repo-socket-status');
+            const ramCard = document.getElementById('repo-ram-card');
+            const ramBadge = document.getElementById('repo-ram-badge');
+            const mysqlCard = document.getElementById('repo-mysql-card');
+            const mysqlBadge = document.getElementById('repo-mysql-badge');
+            const msgBanner = document.getElementById('repo-msg-banner');
+            const hint = document.getElementById('repo-hint');
+            const content = document.getElementById('repo-real-content');
+
+            if (!overlay || !badge || !title || !socket || !socketIcon || !socketStatus || !ramCard || !ramBadge || !mysqlCard || !mysqlBadge || !msgBanner || !hint || !content) return;
+
+            if (currentSlide !== 6) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 6: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset inicial de estados
+            badge.className = "px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2";
+            title.className = "text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2";
+            socket.className = "w-full p-4 rounded-2xl bg-slate-900/90 border-2 border-dashed border-slate-700 shadow-2xl flex items-center justify-between gap-3 font-mono transition-all duration-700 opacity-0 transform -translate-y-3";
+            socketIcon.className = "w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400 transition-colors duration-500";
+            socketStatus.className = "text-xs px-3 py-1 rounded-full bg-slate-950 text-slate-400 border border-slate-800 font-semibold transition-all duration-500";
+            socketStatus.textContent = "Esperando módulo...";
+
+            ramCard.className = "rounded-2xl bg-slate-900/90 border-2 border-slate-800 p-4 flex flex-col items-center text-center transition-all duration-700 opacity-0 transform translate-y-4";
+            ramBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono transition-all duration-500";
+            ramBadge.textContent = "Modo memoria";
+
+            mysqlCard.className = "rounded-2xl bg-slate-900/90 border-2 border-slate-800 p-4 flex flex-col items-center text-center transition-all duration-700 opacity-0 transform translate-y-4";
+            mysqlBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono transition-all duration-500";
+            mysqlBadge.textContent = "Persistencia real";
+
+            msgBanner.className = "mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2";
+            msgBanner.innerHTML = "";
+
+            hint.className = "mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2";
+
+            // PASO 1 (0.3s): Título y badge
+            repoTimers.push(setTimeout(() => {
+                badge.classList.remove('opacity-0', '-translate-y-2');
+                badge.classList.add('opacity-100', 'translate-y-0');
+
+                title.classList.remove('opacity-0', '-translate-y-2');
+                title.classList.add('opacity-100', 'translate-y-0');
+            }, 300));
+
+            // PASO 2 (0.7s): Entra el Socket de la Interfaz
+            repoTimers.push(setTimeout(() => {
+                socket.classList.remove('opacity-0', '-translate-y-3');
+                socket.classList.add('opacity-100', 'translate-y-0');
+            }, 700));
+
+            // PASO 3 (1.5s): Se enchufa InRamTaskRepository (Chip de RAM)
+            repoTimers.push(setTimeout(() => {
+                ramCard.classList.remove('opacity-0', 'translate-y-4', 'border-slate-800');
+                ramCard.classList.add('opacity-100', 'translate-y-0', 'border-cyan-400', 'shadow-[0_0_25px_rgba(6,182,212,0.25)]');
+
+                socket.classList.remove('border-slate-700');
+                socket.classList.add('border-cyan-400', 'shadow-[0_0_25px_rgba(6,182,212,0.25)]');
+
+                socketIcon.classList.remove('text-slate-400', 'border-slate-800');
+                socketIcon.classList.add('text-cyan-300', 'border-cyan-400', 'bg-cyan-950/80');
+
+                socketStatus.className = "text-xs px-3 py-1 rounded-full bg-cyan-950/90 text-cyan-300 border border-cyan-400 font-bold transition-all duration-500 shadow-sm";
+                socketStatus.innerHTML = '<i class="fa-solid fa-bolt text-[10px] mr-1"></i> Enchufado: InRamTaskRepo';
+
+                ramBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-400 font-mono font-bold transition-all duration-500";
+                ramBadge.textContent = "Conectado al Servicio ✓";
+
+                msgBanner.classList.remove('opacity-0', 'translate-y-2');
+                msgBanner.classList.add('opacity-100', 'translate-y-0');
+                msgBanner.innerHTML = '<span class="text-cyan-300 font-bold">Fase 1:</span> Desarrollamos la CLI completa y suites de tests en RAM a 0ms de latencia.';
+            }, 1500));
+
+            // PASO 4 (4.8s): Se enchufa DAOTaskRepository (MySQL) y se conserva InRam
+            repoTimers.push(setTimeout(() => {
+                mysqlCard.classList.remove('opacity-0', 'translate-y-4', 'border-slate-800');
+                mysqlCard.classList.add('opacity-100', 'translate-y-0', 'border-emerald-400', 'shadow-[0_0_30px_rgba(16,185,129,0.25)]');
+
+                mysqlBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-400 font-mono font-bold transition-all duration-500";
+                mysqlBadge.textContent = "Conectado a Producción ✓";
+
+                // El socket pasa a brillar en verde MySQL
+                socket.classList.remove('border-cyan-400', 'shadow-[0_0_25px_rgba(6,182,212,0.25)]');
+                socket.classList.add('border-emerald-400', 'shadow-[0_0_25px_rgba(16,185,129,0.25)]');
+
+                socketIcon.classList.remove('text-cyan-300', 'border-cyan-400', 'bg-cyan-950/80');
+                socketIcon.classList.add('text-emerald-300', 'border-emerald-400', 'bg-emerald-950/80');
+
+                socketStatus.className = "text-xs px-3 py-1 rounded-full bg-emerald-950/90 text-emerald-300 border border-emerald-400 font-bold transition-all duration-500 shadow-sm";
+                socketStatus.innerHTML = '<i class="fa-solid fa-database text-[10px] mr-1"></i> Enchufado: DAOTaskRepo';
+
+                // InRam no se borra: se destaca como base de tests y caché
+                ramCard.classList.remove('border-cyan-400', 'shadow-[0_0_25px_rgba(6,182,212,0.25)]');
+                ramCard.classList.add('border-indigo-500/60', 'shadow-[0_0_20px_rgba(99,102,241,0.15)]');
+
+                ramBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-950/90 text-indigo-300 border border-indigo-400/60 font-mono font-bold transition-all duration-500";
+                ramBadge.textContent = "Conservado: Tests & Caché L1 ✨";
+
+                msgBanner.innerHTML = '<span class="text-emerald-300 font-bold">Fase 2:</span> Conectamos MySQL y la CLI requirió <span class="text-white underline decoration-cyan-400 font-bold">exactamente 0 cambios</span>.';
+            }, 4800));
+
+            // PASO 5 (8.4s): Mensaje de conclusión e indicación
+            repoTimers.push(setTimeout(() => {
+                msgBanner.innerHTML = '<span class="text-yellow-300 font-bold">Inversión de Dependencias:</span> Dos implementaciones, cero acoplamiento.';
+                hint.classList.remove('opacity-0');
+                hint.classList.add('opacity-100');
+            }, 8400));
+
+            // PASO 6 (12.6s): Desvanecer overlay y revelar contenido real
+            repoTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 12600));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA CADENA DE MONTAJE DI (SLIDE 7)
+        // ========================================================
+        let diTimers = [];
+
+        function cleanUpDiEffects() {
+            diTimers.forEach(t => clearTimeout(t));
+            diTimers = [];
+        }
+
+        function finishDiJokeImmediately() {
+            cleanUpDiEffects();
+            const overlay = document.getElementById('di-intro-overlay');
+            const content = document.getElementById('di-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageDiSlideAnimation() {
+            cleanUpDiEffects();
+
+            const overlay = document.getElementById('di-intro-overlay');
+            const badge = document.getElementById('di-badge');
+            const title = document.getElementById('di-title');
+            const step1 = document.getElementById('di-step-1');
+            const arrow1 = document.getElementById('di-arrow-1');
+            const step2 = document.getElementById('di-step-2');
+            const arrow2 = document.getElementById('di-arrow-2');
+            const step3 = document.getElementById('di-step-3');
+            const arrow3 = document.getElementById('di-arrow-3');
+            const step4 = document.getElementById('di-step-4');
+            const arrowDown = document.getElementById('di-arrow-down');
+            const finalCard = document.getElementById('di-final-card');
+            const summaryBanner = document.getElementById('di-summary-banner');
+            const hint = document.getElementById('di-hint');
+            const content = document.getElementById('di-real-content');
+
+            if (!overlay || !badge || !title || !step1 || !step2 || !step3 || !step4 || !finalCard || !summaryBanner || !hint || !content) return;
+
+            if (currentSlide !== 7) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 7: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset inicial de clases y estilos
+            badge.className = "px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2";
+            title.className = "text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2";
+
+            step1.className = "flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3";
+            if (arrow1) arrow1.className = "text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block";
+
+            step2.className = "flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3";
+            if (arrow2) arrow2.className = "text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block";
+
+            step3.className = "flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3";
+            if (arrow3) arrow3.className = "text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block";
+
+            step4.className = "flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3";
+            if (arrowDown) arrowDown.className = "my-2.5 text-slate-600 transition-all duration-500 opacity-0 transform -translate-y-1";
+
+            finalCard.className = "w-full max-w-xl p-3.5 px-5 rounded-2xl bg-slate-900/95 border-2 border-slate-800 shadow-2xl flex items-center justify-between gap-4 font-mono transition-all duration-700 opacity-0 transform scale-95";
+            summaryBanner.className = "mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2";
+            hint.className = "mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2";
+
+            // PASO 1 (0.3s): Título y badge
+            diTimers.push(setTimeout(() => {
+                badge.classList.remove('opacity-0', '-translate-y-2');
+                badge.classList.add('opacity-100', 'translate-y-0');
+
+                title.classList.remove('opacity-0', '-translate-y-2');
+                title.classList.add('opacity-100', 'translate-y-0');
+            }, 300));
+
+            // PASO 2 (0.8s): 1. DAO (Datos)
+            diTimers.push(setTimeout(() => {
+                step1.classList.remove('opacity-0', 'translate-y-3');
+                step1.classList.add('opacity-100', 'translate-y-0', 'border-blue-500/70', 'shadow-[0_0_20px_rgba(59,130,246,0.25)]');
+            }, 800));
+
+            // PASO 3 (1.7s): Flecha 1 y 2. Repository (Dominio)
+            diTimers.push(setTimeout(() => {
+                if (arrow1) {
+                    arrow1.classList.remove('opacity-0', '-translate-x-1', 'text-slate-600');
+                    arrow1.classList.add('opacity-100', 'translate-x-0', 'text-cyan-400');
+                }
+                step2.classList.remove('opacity-0', 'translate-y-3');
+                step2.classList.add('opacity-100', 'translate-y-0', 'border-cyan-500/70', 'shadow-[0_0_20px_rgba(6,182,212,0.25)]');
+            }, 1700));
+
+            // PASO 4 (2.6s): Flecha 2 y 3. Service (Lógica)
+            diTimers.push(setTimeout(() => {
+                if (arrow2) {
+                    arrow2.classList.remove('opacity-0', '-translate-x-1', 'text-slate-600');
+                    arrow2.classList.add('opacity-100', 'translate-x-0', 'text-purple-400');
+                }
+                step3.classList.remove('opacity-0', 'translate-y-3');
+                step3.classList.add('opacity-100', 'translate-y-0', 'border-purple-500/70', 'shadow-[0_0_20px_rgba(168,85,247,0.25)]');
+            }, 2600));
+
+            // PASO 5 (3.5s): Flecha 3 y 4. CLI (Presentación)
+            diTimers.push(setTimeout(() => {
+                if (arrow3) {
+                    arrow3.classList.remove('opacity-0', '-translate-x-1', 'text-slate-600');
+                    arrow3.classList.add('opacity-100', 'translate-x-0', 'text-emerald-400');
+                }
+                step4.classList.remove('opacity-0', 'translate-y-3');
+                step4.classList.add('opacity-100', 'translate-y-0', 'border-emerald-500/70', 'shadow-[0_0_20px_rgba(16,185,129,0.25)]');
+            }, 3500));
+
+            // PASO 6 (4.6s): Flecha hacia abajo y Producto ensamblado (MainMenuCli)
+            diTimers.push(setTimeout(() => {
+                if (arrowDown) {
+                    arrowDown.classList.remove('opacity-0', '-translate-y-1', 'text-slate-600');
+                    arrowDown.classList.add('opacity-100', 'translate-y-0', 'text-emerald-400');
+                }
+                finalCard.classList.remove('opacity-0', 'scale-95', 'border-slate-800');
+                finalCard.classList.add('opacity-100', 'scale-100', 'border-emerald-400/90', 'shadow-[0_0_35px_rgba(16,185,129,0.3)]');
+            }, 4600));
+
+            // PASO 7 (5.8s): Banner de resumen de impacto y pista
+            diTimers.push(setTimeout(() => {
+                summaryBanner.classList.remove('opacity-0', 'translate-y-2');
+                summaryBanner.classList.add('opacity-100', 'translate-y-0');
+
+                hint.classList.remove('opacity-0');
+                hint.classList.add('opacity-100');
+            }, 5800));
+
+            // PASO 8 (11.5s): Desvanecer overlay y revelar contenido real
+            diTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 11500));
         }
 
         function nextSlide() {

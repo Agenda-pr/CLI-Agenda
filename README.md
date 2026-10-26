@@ -173,8 +173,9 @@ public static MainMenuCli init() {
 `Main` actúa exclusivamente como punto de entrada: invoca `AppInitializer.init()`, ejecuta `mainMenu.showMenu()`, captura `DatabaseException` y asegura el cierre de la conexión en su cláusula `finally`.
 
 **Por qué:**
-- **Simplicidad sin frameworks:** Un contenedor IoC como Spring sería desproporcionado para una herramienta CLI de consola. La inyección manual por constructor proporciona el mismo desacoplamiento con total claridad.
-- **Control y testabilidad:** Ninguna clase instancia sus dependencias mediante `new`, facilitando sustituir cualquier componente en tests unitarios.
+- **Punto único de ensamblaje:** Centraliza todo el cableado e instanciación de dependencias por constructor en una única clase especializada, evitando dispersar operadores `new` por el resto del proyecto.
+- **`Main` limpio y enfocado:** La clase `Main` se mantiene mínima (apenas 10 líneas); delega la complejidad del montaje y se concentra exclusivamente en iniciar la aplicación y garantizar el cierre de recursos en su bloque `finally`.
+- **Control y testabilidad:** Ninguna clase instancia internamente sus dependencias, asegurando un desacoplamiento estricto y facilitando sustituir cualquier componente en pruebas.
 
 #### 2.4. Patrón Singleton en ConnectionFactory
 
