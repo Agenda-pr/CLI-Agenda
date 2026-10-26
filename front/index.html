@@ -261,13 +261,37 @@
                     </div>
                 </div>
             </div>
+            </div>
         </section>
 
         <!-- ==========================================
              SLIDE 3: DECISIÓN 2 - DTOs DESACOPLADOS
         =========================================== -->
-        <section id="slide-3" class="slide flex-col max-w-5xl mx-auto w-full py-4">
-            <div class="mb-6">
+        <section id="slide-3" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative min-h-[460px] justify-center">
+
+            <!-- INTRO CINEMÁTICA / MIRAS PERO NO TOCAS (DTOs FOTOGRAFÍA) -->
+            <div id="dto-intro-overlay" onclick="finishDtoJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="flex flex-col items-center text-center px-6 max-w-2xl">
+                    <div id="dto-badge-icon" class="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-2xl mb-6 shadow-xl shadow-cyan-500/10 transition-all duration-700 opacity-0 transform scale-75">
+                        <i class="fa-solid fa-camera-retro"></i>
+                    </div>
+                    
+                    <h2 id="dto-big-title" class="text-3xl sm:text-5xl font-black font-mono tracking-tight text-white mb-4 transition-all duration-700 opacity-0 transform scale-90 drop-shadow-[0_0_30px_rgba(6,182,212,0.5)]">
+                        Look, but don’t touch... <span class="inline-block">📸</span>
+                    </h2>
+
+                    <!-- Contenedor con altura reservada para que NADA se mueva al aparecer el texto -->
+                    <div class="min-h-[3.5rem] flex items-center justify-center">
+                        <p id="dto-sub-title" class="text-base sm:text-lg text-slate-400 font-mono italic transition-all duration-700 opacity-0 transform translate-y-2">
+                            La CLI no entra en la cocina del Dominio. Solo mira la foto de la carta.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="dto-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
                 <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 2 &bull; Arquitectura Limpia</span>
                 <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Barrera de DTOs entre Servicio y CLI</h2>
             </div>
@@ -315,6 +339,7 @@
     <span class="text-cyan-300">List</span>&lt;<span class="text-cyan-300">UUID</span>&gt; taskIds
 ) {}</code></pre>
                 </div>
+            </div>
             </div>
         </section>
 
@@ -828,8 +853,9 @@
             // Actualizar URL hash
             history.replaceState(null, null, `#slide-${currentSlide}`);
 
-            // Gestión de la intro cinemática de Value Objects
+            // Gestión de las intros cinemáticas
             manageVoSlideAnimation();
+            manageDtoSlideAnimation();
         }
 
         // ========================================================
@@ -966,6 +992,95 @@
                     badge.remove();
                 }, totalLifetime));
             });
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA CLUB EXCLUSIVO DTOs (SLIDE 3)
+        // ========================================================
+        let dtoTimers = [];
+
+        function cleanUpDtoEffects() {
+            dtoTimers.forEach(t => clearTimeout(t));
+            dtoTimers = [];
+        }
+
+        function finishDtoJokeImmediately() {
+            cleanUpDtoEffects();
+            const overlay = document.getElementById('dto-intro-overlay');
+            const content = document.getElementById('dto-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageDtoSlideAnimation() {
+            cleanUpDtoEffects();
+
+            const overlay = document.getElementById('dto-intro-overlay');
+            const icon = document.getElementById('dto-badge-icon');
+            const bigTitle = document.getElementById('dto-big-title');
+            const subTitle = document.getElementById('dto-sub-title');
+            const content = document.getElementById('dto-real-content');
+
+            if (!overlay || !icon || !bigTitle || !subTitle || !content) return;
+
+            if (currentSlide !== 3) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 3: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset visual inicial (con espacio reservado para cero saltos de layout)
+            icon.classList.remove('opacity-100', 'scale-100');
+            icon.classList.add('opacity-0', 'scale-75');
+
+            bigTitle.classList.remove('opacity-100', 'scale-100');
+            bigTitle.classList.add('opacity-0', 'scale-90');
+
+            subTitle.classList.remove('opacity-100', 'translate-y-0');
+            subTitle.classList.add('opacity-0', 'translate-y-2');
+
+            // PASO 1 (0.4s): Icono Cámara y Título en grande "Look, but don't touch..."
+            dtoTimers.push(setTimeout(() => {
+                icon.classList.remove('opacity-0', 'scale-75');
+                icon.classList.add('opacity-100', 'scale-100');
+
+                bigTitle.classList.remove('opacity-0', 'scale-90');
+                bigTitle.classList.add('opacity-100', 'scale-100');
+            }, 400));
+
+            // PASO 2 (1.8s): Subtítulo (el espacio ya estaba reservado, NADA se mueve)
+            dtoTimers.push(setTimeout(() => {
+                subTitle.classList.remove('opacity-0', 'translate-y-2');
+                subTitle.classList.add('opacity-100', 'translate-y-0');
+            }, 1800));
+
+            // PASO 3 (4.0s): Desvanecimiento suave (sin flash)
+            dtoTimers.push(setTimeout(() => {
+                icon.classList.remove('opacity-100');
+                icon.classList.add('opacity-0');
+
+                bigTitle.classList.remove('opacity-100', 'scale-100');
+                bigTitle.classList.add('opacity-0', 'scale-105');
+
+                subTitle.classList.remove('opacity-100');
+                subTitle.classList.add('opacity-0');
+            }, 4000));
+
+            // PASO 4 (4.6s): Revelar contenido completo de la diapositiva
+            dtoTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 4600));
         }
 
         function nextSlide() {
