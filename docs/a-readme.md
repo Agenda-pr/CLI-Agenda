@@ -26,11 +26,7 @@ Aplicación de gestión de eventos, tareas y notas con persistencia en MySQL 8.0
 
 ## 🚀 Inicio rápido
 
-La aplicación puede ejecutarse de **dos formas distintas**. Elige una según tu flujo de trabajo:
-
-### Paso común: configuración inicial
-
-Ambas opciones requieren preparar los archivos de configuración **una sola vez**:
+Configuración de credenciales previa a la ejecución (**una sola vez**):
 
 ```bash
 cp .env.example .env
@@ -38,39 +34,6 @@ cp src/main/resources/application.properties.example src/main/resources/applicat
 ```
 
 > ⚠️ `.env` y `application.properties` deben tener los **mismos valores** de credenciales. Ambos están excluidos de Git por `.gitignore`.
-
----
-
-### Opción A — MySQL en Docker + App desde IntelliJ (recomendado para desarrollo)
-
-La forma más cómoda para iterar: la base de datos corre en un contenedor y la aplicación se ejecuta localmente con el depurador del IDE, conectándose a MySQL a través del puerto `3306` expuesto.
-
-```bash
-# 1. Levantar solo MySQL en segundo plano
-docker compose up -d mysql
-
-# 2. Esperar a que el contenedor esté "healthy"
-docker compose ps
-
-# 3. Ejecutar la clase Main desde IntelliJ
-```
-
-La app leerá automáticamente `application.properties`, que apunta a `localhost:3306`.
-
----
-
-### Opción B — Todo dentro de Docker
-
-Compila la aplicación en una imagen multi-stage y la ejecuta de forma interactiva. El servicio `app` está bajo el perfil `"app"`, por lo que **no arranca con `up -d`**; hay que invocarlo explícitamente.
-
-```bash
-# 1. Ejecutar la app interactiva (compila, arranca y se autodestruye al salir)
-docker compose run --rm --build app
-```
-
-> `docker compose` esperará automáticamente a que `mysql` esté `healthy` antes de arrancar la app (condición `depends_on: service_healthy`).
->
-> La app recibirá las credenciales vía variables de entorno (`DB_HOST=mysql`, etc.), por lo que `ConnectionFactory` las priorizará sobre `application.properties`.
 
 ---
 
