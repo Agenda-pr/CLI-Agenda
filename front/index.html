@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLI-Agenda — Presentación del Proyecto</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        dark: {
+                            900: '#070a12',
+                            800: '#0c1220',
+                            700: '#151e33',
+                            600: '#1e2c4a',
+                        },
+                        brand: {
+                            cyan: '#06b6d4',
+                            emerald: '#10b981',
+                            indigo: '#6366f1',
+                            violet: '#8b5cf6',
+                        }
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 8s ease infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { opacity: '0.4' },
+                            '50%': { opacity: '0.8' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #070a12; }
+        ::-webkit-scrollbar-thumb { background: #1e2c4a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+
+        /* Background grid pattern */
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(99, 102, 241, 0.12) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* Glassmorphism effect */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-dark-900 text-slate-200 font-sans selection:bg-brand-indigo selection:text-white overflow-x-hidden">
+
+    <!-- Ambient glowing light spots -->
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-brand-indigo/15 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow"></div>
+    <div class="fixed top-1/3 right-10 w-96 h-96 bg-brand-cyan/15 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow" style="animation-delay: 1.5s;"></div>
+    <div class="fixed bottom-10 left-1/3 w-96 h-96 bg-brand-violet/15 rounded-full blur-3xl pointer-events-none -z-10 animate-pulse-glow" style="animation-delay: 3s;"></div>
+
+    <!-- Navigation Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass-card border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-indigo to-brand-cyan flex items-center justify-center font-mono font-bold text-lg text-white shadow-lg shadow-brand-indigo/30 group-hover:scale-105 transition-transform">
+                    &gt;_
+                </div>
+                <div>
+                    <span class="font-bold text-lg tracking-tight text-white group-hover:text-brand-cyan transition-colors">CLI-Agenda</span>
+                    <span class="text-xs block text-slate-400 font-mono">v1.0.0 • Clean Architecture</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+                <a href="#organizacion" class="hover:text-brand-cyan transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-users text-xs text-brand-indigo"></i> Organización
+                </a>
+                <a href="#decisiones" class="hover:text-brand-cyan transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-brain text-xs text-brand-indigo"></i> Decisiones
+                </a>
+                <a href="#arquitectura" class="hover:text-brand-cyan transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-layer-group text-xs text-brand-indigo"></i> Arquitectura
+                </a>
+                <a href="#demo" class="hover:text-brand-cyan transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-terminal text-xs text-brand-emerald"></i> Demo en Vivo
+                </a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <span class="hidden sm:inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-brand-emerald/10 text-brand-emerald border border-brand-emerald/20">
+                    <span class="w-2 h-2 rounded-full bg-brand-emerald animate-ping"></span>
+                    Tests 100% en verde
+                </span>
+                <a href="#demo" class="px-4 py-2 rounded-xl bg-gradient-to-r from-brand-indigo to-brand-violet hover:from-brand-violet hover:to-brand-indigo text-white font-medium text-sm transition-all duration-300 shadow-md shadow-brand-indigo/30 hover:shadow-brand-indigo/50 hover:scale-105">
+                    Lanzar Demo
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative pt-36 pb-24 px-6 bg-grid-pattern min-h-screen flex items-center">
+        <div class="max-w-7xl mx-auto w-full grid lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- Left Column: Copy -->
+            <div class="lg:col-span-7 space-y-6" data-aos="fade-right" data-aos-duration="1000">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase bg-slate-800/80 text-brand-cyan border border-brand-cyan/30 shadow-inner">
+                    <i class="fa-solid fa-shield-halved"></i> Especialización IT • Presentación Final
+                </div>
+
+                <h1 class="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.15]">
+                    Gestión integral desde consola con <span class="bg-gradient-to-r from-brand-cyan via-brand-indigo to-brand-violet bg-clip-text text-transparent animate-gradient-x">Criterio de Ingeniería</span>
+                </h1>
+
+                <p class="text-lg text-slate-400 max-w-xl leading-relaxed">
+                    Diseño modular de una agenda interactiva de Tareas, Notas y Eventos. Enfocada en <strong>Domain-Driven Design</strong>, arquitectura limpia sin sobre-ingeniería y despliegue desacoplado con Docker.
+                </p>
+
+                <!-- Tech Badges -->
+                <div class="flex flex-wrap gap-2.5 pt-2">
+                    <span class="px-3 py-1.5 rounded-lg bg-dark-800 text-xs font-mono font-medium border border-slate-700/60 flex items-center gap-2 text-slate-300">
+                        <i class="fa-brands fa-java text-orange-400 text-sm"></i> Java 25 (Record VOs)
+                    </span>
+                    <span class="px-3 py-1.5 rounded-lg bg-dark-800 text-xs font-mono font-medium border border-slate-700/60 flex items-center gap-2 text-slate-300">
+                        <i class="fa-solid fa-database text-cyan-400 text-sm"></i> MySQL 8.0 (InnoDB)
+                    </span>
+                    <span class="px-3 py-1.5 rounded-lg bg-dark-800 text-xs font-mono font-medium border border-slate-700/60 flex items-center gap-2 text-slate-300">
+                        <i class="fa-brands fa-docker text-blue-400 text-sm"></i> Multi-Stage Docker
+                    </span>
+                    <span class="px-3 py-1.5 rounded-lg bg-dark-800 text-xs font-mono font-medium border border-slate-700/60 flex items-center gap-2 text-slate-300">
+                        <i class="fa-solid fa-code-merge text-emerald-400 text-sm"></i> Git Rebase Workflow
+                    </span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <a href="#decisiones" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-brand-indigo to-brand-cyan text-white font-semibold text-sm shadow-lg shadow-brand-indigo/30 hover:scale-105 transition-all flex items-center gap-2">
+                        Ver Decisiones de Diseño <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    <a href="#organizacion" class="px-6 py-3.5 rounded-xl glass-card hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-700/60 hover:border-slate-500 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-users-gear text-brand-cyan"></i> Organización del Equipo
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Terminal Mockup -->
+            <div class="lg:col-span-5" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                <div class="relative animate-float">
+                    <!-- Glow behind terminal -->
+                    <div class="absolute -inset-1 bg-gradient-to-r from-brand-indigo to-brand-cyan rounded-2xl blur-xl opacity-30"></div>
+                    
+                    <div class="relative rounded-2xl overflow-hidden glass-card shadow-2xl border border-slate-700/80 bg-dark-900/95 font-mono text-xs sm:text-sm">
+                        <!-- Terminal Bar -->
+                        <div class="px-4 py-3 bg-dark-800 border-b border-slate-800 flex items-center justify-between select-none">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
+                                <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+                            </div>
+                            <span class="text-xs text-slate-400 font-medium">terminal — agendita</span>
+                            <span class="text-xs text-slate-500"><i class="fa-solid fa-lock text-[10px]"></i> zsh</span>
+                        </div>
+
+                        <!-- Terminal Body -->
+                        <div class="p-5 space-y-3 text-slate-300 leading-relaxed overflow-x-auto">
+                            <div class="flex items-center gap-2 text-brand-cyan">
+                                <span class="text-brand-emerald">legreen@macbook</span>:<span class="text-indigo-400">~/CLI-Agendaa</span>$ <span class="text-white font-bold typing-effect">agendita</span>
+                            </div>
+
+                            <p class="text-slate-500 text-xs">✔ Container agenda-mysql  Healthy [0.0s]</p>
+
+                            <!-- ASCII Logo in Terminal -->
+                            <pre class="text-[10px] sm:text-xs text-brand-cyan font-bold leading-tight select-none">
+   ___    ____  _____  _   _  ____     _    
+  /   \  / ___|| ____|| \ | ||  _ \   / \   
+ / /_\ \| |  _ |  _|  |  \| || | | | / _ \  
+/ / _ \ \ |_| || |___ | |\  || |_| |/ ___ \ 
+\/_/ \_\_\____||_____||_| \_||____//_/   \_\</pre>
+
+                            <!-- Reminder box -->
+                            <div class="p-2.5 rounded bg-dark-800/80 border border-slate-700/60 text-xs space-y-1">
+                                <span class="text-amber-400 font-bold block">=== UPCOMING EVENTS REMINDER ===</span>
+                                <div class="text-emerald-400">TODAY: <span class="text-slate-300">• Presentación Proyecto (16:00)</span></div>
+                                <div class="text-indigo-400">SOON: <span class="text-slate-300">• Examen Especialización (28/10)</span></div>
+                            </div>
+
+                            <div class="space-y-0.5 text-xs text-slate-400">
+                                <p class="text-white font-semibold">****CLI-AGENDA - MAIN MENU****</p>
+                                <p>1. Tasks (Filtros, vencimiento, prioridades)</p>
+                                <p>2. Notes (Relación 1:N vinculada a tarea)</p>
+                                <p>3. Events (Recurrencias y notificaciones)</p>
+                                <p>0. Exit</p>
+                            </div>
+
+                            <div class="flex items-center gap-1.5 text-brand-emerald font-semibold pt-1">
+                                <span>Choose an option:</span>
+                                <span class="w-2 h-4 bg-brand-emerald animate-pulse inline-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION: Organización del Equipo -->
+    <section id="organizacion" class="py-24 px-6 border-t border-slate-800/80 relative">
+        <div class="max-w-7xl mx-auto space-y-16">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-4" data-aos="fade-up">
+                <span class="text-brand-cyan font-mono text-xs font-semibold tracking-wider uppercase px-3 py-1 rounded-full bg-brand-cyan/10 border border-brand-cyan/20">
+                    Trabajo en Pareja
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    Cómo nos organizamos para trabajar
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Estrategia de desarrollo paralelo sin bloqueos, aplicando buenas prácticas de Git colaborativo y arquitectura por capas.
+                </p>
+            </div>
+
+            <!-- Workflow Highlights Grid -->
+            <div class="grid md:grid-cols-3 gap-8">
+                
+                <!-- Card 1: División clara sin bloqueos -->
+                <div class="glass-card p-8 rounded-2xl space-y-4 transition-all duration-300 hover:-translate-y-2" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-14 h-14 rounded-xl bg-brand-indigo/20 border border-brand-indigo/30 flex items-center justify-center text-brand-indigo text-2xl">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">División de Capas sin Bloqueos</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Para no pisarnos ni esperar por dependencias técnicas, dividimos el proyecto por áreas claras:
+                    </p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-slate-800">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-brand-emerald mt-0.5"></i>
+                            <span><strong>Lado A:</strong> Dominio, Value Objects, Servicios, interfaz interactiva CLI y repositorios provisionales <code class="text-brand-cyan">InRam</code>.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-brand-cyan mt-0.5"></i>
+                            <span><strong>Lado B:</strong> Persistencia relacional, DAOs con JDBC, Dockerfile Multi-stage y Docker Compose con MySQL.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 2: Git Flow y Rebase Riguroso -->
+                <div class="glass-card p-8 rounded-2xl space-y-4 transition-all duration-300 hover:-translate-y-2" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-14 h-14 rounded-xl bg-brand-cyan/20 border border-brand-cyan/30 flex items-center justify-center text-brand-cyan text-2xl">
+                        <i class="fa-solid fa-code-branch"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Flujo Git Limpio & Rebase</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Control exhaustivo del historial de Git para evitar "commits de merge" sucios y conflictos imprevistos:
+                    </p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-slate-800">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-brand-cyan mt-0.5"></i>
+                            <span>Ramas de feature atómicas (<code class="text-indigo-300">Feature/evente-domain</code>, <code class="text-indigo-300">chore/docker</code>).</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-brand-cyan mt-0.5"></i>
+                            <span>Actualización con <code class="text-brand-emerald">git fetch</code> + <code class="text-brand-emerald">git rebase dev</code> para mantener un árbol lineal.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-brand-cyan mt-0.5"></i>
+                            <span>Uso seguro de <code class="text-amber-300">--force-with-lease</code> para sincronizar ramas rebasadas sin destruir trabajo ajeno.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Card 3: User Stories y Revisión Continua -->
+                <div class="glass-card p-8 rounded-2xl space-y-4 transition-all duration-300 hover:-translate-y-2" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-14 h-14 rounded-xl bg-brand-emerald/20 border border-brand-emerald/30 flex items-center justify-center text-brand-emerald text-2xl">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Definición y Validación</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Nada se implementó a ciegas. Cada paso siguió un protocolo de verificación consensuado:
+                    </p>
+                    <ul class="space-y-2 text-xs text-slate-300 pt-2 border-t border-slate-800">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-brand-emerald mt-0.5"></i>
+                            <span><strong>User Stories con Checklist:</strong> Criterios de aceptación detallados antes de escribir código.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-brand-emerald mt-0.5"></i>
+                            <span><strong>Pull Requests con Markdown:</strong> Desglose minucioso de cada PR para facilitar la revisión del compañero.</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-brand-emerald mt-0.5"></i>
+                            <span><strong>Batería de Pruebas Cruzadas:</strong> Validación interactiva tanto en memoria como en MySQL dentro de Docker.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION: Decisiones de Diseño Clave -->
+    <section id="decisiones" class="py-24 px-6 bg-dark-800/40 border-t border-slate-800/80 relative">
+        <div class="max-w-7xl mx-auto space-y-16">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-4" data-aos="fade-up">
+                <span class="text-brand-indigo font-mono text-xs font-semibold tracking-wider uppercase px-3 py-1 rounded-full bg-brand-indigo/10 border border-brand-indigo/20">
+                    Criterio Técnico
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    Decisiones de Diseño Destacadas
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    En software no hay soluciones mágicas, sino balances de compromiso (*trade-offs*). Estas son las decisiones arquitectónicas clave y el porqué detrás de cada una.
+                </p>
+            </div>
+
+            <!-- Decisions Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                <!-- Decisión 1: Value Objects -->
+                <div class="glass-card p-7 rounded-2xl space-y-4 transition-all duration-300 hover:border-brand-indigo/60 group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-brand-indigo uppercase tracking-wider">01 • Dominio / DDD</span>
+                        <span class="p-2 rounded-lg bg-dark-800 text-brand-indigo group-hover:scale-110 transition-transform"><i class="fa-solid fa-shield-cat"></i></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-brand-cyan transition-colors">Value Objects vs Primitive Obsession</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Descartamos usar <code class="text-slate-200">String</code> o <code class="text-slate-200">LocalDate</code> desnudos. Creamos Java Records (<code class="text-brand-cyan">TaskTitle</code>, <code class="text-brand-cyan">EventCelebDate</code>) que se auto-validan en su constructor factoría.
+                    </p>
+                    <div class="p-3 rounded-lg bg-dark-900 border border-slate-800 text-xs font-mono text-slate-300">
+                        <span class="text-emerald-400">✔</span> Regla: <span class="text-indigo-300">EventCelebDate</span> no admite fechas anteriores al 01/01/2000 (previene erratas tipográficas).
+                    </div>
+                </div>
+
+                <!-- Decisión 2: Descarte Observer -->
+                <div class="glass-card p-7 rounded-2xl space-y-4 transition-all duration-300 hover:border-brand-cyan/60 group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-brand-cyan uppercase tracking-wider">02 • Patrones / Pragmatismo</span>
+                        <span class="p-2 rounded-lg bg-dark-800 text-brand-cyan group-hover:scale-110 transition-transform"><i class="fa-solid fa-bell-slash"></i></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-brand-cyan transition-colors">Descarte de Observer (KISS / YAGNI)</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Evaluamos usar el patrón Observer para avisos de eventos. Lo descartamos: en una CLI síncrona bloqueada por Scanner, notificaciones asíncronas corrompen la vista interactiva.
+                    </p>
+                    <div class="p-3 rounded-lg bg-dark-900 border border-slate-800 text-xs font-mono text-slate-300">
+                        <span class="text-emerald-400">✔</span> Consulta directa: <span class="text-cyan-300">listUpcomingEvents()</span> con refresco automático de recurrencias.
+                    </div>
+                </div>
+
+                <!-- Decisión 3: Cascada en MySQL -->
+                <div class="glass-card p-7 rounded-2xl space-y-4 transition-all duration-300 hover:border-brand-emerald/60 group" data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-brand-emerald uppercase tracking-wider">03 • Persistencia / BD</span>
+                        <span class="p-2 rounded-lg bg-dark-800 text-brand-emerald group-hover:scale-110 transition-transform"><i class="fa-solid fa-diagram-project"></i></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-brand-cyan transition-colors">ON DELETE CASCADE en MySQL</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Inicialmente coordinábamos la eliminación de notas y tareas desde la CLI. Al pasar a MySQL, delegamos el borrado en cascada a las claves foráneas del motor relacional.
+                    </p>
+                    <div class="p-3 rounded-lg bg-dark-900 border border-slate-800 text-xs font-mono text-slate-300">
+                        <span class="text-emerald-400">✔</span> Desacoplamiento: <span class="text-emerald-300">TaskCli</span> solo necesita conocer a su propio <code class="text-slate-200">TaskService</code>.
+                    </div>
+                </div>
+
+                <!-- Decisión 4: UUID & restore -->
+                <div class="glass-card p-7 rounded-2xl space-y-4 transition-all duration-300 hover:border-brand-violet/60 group" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-brand-violet uppercase tracking-wider">04 • Arquitectura de Datos</span>
+                        <span class="p-2 rounded-lg bg-dark-800 text-brand-violet group-hover:scale-110 transition-transform"><i class="fa-solid fa-fingerprint"></i></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-brand-cyan transition-colors">Identidad UUID y Método restore()</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Las entidades nacen con su UUID en Java sin esperar al ID de BD. Creamos métodos separados: <code class="text-violet-300">create()</code> genera nueva identidad y <code class="text-violet-300">restore()</code> reconstruye fielmente desde persistencia.
+                    </p>
+                    <div class="p-3 rounded-lg bg-dark-900 border border-slate-800 text-xs font-mono text-slate-300">
+                        <span class="text-violet-400">💡</span> Reflexión: <span class="text-slate-300">UUIDv7</span> habría ahorrado el campo <code class="text-slate-400">createdAt</code> y optimizado los índices B-Tree.
+                    </div>
+                </div>
+
+                <!-- Decisión 5: InRam preservado como Caché -->
+                <div class="glass-card p-7 rounded-2xl space-y-4 transition-all duration-300 hover:border-amber-400/60 group" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">05 • Evolución Arquitectónica</span>
+                        <span class="p-2 rounded-lg bg-dark-800 text-amber-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-memory"></i></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-brand-cyan transition-colors">Repositorio InRam → Futura Caché</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        La interfaz <code class="text-slate-200">Repository</code> permitió reemplazar memoria por MySQL sin alterar una sola línea de lógica de negocio. Decidimos conservar <code class="text-amber-300">InRamRepository</code> para reutilizarlo como caché.
+                    </p>
+                    <div class="p-3 rounded-lg bg-dark-900 border border-slate-800 text-xs font-mono text-slate-300">
+                        <span class="text-emerald-400">✔</span> Seguridad: InRam usa copias defensivas con <span class="text-amber-300">restore()</span> protegiendo la mutabilidad.
+                    </div>
+                </div>
+
+                <!-- Decisión 6: Singleton ConnectionFactory -->
+                <div class="glass-card p-7 rounded-2xl space-y-4 transition-all duration-300 hover:border-blue-400/60 group" data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-mono font-bold text-blue-400 uppercase tracking-wider">06 • Rendimiento & Red</span>
+                        <span class="p-2 rounded-lg bg-dark-800 text-blue-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-plug"></i></span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-brand-cyan transition-colors">Singleton en ConnectionFactory</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Reutilizamos una única conexión TCP compartida para todos los DAOs, descartando abrir sockets en cada consulta. Validamos salud con <code class="text-blue-300">isValid(2)</code> y cerramos en el <code class="text-slate-200">finally</code> de Main.
+                    </p>
+                    <div class="p-3 rounded-lg bg-dark-900 border border-slate-800 text-xs font-mono text-slate-300">
+                        <span class="text-emerald-400">✔</span> Ahorro: Se elimina la latencia de apretones de manos TLS/TCP en cada listado.
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION: Arquitectura y Capas -->
+    <section id="arquitectura" class="py-24 px-6 border-t border-slate-800/80 relative">
+        <div class="max-w-7xl mx-auto space-y-16">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-4" data-aos="fade-up">
+                <span class="text-brand-emerald font-mono text-xs font-semibold tracking-wider uppercase px-3 py-1 rounded-full bg-brand-emerald/10 border border-brand-emerald/20">
+                    Estructura
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                    Flujo Arquitectónico Limpio
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Inyección de dependencias manual a través de <code class="text-brand-cyan">AppInitializer</code>: cada capa solo conoce a la inmediata inferior mediante contratos desacoplados.
+                </p>
+            </div>
+
+            <!-- Layer Flow Diagram -->
+            <div class="max-w-4xl mx-auto space-y-4" data-aos="zoom-in" data-aos-duration="800">
+                
+                <!-- Capa 1: UI / CLI -->
+                <div class="p-5 rounded-xl glass-card border border-brand-indigo/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-lg bg-brand-indigo/20 text-brand-indigo flex items-center justify-center font-bold text-lg font-mono">01</div>
+                        <div>
+                            <h4 class="text-white font-bold text-base flex items-center gap-2">
+                                Capa de Presentación (CLI) 
+                                <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-brand-indigo/20 text-brand-indigo border border-brand-indigo/30">User Interface</span>
+                            </h4>
+                            <p class="text-xs text-slate-400">MainMenuCli • TaskCli • NoteCli • EventCli • Formatters • InputReaders</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400 sm:text-right">Recibe & Devuelve <strong>DTOs</strong></span>
+                </div>
+
+                <div class="text-center text-slate-600 text-lg"><i class="fa-solid fa-arrow-down animate-bounce"></i></div>
+
+                <!-- Capa 2: Servicios -->
+                <div class="p-5 rounded-xl glass-card border border-brand-cyan/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-lg bg-brand-cyan/20 text-brand-cyan flex items-center justify-center font-bold text-lg font-mono">02</div>
+                        <div>
+                            <h4 class="text-white font-bold text-base flex items-center gap-2">
+                                Capa de Aplicación (Servicios)
+                                <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-brand-cyan/20 text-brand-cyan border border-brand-cyan/30">Business Logic</span>
+                            </h4>
+                            <p class="text-xs text-slate-400">TaskService • NoteService • EventService (Orquestación & Mapeo toDto)</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400 sm:text-right">Aplica Reglas sobre <strong>Entities</strong></span>
+                </div>
+
+                <div class="text-center text-slate-600 text-lg"><i class="fa-solid fa-arrow-down animate-bounce"></i></div>
+
+                <!-- Capa 3: Repositorios / Dominio -->
+                <div class="p-5 rounded-xl glass-card border border-brand-emerald/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-lg bg-brand-emerald/20 text-brand-emerald flex items-center justify-center font-bold text-lg font-mono">03</div>
+                        <div>
+                            <h4 class="text-white font-bold text-base flex items-center gap-2">
+                                Capa de Dominio & Contratos
+                                <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-brand-emerald/20 text-brand-emerald border border-brand-emerald/30">Domain Core</span>
+                            </h4>
+                            <p class="text-xs text-slate-400">Interfaces Repository • Value Objects (Records) • Entities (create/restore)</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400 sm:text-right">Agnóstico de Persistencia</span>
+                </div>
+
+                <div class="text-center text-slate-600 text-lg"><i class="fa-solid fa-arrow-down animate-bounce"></i></div>
+
+                <!-- Capa 4: Persistencia Relacional -->
+                <div class="p-5 rounded-xl glass-card border border-amber-400/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-lg bg-amber-400/20 text-amber-400 flex items-center justify-center font-bold text-lg font-mono">04</div>
+                        <div>
+                            <h4 class="text-white font-bold text-base flex items-center gap-2">
+                                Capa de Datos & Infraestructura
+                                <span class="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-amber-400/20 text-amber-400 border border-amber-400/30">Infrastructure</span>
+                            </h4>
+                            <p class="text-xs text-slate-400">DAOTaskRepository • DAOEventRepository • ConnectionFactory • MySQL 8.0</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-mono text-slate-400 sm:text-right">JDBC Puro + Docker Compose</span>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION: Demo en Vivo / CTA -->
+    <section id="demo" class="py-24 px-6 border-t border-slate-800/80 relative">
+        <div class="max-w-4xl mx-auto text-center space-y-8" data-aos="zoom-y-out">
+            
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-emerald to-brand-cyan mx-auto flex items-center justify-center text-white text-3xl shadow-xl shadow-brand-emerald/20 animate-pulse">
+                <i class="fa-solid fa-play"></i>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+                    ¿Listos para ver la agenda en acción?
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+                    Todo está listo para la demo en vivo. Un solo comando en la terminal de Mac lanza la base de datos y arranca la consola interactiva.
+                </p>
+            </div>
+
+            <!-- Command Copy Box -->
+            <div class="max-w-md mx-auto p-3.5 rounded-2xl bg-dark-800 border border-slate-700 flex items-center justify-between font-mono text-sm shadow-2xl">
+                <div class="flex items-center gap-3 pl-2">
+                    <span class="text-brand-emerald font-bold">$</span>
+                    <span class="text-white font-semibold">agendita</span>
+                </div>
+                <button onclick="navigator.clipboard.writeText('agendita'); alert('¡Comando copiado al portapapeles!');" class="px-3.5 py-1.5 rounded-xl bg-slate-700/60 hover:bg-slate-700 text-slate-200 text-xs font-sans transition-colors flex items-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i> Copiar
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 font-mono">
+                Equivale a: <code class="text-slate-400">docker compose up -d && docker compose run --rm app</code>
+            </p>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 border-t border-slate-800/60 text-center text-xs text-slate-500 space-y-2">
+        <p>Proyecto desarrollado en Pair Programming para la Especialización IT • 2026</p>
+        <p class="text-slate-600 font-mono">Java 25 • MySQL 8.0 • Docker Compose • Clean Code</p>
+    </footer>
+
+    <!-- AOS JS for smooth scroll animations -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 80,
+            easing: 'ease-out-cubic',
+        });
+    </script>
+</body>
+</html>
