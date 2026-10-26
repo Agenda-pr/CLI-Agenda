@@ -36,7 +36,10 @@ build/
 .DS_Store
 
 ### Docs / Local Notes ###
-docs/
+docs/*
+!docs/*.md
+!docs/*.png
+
 ### Local Credentials###
 .env
 
