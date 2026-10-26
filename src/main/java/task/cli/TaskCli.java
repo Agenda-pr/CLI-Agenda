@@ -59,6 +59,7 @@ public class TaskCli {
     }
 
     private void listTasksMenu() {
+
         System.out.println("\n--- LIST & FILTER TASKS ---");
         System.out.println("1. All tasks (by creation date)");
         System.out.println("2. All tasks (by due date proximity)");
