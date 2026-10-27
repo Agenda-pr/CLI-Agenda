@@ -178,7 +178,7 @@ public static MainMenuCli init() {
 
 **Por qué:**
 - **Punto único de ensamblaje:** Centraliza todo el cableado e instanciación de dependencias por constructor en una única clase especializada, evitando dispersar operadores `new` por el resto del proyecto.
-- **`Main` limpio y enfocado:** La clase `Main` se mantiene mínima (apenas 8 líneas en su método principal); delega la complejidad del montaje y se concentra exclusivamente en iniciar la aplicación y garantizar el cierre de recursos en su bloque `finally`.
+- **`Main` limpio y enfocado:** La clase `Main` se mantiene mínima (apenas 10 líneas en su método principal); delega la complejidad del montaje y se concentra exclusivamente en iniciar la aplicación y garantizar el cierre de recursos en su bloque `finally`.
 - **Control y testabilidad:** Ninguna clase instancia internamente sus dependencias, asegurando un desacoplamiento estricto y facilitando sustituir cualquier componente en pruebas.
 
 #### 2.4. Patrón Singleton en ConnectionFactory
