@@ -1,0 +1,2431 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-[#0a0d14] text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLI-Agenda — Presentación del Proyecto</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        surface: '#0f1420',
+                        borderSubtle: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Transición suave entre diapositivas */
+        .slide {
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        pre::-webkit-scrollbar {
+            height: 6px;
+        }
+        pre::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        /* Animación de lluvia de Value Objects */
+        @keyframes voRainDrop {
+            0% {
+                transform: translateY(-80px) rotate(var(--rot, 0deg)) scale(0.8);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 0.95;
+            }
+            100% {
+                transform: translateY(115vh) rotate(var(--rot, 0deg)) scale(1.05);
+                opacity: 0;
+            }
+        }
+        .vo-falling-badge {
+            position: fixed;
+            top: 0;
+            animation: voRainDrop linear forwards;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Latido y brillo para el principio KISS */
+        @keyframes kissHeartbeat {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 10px rgba(16, 185, 129, 0.15);
+            }
+            15% {
+                transform: scale(1.05);
+                box-shadow: 0 0 28px rgba(16, 185, 129, 0.7), inset 0 0 15px rgba(16, 185, 129, 0.3);
+            }
+            30% {
+                transform: scale(1.01);
+                box-shadow: 0 0 18px rgba(16, 185, 129, 0.4), inset 0 0 10px rgba(16, 185, 129, 0.2);
+            }
+            45% {
+                transform: scale(1.08);
+                box-shadow: 0 0 35px rgba(16, 185, 129, 0.85), inset 0 0 20px rgba(16, 185, 129, 0.4);
+            }
+            65% {
+                transform: scale(1);
+            }
+        }
+        .kiss-pulse-glow {
+            animation: kissHeartbeat 2.0s infinite ease-in-out;
+        }
+
+        @keyframes textShine {
+            0%, 100% {
+                text-shadow: 0 0 8px rgba(52, 211, 153, 0.4), 0 0 16px rgba(16, 185, 129, 0.2);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(52, 211, 153, 1), 0 0 32px rgba(16, 185, 129, 0.9);
+            }
+        }
+        .text-glow-emerald {
+            animation: textShine 1.8s infinite ease-in-out;
+        }
+
+        /* Efecto Keynote Shimmer & Cinemática para Portada (Slide 0) */
+        @keyframes keynoteShimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .keynote-names-shimmer {
+            background: linear-gradient(
+                90deg,
+                #f8fafc 0%,
+                #67e8f9 25%,
+                #34d399 50%,
+                #67e8f9 75%,
+                #f8fafc 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: keynoteShimmer 4.5s linear infinite;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+
+    <!-- Barra de progreso superior -->
+    <div class="fixed top-0 left-0 right-0 h-1 bg-slate-900 z-50">
+        <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 transition-all duration-300" style="width: 9.09%;"></div>
+    </div>
+
+    <!-- Header minimalista superior -->
+    <header class="h-16 px-6 sm:px-12 flex items-center justify-between border-b border-slate-900 bg-[#0a0d14]/80 backdrop-blur z-40 select-none">
+        <div class="flex items-center gap-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-mono text-xs text-slate-400 font-semibold tracking-wider uppercase">CLI-Agenda &bull; Trabajo en grupo</span>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <!-- Botón índice rápido -->
+            <button onclick="toggleIndexModal()" class="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-800/60 border border-slate-800" title="Ver índice de diapositivas (tecla I o M)">
+                <i class="fa-solid fa-list-ul"></i>
+                <span class="hidden sm:inline">Índice</span>
+            </button>
+            <!-- Pantalla completa -->
+            <button onclick="toggleFullscreen()" class="text-xs text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-800/60 border border-slate-800" title="Pantalla completa (tecla F)">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenedor principal de Diapositivas -->
+    <main class="flex-1 overflow-y-auto flex items-center justify-center p-6 sm:p-12 relative">
+
+        <!-- ==========================================
+             SLIDE 0: PORTADA
+        =========================================== -->
+        <section id="slide-0" class="slide active flex-col justify-center items-center text-center max-w-4xl mx-auto py-8 relative min-h-[460px] w-full">
+
+            <!-- INTRO CINEMÁTICA KEYNOTE MINIMALISTA (SLIDE 0) -->
+            <div id="hero-intro-overlay" onclick="finishHeroIntroImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo a la portada">
+                
+                <!-- Halo de luz ambiental (Spotlight) -->
+                <div id="hero-spotlight" class="absolute w-72 h-72 sm:w-[460px] sm:h-[260px] rounded-full bg-gradient-to-tr from-cyan-500/20 via-indigo-500/15 to-emerald-500/20 blur-3xl pointer-events-none transition-all duration-1000 opacity-0 transform scale-50"></div>
+
+                <!-- Contenedor central de los créditos -->
+                <div id="hero-credits-wrap" class="relative z-10 flex flex-col items-center px-6 transition-all duration-700">
+                    
+                    <!-- Subtítulo superior con expansión de tracking -->
+                    <span id="hero-created-label" class="font-mono text-xs sm:text-sm uppercase text-cyan-400/90 font-semibold mb-3 transition-all duration-1000 opacity-0 transform translate-y-3" style="letter-spacing: 0.05em; filter: blur(6px);">
+                        Created by
+                    </span>
+
+                    <!-- Nombres protagonistas con brillo metálico y enfoque blur-to-sharp -->
+                    <h2 id="hero-authors-title" class="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight keynote-names-shimmer drop-shadow-[0_0_35px_rgba(6,182,212,0.35)] py-2 transition-all duration-1000 opacity-0 transform scale-90" style="filter: blur(14px);">
+                        Aranzazu &amp; Richard
+                    </h2>
+
+                    <!-- Línea horizontal luminosa que nace desde el centro -->
+                    <div id="hero-glow-line" class="h-[2px] w-0 opacity-0 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_20px_#22d3ee] my-6 transition-all duration-1000 ease-out"></div>
+
+                    <!-- Tagline inferior sutil -->
+                    <div id="hero-sub-badge" class="inline-flex items-center gap-2 text-xs font-mono text-slate-400 transition-all duration-700 opacity-0 transform translate-y-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>CLI-Agenda &bull; Arquitectura &amp; Diseño en Java 25</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA PORTADA (Aparece al terminar la intro) -->
+            <div id="hero-real-content" class="w-full flex flex-col items-center text-center transition-all duration-700 opacity-0 transform scale-95 pointer-events-none">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700/60 text-cyan-400 text-xs font-mono mb-6">
+                    <i class="fa-solid fa-terminal text-[11px]"></i> Java 25 &bull; MySQL 8 &bull; Docker Compose
+                </div>
+
+                <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-5">
+                    CLI-Agenda
+                </h1>
+
+                <p class="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed mb-6">
+                    Presentación de <strong class="text-slate-200">decisiones de arquitectura y diseño</strong> y metodología de trabajo en el desarrollo del gestor de tareas, notas y eventos.
+                </p>
+
+                <!-- Firma elegante permanente en la portada -->
+                <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs font-mono text-slate-300 mb-9 shadow-inner">
+                    <i class="fa-solid fa-code text-cyan-400 text-[10px]"></i>
+                    <span>Created by <strong class="text-white font-semibold">Aranzazu &amp; Richard</strong></span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <button onclick="nextSlide()" class="px-8 py-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold text-sm transition-all duration-200 shadow-lg shadow-cyan-500/20 flex items-center gap-2 group">
+                        <span>Comenzar presentación</span>
+                        <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <button onclick="goToSlide(2)" class="px-6 py-4 rounded-xl border border-slate-800 hover:bg-slate-800/50 text-slate-300 font-medium text-sm transition-colors">
+                        Ir directo a Decisiones
+                    </button>
+                </div>
+
+                <p class="text-xs text-slate-600 mt-10 font-mono">
+                    Usa las flechas del teclado <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">←</kbd> <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">→</kbd> o <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">Espacio</kbd> para avanzar
+                </p>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 1: ORGANIZACIÓN Y METODOLOGÍA
+        =========================================== -->
+        <section id="slide-1" class="slide flex-col max-w-5xl mx-auto w-full py-4">
+            <div class="mb-8">
+                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Metodología de Trabajo</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Cómo nos organizamos en pareja</h2>
+                <p class="text-slate-400 text-sm mt-1">Desarrollo colaborativo en ramas independientes sin bloqueos entre presentación (CLI) y persistencia.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Columna 1 -->
+                <div class="p-6 rounded-2xl bg-surface border border-borderSubtle flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4 text-base">
+                            <i class="fa-solid fa-arrows-split-up-and-left"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">División sin bloqueos</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Un integrante desarrolló el <strong>Dominio, Servicios y menús CLI</strong> utilizando repositorios en memoria (<em>InRam</em>). Paralelamente, la otra compañera implementó la <strong>infraestructura MySQL, esquemas SQL y DAOs</strong>.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-cyan-400 font-mono">
+                        &check; Cero tiempo de espera
+                    </div>
+                </div>
+
+                <!-- Columna 2 -->
+                <div class="p-6 rounded-2xl bg-surface border border-borderSubtle flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4 text-base">
+                            <i class="fa-solid fa-code-branch"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Flujo Git riguroso</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Ramas temáticas (<code>feature/events</code>, <code>chore/docker</code>), rebase diario sobre la rama común <code>dev</code> y Pull Requests revisadas antes de fusionar. Historial limpio y trazable.
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-indigo-400 font-mono">
+                        &check; Integración continua
+                    </div>
+                </div>
+
+                <!-- Columna 3 -->
+                <div class="p-6 rounded-2xl bg-surface border border-borderSubtle flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 text-base">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Criterios de Aceptación</h3>
+                        <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                            Definición de <em>User Stories</em> con criterios de aceptación claros en markdown antes de implementar código o escribir tests unitarios (TDD).
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800 text-xs text-emerald-400 font-mono">
+                        &check; Cobertura en JUnit 5
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 2: DECISIÓN 1 - VALUE OBJECTS (DDD)
+        =========================================== -->
+        <section id="slide-2" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative min-h-[460px] justify-center">
+
+            <!-- INTRO CINEMÁTICA / BROMA (Aparece primero solo esto en el centro) -->
+            <div id="vo-intro-overlay" onclick="finishVoJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div id="vo-big-text" class="text-3xl sm:text-5xl md:text-6xl font-black font-mono tracking-tight text-center px-6 transition-all duration-700 opacity-0 transform scale-90 text-cyan-300 italic drop-shadow-[0_0_35px_rgba(6,182,212,0.6)]"></div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="vo-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 1 &bull; Dominio y DDD</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Value Objects frente a tipos primitivos</h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-5">
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-red-400"></span> Problema detectado
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                <strong>Primitive Obsession:</strong> Usar <code>String</code> o <code>LocalDate</code> planos provocaba validaciones de nulos, vacíos y fechas pasadas duplicadas y dispersas entre la CLI y los servicios.
+                            </p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Solución adoptada
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Modelar conceptos de negocio como Java <code>record</code> inmutables: <code>TaskTitle</code>, <code>TaskDueDate</code>, <code>EventCelebDate</code>, <code>NoteContent</code>. Si la instancia existe, es matemáticamente válida.
+                            </p>
+                        </div>
+
+                        <div class="text-xs text-slate-400 space-y-1.5 pl-2 border-l-2 border-cyan-500">
+                            <p>&bull; <strong>Auto-validación:</strong> Se valida en el constructor/factoría estática.</p>
+                            <p>&bull; <strong>Protección temporal:</strong> <code>EventCelebDate</code> rechaza años anteriores al 2000, evitando errores de tipeo como <code>0026</code> o <code>1926</code>.</p>
+                        </div>
+                    </div>
+
+                    <!-- Código -->
+                    <div class="rounded-xl bg-slate-950 border border-slate-800 overflow-hidden font-mono text-xs shadow-2xl">
+                        <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-slate-400">
+                            <span>TaskTitle.java</span>
+                            <span class="text-[10px] text-cyan-400 font-sans">Java Record</span>
+                        </div>
+                        <pre class="p-5 text-slate-300 overflow-x-auto leading-relaxed"><code><span class="text-purple-400">public record</span> <span class="text-yellow-300">TaskTitle</span>(<span class="text-cyan-300">String</span> title) {
+    <span class="text-slate-500">// Compact constructor: validación canónica de record</span>
+    <span class="text-purple-400">public</span> <span class="text-yellow-300">TaskTitle</span> {
+        <span class="text-purple-400">if</span> (title == <span class="text-purple-400">null</span> || title.isBlank()) {
+            <span class="text-purple-400">throw new</span> <span class="text-red-400">InvalidTaskException</span>(
+                <span class="text-emerald-300">"Task title cannot be empty or blank"</span>
+            );
+        }
+        title = title.trim();
+    }
+
+    <span class="text-purple-400">public static</span> <span class="text-yellow-300">TaskTitle</span> <span class="text-blue-400">of</span>(<span class="text-cyan-300">String</span> title) {
+        <span class="text-purple-400">return new</span> <span class="text-yellow-300">TaskTitle</span>(title);
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 3: DECISIÓN 2 - DTOs DESACOPLADOS
+        =========================================== -->
+        <section id="slide-3" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative min-h-[460px] justify-center">
+
+            <!-- INTRO CINEMÁTICA / MIRAS PERO NO TOCAS (DTOs FOTOGRAFÍA) -->
+            <div id="dto-intro-overlay" onclick="finishDtoJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="flex flex-col items-center text-center px-6 max-w-2xl">
+                    <div id="dto-badge-icon" class="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-2xl mb-6 shadow-xl shadow-cyan-500/10 transition-all duration-700 opacity-0 transform scale-75">
+                        <i class="fa-solid fa-camera-retro"></i>
+                    </div>
+                    
+                    <h2 id="dto-big-title" class="text-3xl sm:text-5xl font-black font-mono tracking-tight text-white mb-4 transition-all duration-700 opacity-0 transform scale-90 drop-shadow-[0_0_30px_rgba(6,182,212,0.5)]">
+                        Look, but don’t touch... <span class="inline-block">📸</span>
+                    </h2>
+
+                    <!-- Contenedor con altura reservada para que NADA se mueva al aparecer el texto -->
+                    <div class="min-h-[4.5rem] flex items-center justify-center">
+                        <p id="dto-sub-title" class="text-base sm:text-lg text-slate-400 font-mono italic transition-all duration-700 opacity-0 transform translate-y-2">
+                            La CLI no entra en la cocina del Dominio. Solo mira la foto de la carta.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="dto-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 2 &bull; Arquitectura Limpia</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Barrera de DTOs entre Servicio y CLI</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div class="space-y-5">
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Desacoplamiento de capas
+                        </h4>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            La interfaz de usuario por consola <strong>nunca recibe ni modifica entidades de dominio directamente</strong>. Todo el intercambio se realiza mediante <em>Data Transfer Objects</em> inmutables (<code>TaskDto</code>, <code>EventDto</code>).
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Beneficios directos
+                        </h4>
+                        <ul class="text-sm text-slate-300 space-y-2">
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-400 font-bold">&check;</span>
+                                <span><strong>Inmutabilidad:</strong> La CLI no puede corromper el estado de una entidad accidentalmente mediante setters.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-cyan-400 font-bold">&check;</span>
+                                <span><strong>Independencia tecnológica:</strong> Si mañana se sustituye la CLI por una API REST o Web, el dominio no cambia una sola línea.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Código DTO -->
+                <div class="rounded-xl bg-slate-950 border border-slate-800 overflow-hidden font-mono text-xs shadow-2xl">
+                    <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-slate-400">
+                        <span>EventDto.java</span>
+                        <span class="text-[10px] text-cyan-400 font-sans">Snapshot de datos</span>
+                    </div>
+                    <pre class="p-5 text-slate-300 overflow-x-auto leading-relaxed"><code><span class="text-purple-400">public record</span> <span class="text-yellow-300">EventDto</span>(
+    <span class="text-cyan-300">UUID</span> id,
+    <span class="text-cyan-300">String</span> title,
+    <span class="text-cyan-300">LocalDate</span> celebDate,
+    <span class="text-cyan-300">EventRecurrenceType</span> eventRecurrenceType,
+    <span class="text-cyan-300">LocalDate</span> createdAt,
+    <span class="text-cyan-300">List</span>&lt;<span class="text-cyan-300">UUID</span>&gt; taskIds
+) {}</code></pre>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 4: DECISIÓN 3 - UUID & RESTORE
+        =========================================== -->
+        <section id="slide-4" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative min-h-[460px] justify-center">
+
+            <!-- INTRO CINEMÁTICA / MEME DE DRAKE (AUTO_INCREMENT vs UUID) -->
+            <div id="uuid-intro-overlay" onclick="finishUuidJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-700 bg-slate-950 transition-all duration-700 transform scale-90 opacity-0" id="drake-meme-card">
+                    <img src="Drake-Meme.png" alt="Drake Meme UUID vs Auto-increment" class="w-[350px] sm:w-[490px] h-auto block select-none">
+                    
+                    <!-- Panel Superior: Drake rechaza AUTO_INCREMENT (desplazado más a la izquierda y arriba) -->
+                    <div class="absolute top-[2%] left-[45%] w-[51%] h-[46%] flex items-center justify-center p-2 text-center">
+                        <div id="drake-top-text" class="font-mono text-xs sm:text-base font-black text-slate-900 bg-red-100/95 border-2 border-red-500/70 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-xl leading-tight transition-all duration-500 opacity-0 transform -translate-y-2">
+                            AUTO_INCREMENT<br>
+                            <span class="text-red-600 font-extrabold text-[11px] sm:text-sm">id = 1, 2, 3... ❌</span>
+                        </div>
+                    </div>
+
+                    <!-- Panel Inferior: Drake aprueba UUID (desplazado más a la izquierda y arriba) -->
+                    <div class="absolute top-[51%] left-[45%] w-[51%] h-[46%] flex items-center justify-center p-2 text-center">
+                        <div id="drake-bottom-text" class="font-mono text-xs sm:text-base font-black text-slate-900 bg-cyan-100/95 border-2 border-cyan-500/70 rounded-xl px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-xl leading-tight transition-all duration-500 opacity-0 transform translate-y-2">
+                            UUID en Java<br>
+                            <span class="text-cyan-800 font-bold text-[11px] sm:text-xs">3fa85f64-5717... ✨</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="uuid-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 3 &bull; Persistencia e Identidad</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Identidad con UUID y método factoría <code>restore()</code></h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <div class="space-y-5">
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Identidad generada en Java
+                        </h4>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            No se usan enteros autoincrementales de MySQL. Las entidades nacen completas con su <code>UUID</code> antes de tocar la base de datos, lo que permite que el modelo funcione igual en memoria que en MySQL.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Por qué necesitamos <code>create()</code> vs <code>restore()</code>
+                        </h4>
+                        <p class="text-sm text-slate-300 leading-relaxed">
+                            <strong>Reconstitución:</strong> Al leer desde MySQL no se debe regenerar el UUID ni la fecha de creación. Además, <code>restore()</code> permite cargar tareas históricas vencidas sin que salte la validación de fecha pasada.
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400">
+                        <strong class="text-slate-300">Reflexión UUIDv7:</strong> Se analizó UUIDv7 (RFC 9562); al ser secuencial por timestamp evitaría la fragmentación en índices B-Tree de MySQL, pero se optó por UUIDv4 nativo de Java para evitar dependencias externas.
+                    </div>
+                </div>
+
+                <!-- Código -->
+                <div class="rounded-xl bg-slate-950 border border-slate-800 overflow-hidden font-mono text-xs shadow-2xl">
+                    <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-slate-400">
+                        <span>Task.java</span>
+                        <span class="text-[10px] text-cyan-400 font-sans">Factorías estáticas</span>
+                    </div>
+                    <pre class="p-5 text-slate-300 overflow-x-auto leading-relaxed"><code><span class="text-slate-500">// 1. Creación de una NUEVA tarea</span>
+<span class="text-purple-400">public static</span> <span class="text-yellow-300">Task</span> <span class="text-blue-400">create</span>(<span class="text-yellow-300">TaskTitle</span> title, <span class="text-yellow-300">Priority</span> prio) {
+    <span class="text-purple-400">return new</span> <span class="text-yellow-300">Task</span>(
+        <span class="text-cyan-300">UUID</span>.randomUUID(), title, prio, 
+        <span class="text-purple-400">false</span>, <span class="text-purple-400">null</span>, <span class="text-cyan-300">LocalDateTime</span>.now()
+    );
+}
+
+<span class="text-slate-500">// 2. Reconstitución desde MySQL sin alterar datos</span>
+<span class="text-purple-400">public static</span> <span class="text-yellow-300">Task</span> <span class="text-blue-400">restore</span>(<span class="text-cyan-300">UUID</span> id, <span class="text-yellow-300">TaskTitle</span> title, ...) {
+    <span class="text-purple-400">return new</span> <span class="text-yellow-300">Task</span>(id, title, ...);
+}</code></pre>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 5: DECISIÓN 4 - DESCARTE DE OBSERVER
+        =========================================== -->
+        <section id="slide-5" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative">
+            
+            <!-- INTRO CINEMÁTICA / EXPECTATIVA vs REALIDAD KISS (SLIDE 5) -->
+            <div id="observer-intro-overlay" onclick="finishObserverJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="w-full max-w-3xl px-4 flex flex-col items-center">
+                    
+                    <div class="mb-5 text-center">
+                        <span id="observer-badge" class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2">
+                            ARQUITECTURA PRAGMÁTICA &bull; KISS / YAGNI
+                        </span>
+                        <h3 id="observer-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2">
+                            Sobreingeniería vs Necesidad
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full items-stretch">
+                        <!-- CAJA IZQUIERDA: La sobreingeniería GoF (se rechaza) -->
+                        <div id="observer-gof-box" class="relative rounded-2xl bg-slate-900/90 border border-red-500/30 p-5 flex flex-col justify-between transition-all duration-700 opacity-0 transform -translate-x-4 shadow-xl">
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-3 border-b border-slate-800 pb-2">
+                                    <span class="text-red-400 font-bold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-diagram-project"></i> Patrón Observer GoF
+                                    </span>
+                                    <span class="text-slate-500 text-[10px]">Expectativa</span>
+                                </div>
+                                <div class="font-mono text-[11px] sm:text-xs space-y-1.5 text-slate-300 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
+                                    <div class="flex items-center gap-2 text-purple-400"><i class="fa-solid fa-cube text-[10px]"></i> <span>interface EventSubject</span></div>
+                                    <div class="text-slate-500 pl-4 text-[10px]">↳ class EventPublisher</div>
+                                    <div class="text-slate-500 pl-4 text-[10px]">↳ class NotificationThread (Background)</div>
+                                    <div class="flex items-center gap-2 text-purple-400"><i class="fa-solid fa-cube text-[10px]"></i> <span>interface EventObserver</span></div>
+                                    <div class="text-slate-500 pl-4 text-[10px]">↳ class CliEventObserver</div>
+                                </div>
+                                <div class="text-[11px] text-slate-400 mt-3 font-mono">
+                                    8+ clases para 1 solo consumidor síncrono.
+                                </div>
+                            </div>
+
+                            <!-- Sello de rechazo / tacha gigante que cae -->
+                            <div id="observer-stamp" class="absolute inset-0 bg-red-950/90 backdrop-blur-[2px] rounded-2xl border-2 border-red-500 flex flex-col items-center justify-center p-4 text-center transition-all duration-500 opacity-0 transform scale-110 pointer-events-none">
+                                <span class="text-3xl sm:text-4xl font-black text-red-400 tracking-wider font-mono transform -rotate-6 border-4 border-red-500 px-4 py-1.5 rounded-xl shadow-2xl">
+                                    ¡YAGNI! ❌
+                                </span>
+                                <p class="text-xs text-red-200 mt-3 font-semibold max-w-xs">
+                                    Hilos asíncronos rompen el <code>Scanner(System.in)</code> mientras el usuario escribe.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- CAJA DERECHA: La solución KISS (triunfa) -->
+                        <div id="observer-kiss-box" class="rounded-2xl bg-slate-900/90 border border-emerald-500/40 p-5 flex flex-col justify-between transition-all duration-700 opacity-0 transform translate-x-4 shadow-xl shadow-emerald-500/5">
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-3 border-b border-slate-800 pb-2">
+                                    <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i> Principio KISS
+                                    </span>
+                                    <span class="text-emerald-400 font-semibold text-[10px] bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">Solución Real</span>
+                                </div>
+                                <div class="font-mono text-[11px] sm:text-xs text-slate-300 bg-slate-950 p-3.5 rounded-xl border border-slate-800/80">
+                                    <div class="text-slate-500 text-[10px] mb-1">// Consulta directa en el punto exacto</div>
+                                    <div class="text-emerald-300 font-bold">eventService.listUpcomingEvents(7);</div>
+                                </div>
+                                <p class="text-xs text-slate-300 mt-3 leading-relaxed">
+                                    Si la CLI es quien sabe cuándo necesita los eventos, una llamada directa (pull) es 100% predecible, monohilo y limpia.
+                                </p>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                                <div id="observer-kiss-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-400/60 text-emerald-300 font-mono text-xs font-black tracking-wide transition-all duration-700">
+                                    <i id="observer-kiss-icon" class="fa-solid fa-heart-pulse text-emerald-400 text-xs"></i>
+                                    <span id="observer-kiss-text" class="transition-all duration-700">Keep It Simple, Stupid ✨</span>
+                                </div>
+                                <span class="text-[10px] text-slate-500 font-mono">1 línea &bull; Cero carreras</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="observer-hint" class="mt-5 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2">
+                        <span>Haz clic para ver el detalle de la decisión</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="observer-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 4 &bull; Pragmatismo KISS / YAGNI</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Descarte formal del Patrón Observer</h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-red-400 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-ban"></i> Por qué se descartó Observer
+                            </h4>
+                            <ul class="text-xs sm:text-sm text-slate-300 space-y-2">
+                                <li>1. <strong>Incompatible con CLI síncrona:</strong> Un hilo emitiendo notificaciones asíncronas corrompería la consola mientras el usuario introduce datos en el <code>Scanner</code>.</li>
+                                <li>2. <strong>Efecto "Pull disfrazado de Push":</strong> La vista (CLI) le pedía al servicio que notificara a la propia vista.</li>
+                                <li>3. <strong>Consumidor único:</strong> No existen múltiples suscriptores heterogéneos.</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-emerald-400 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-check"></i> Solución adoptada
+                            </h4>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Consulta directa mediante <code>listUpcomingEvents(daysAhead)</code> con cálculo automático de recurrencias en tiempo real (<code>DAILY</code>, <code>WEEKLY</code>, <code>MONTHLY</code>, <code>YEARLY</code>).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Formateo visual -->
+                    <div class="rounded-xl bg-slate-950 border border-slate-800 p-6 font-mono text-xs shadow-2xl">
+                        <div class="text-slate-500 mb-3 border-b border-slate-800 pb-2">Salida en terminal (EventCli)</div>
+                        <div class="space-y-3">
+                            <div>
+                                <span class="text-amber-400 font-bold">TODAY:</span>
+                                <div class="pl-4 text-slate-300 mt-1">
+                                    &bull; Daily standup [DAILY] &bull; Tareas asociadas: 2
+                                </div>
+                            </div>
+                            <div>
+                                <span class="text-cyan-400 font-bold">SOON:</span>
+                                <div class="pl-4 text-slate-300 mt-1">
+                                    &bull; Entrega Proyecto (28/10/2026) [YEARLY]
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-800 text-[11px] text-slate-500">
+                            Limpio, predecible y sin hilos en segundo plano colisionando con System.out.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 6: DECISIÓN 5 - REPOSITORY & INRAM
+        =========================================== -->
+        <section id="slide-6" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative">
+            
+            <!-- INTRO CINEMÁTICA / PLUG & PLAY CON SVGs (SLIDE 6) -->
+            <div id="repo-intro-overlay" onclick="finishRepoJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="w-full max-w-2xl px-4 flex flex-col items-center">
+                    
+                    <!-- Cabecera -->
+                    <div class="mb-4 text-center">
+                        <span id="repo-badge" class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2">
+                            DESACOPLAMIENTO DE PERSISTENCIA &bull; PATRÓN REPOSITORY
+                        </span>
+                        <h3 id="repo-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2">
+                            Arquitectura Plug &amp; Play: ¿Por qué NO borrar InRam? 🔌
+                        </h3>
+                    </div>
+
+                    <!-- EL SOCKET / CONTRATO INTERFACE -->
+                    <div id="repo-socket-box" class="w-full p-4 rounded-2xl bg-slate-900/90 border-2 border-dashed border-slate-700 shadow-2xl flex items-center justify-between gap-3 font-mono transition-all duration-700 opacity-0 transform -translate-y-3">
+                        <div class="flex items-center gap-3">
+                            <div id="repo-socket-icon" class="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400 transition-colors duration-500">
+                                <i class="fa-solid fa-plug text-sm"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Interfaz del Dominio</span>
+                                <span class="text-xs sm:text-sm font-bold text-yellow-300">«interface» TaskRepository</span>
+                            </div>
+                        </div>
+                        <div id="repo-socket-status" class="text-xs px-3 py-1 rounded-full bg-slate-950 text-slate-400 border border-slate-800 font-semibold transition-all duration-500">
+                            Esperando módulo...
+                        </div>
+                    </div>
+
+                    <!-- MÓDULOS PLUG & PLAY (RAM Y MYSQL CON ICONOS SVG) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full mt-4">
+                        
+                        <!-- MÓDULO 1: RAM CHIP (InRamTaskRepository) -->
+                        <div id="repo-ram-card" class="rounded-2xl bg-slate-900/90 border-2 border-slate-800 p-4 flex flex-col items-center text-center transition-all duration-700 opacity-0 transform translate-y-4">
+                            <div id="repo-ram-svg-box" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 mb-2.5 transition-all duration-500 shadow-lg">
+                                <svg class="w-12 h-12 sm:w-14 sm:h-14" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Chip PCB -->
+                                    <rect x="12" y="14" width="56" height="52" rx="8" fill="#082f49" stroke="#06b6d4" stroke-width="2"/>
+                                    <!-- Pins top/bottom -->
+                                    <path d="M22 14V7M34 14V7M46 14V7M58 14V7" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+                                    <path d="M22 66V73M34 66V73M46 66V73M58 66V73" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+                                    <!-- Silicon core -->
+                                    <rect x="23" y="25" width="34" height="28" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+                                    <path d="M30 34H50M30 40H44M30 46H48" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round"/>
+                                    <circle cx="48" cy="40" r="2" fill="#38bdf8"/>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-cyan-300">InRamTaskRepository</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">Map&lt;UUID, Task&gt; &bull; 0ms latencia</div>
+                            <div id="repo-ram-badge" class="mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono transition-all duration-500">
+                                Modo memoria
+                            </div>
+                        </div>
+
+                        <!-- MÓDULO 2: MYSQL DATABASE (DAOTaskRepository) -->
+                        <div id="repo-mysql-card" class="rounded-2xl bg-slate-900/90 border-2 border-slate-800 p-4 flex flex-col items-center text-center transition-all duration-700 opacity-0 transform translate-y-4">
+                            <div id="repo-mysql-svg-box" class="p-3 rounded-2xl bg-slate-950 border border-slate-800 mb-2.5 transition-all duration-500 shadow-lg">
+                                <svg class="w-12 h-12 sm:w-14 sm:h-14" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <!-- Disk 1 Top -->
+                                    <ellipse cx="40" cy="22" rx="26" ry="10" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+                                    <ellipse cx="40" cy="22" rx="12" ry="4.5" fill="#022c22" stroke="#34d399" stroke-width="1.5"/>
+                                    <!-- Disk 2 Middle -->
+                                    <path d="M14 22V38C14 43.5 25.5 48 40 48C54.5 48 66 43.5 66 38V22" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+                                    <ellipse cx="40" cy="38" rx="26" ry="10" fill="#064e3b" stroke="#10b981" stroke-width="1"/>
+                                    <!-- Disk 3 Bottom -->
+                                    <path d="M14 38V54C14 59.5 25.5 64 40 64C54.5 64 66 59.5 66 54V38" fill="#022c22" stroke="#10b981" stroke-width="2"/>
+                                    <!-- Indicator lights -->
+                                    <circle cx="23" cy="40" r="2.5" fill="#34d399"/>
+                                    <circle cx="23" cy="56" r="2.5" fill="#34d399"/>
+                                </svg>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-emerald-300">DAOTaskRepository</div>
+                            <div class="text-[11px] text-slate-400 mt-0.5">MySQL JDBC &bull; Docker Compose</div>
+                            <div id="repo-mysql-badge" class="mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono transition-all duration-500">
+                                Persistencia real
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- MENSAJE DINÁMICO DE CONEXIÓN -->
+                    <div id="repo-msg-banner" class="mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2">
+                    </div>
+
+                    <div id="repo-hint" class="mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2">
+                        <span>Haz clic para ver el detalle de la decisión</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="repo-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 5 &bull; Patrón Repository</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Interfaz Repository y conservación de InRam</h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-5">
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Desacoplamiento total de Persistencia
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Los servicios solo conocen la interfaz <code>TaskRepository</code>. El paso de trabajar en memoria a MySQL con <code>DAOTaskRepository</code> requirió <strong>cero cambios</strong> en los servicios o en la CLI.
+                            </p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Por qué NO eliminamos los repositorios InRam
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                Al conectar MySQL, las clases <code>InRam*Repository</code> no se borraron. Se conservan como base para una futura <strong>capa de caché L1 en memoria</strong> y para ejecutar suites de tests ultrarrápidas sin levantar Docker.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-6 rounded-2xl bg-surface border border-borderSubtle">
+                        <h4 class="text-xs font-mono uppercase text-slate-400 mb-4">Contrato de Repositorio</h4>
+                        <div class="space-y-3 font-mono text-xs">
+                            <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-yellow-300">
+                                &laquo;interface&raquo; TaskRepository
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 pt-2">
+                                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
+                                    <span class="text-cyan-400 font-bold">InRamTaskRepo</span>
+                                    <p class="text-[11px] text-slate-500 mt-1">Map&lt;UUID, Task&gt;<br>Tests &amp; Caché</p>
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
+                                    <span class="text-emerald-400 font-bold">DAOTaskRepo</span>
+                                    <p class="text-[11px] text-slate-500 mt-1">MySQL JDBC<br>Persistencia real</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 7: DECISIÓN 6 - INYECCIÓN MANUAL
+        =========================================== -->
+        <section id="slide-7" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative">
+            
+            <!-- INTRO CINEMÁTICA / CADENA DE MONTAJE (SLIDE 7) -->
+            <div id="di-intro-overlay" onclick="finishDiJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="w-full max-w-3xl px-4 flex flex-col items-center">
+                    
+                    <!-- Cabecera -->
+                    <div class="mb-5 text-center">
+                        <span id="di-badge" class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2">
+                            INYECCIÓN DE DEPENDENCIAS &bull; COMPOSITION ROOT
+                        </span>
+                        <h3 id="di-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2">
+                            La Cadena de Montaje en <code>AppInitializer</code> ⚙️
+                        </h3>
+                    </div>
+
+                    <!-- CADENA DE MONTAJE (4 PASOS HORIZONTALES) -->
+                    <div class="w-full max-w-2xl flex flex-wrap sm:flex-nowrap items-center justify-center gap-2 sm:gap-2.5">
+                        
+                        <!-- PASO 1: DAO -->
+                        <div id="di-step-1" class="flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3">
+                            <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">1. Datos</div>
+                            <div class="w-8 h-8 rounded-lg bg-blue-950/80 border border-blue-500/40 flex items-center justify-center text-blue-400 mx-auto mb-1.5 text-xs">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-blue-300">TaskDAO</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 font-mono">Adapter SQL</div>
+                        </div>
+
+                        <!-- FLECHA 1 -->
+                        <div id="di-arrow-1" class="text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block">
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </div>
+
+                        <!-- PASO 2: REPO -->
+                        <div id="di-step-2" class="flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3">
+                            <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">2. Dominio</div>
+                            <div class="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-400 mx-auto mb-1.5 text-xs">
+                                <i class="fa-solid fa-box-archive"></i>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-cyan-300">TaskRepo</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 font-mono">(dao)</div>
+                        </div>
+
+                        <!-- FLECHA 2 -->
+                        <div id="di-arrow-2" class="text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block">
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </div>
+
+                        <!-- PASO 3: SERVICE -->
+                        <div id="di-step-3" class="flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3">
+                            <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">3. Lógica</div>
+                            <div class="w-8 h-8 rounded-lg bg-purple-950/80 border border-purple-500/40 flex items-center justify-center text-purple-400 mx-auto mb-1.5 text-xs">
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-purple-300">TaskService</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 font-mono">(repo)</div>
+                        </div>
+
+                        <!-- FLECHA 3 -->
+                        <div id="di-arrow-3" class="text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block">
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </div>
+
+                        <!-- PASO 4: CLI -->
+                        <div id="di-step-4" class="flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3">
+                            <div class="text-[10px] font-mono text-slate-500 uppercase tracking-wider mb-1">4. Vista</div>
+                            <div class="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto mb-1.5 text-xs">
+                                <i class="fa-solid fa-terminal"></i>
+                            </div>
+                            <div class="font-mono text-xs font-bold text-emerald-300">TaskCli</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 font-mono">(service)</div>
+                        </div>
+
+                    </div>
+
+                    <!-- FLECHA CONECTORA AL PRODUCTO FINAL -->
+                    <div id="di-arrow-down" class="my-2.5 text-slate-600 transition-all duration-500 opacity-0 transform -translate-y-1">
+                        <i class="fa-solid fa-arrow-down text-sm"></i>
+                    </div>
+
+                    <!-- PRODUCTO TERMINADO: MAINMENUCLI LISTO PARA MAIN -->
+                    <div id="di-final-card" class="w-full max-w-xl p-3.5 px-5 rounded-2xl bg-slate-900/95 border-2 border-slate-800 shadow-2xl flex items-center justify-between gap-4 font-mono transition-all duration-700 opacity-0 transform scale-95">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-400/40 flex items-center justify-center text-emerald-400">
+                                <i class="fa-solid fa-circle-check text-base"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 uppercase tracking-wider block">Producto final ensamblado</span>
+                                <span class="text-xs sm:text-sm font-bold text-white">return new MainMenuCli(...)</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold">
+                                ¡Listo para arrancar! 🚀
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- MENSAJE DE IMPACTO: MAIN QUEDA IMPOLUTO -->
+                    <div id="di-summary-banner" class="mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2">
+                        <span class="text-cyan-300 font-bold">Main.java queda impoluto:</span> apenas 10 líneas. Cero operadores <code>new</code> dispersos por el código.
+                    </div>
+
+                    <div id="di-hint" class="mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2">
+                        <span>Haz clic para ver el código de ensamblaje</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="di-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 6 &bull; Inyección de Dependencias &bull; Composition Root</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Ensamblaje centralizado con <code>AppInitializer</code></h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    <!-- Columna Izquierda: Explicación y contraste con Main.java (5 cols) -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div class="p-4 sm:p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Inyección centralizada
+                            </h4>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                Se aisló todo el cableado en <code>AppInitializer</code>. Cada capa recibe sus colaboradoras por constructor, evitando dispersar <strong>13 operadores <code>new</code></strong> y dependencias cruzadas por el resto del proyecto.
+                            </p>
+                        </div>
+
+                        <!-- Mini tarjeta de Main.java para ver el contraste directo -->
+                        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 font-mono text-xs shadow-xl">
+                            <div class="flex items-center justify-between text-slate-400 border-b border-slate-800 pb-2 mb-2 text-[11px]">
+                                <span class="flex items-center gap-1.5 text-emerald-400 font-bold">
+                                    <i class="fa-solid fa-file-code"></i> Main.java
+                                </span>
+                                <span class="text-slate-500">10 líneas limpias</span>
+                            </div>
+                            <pre class="text-[11px] text-slate-300 leading-relaxed overflow-x-auto"><code><span class="text-purple-400">public static void</span> <span class="text-blue-400">main</span>(String[] args) {
+    <span class="text-purple-400">try</span> {
+        <span class="text-yellow-300">MainMenuCli</span> mainMenu = <span class="text-yellow-300">AppInitializer</span>.<span class="text-blue-400">init</span>();
+        mainMenu.<span class="text-blue-400">showMenu</span>();
+    } <span class="text-purple-400">catch</span> (<span class="text-yellow-300">DatabaseException</span> error) {
+        <span class="text-yellow-300">System</span>.out.<span class="text-blue-400">println</span>(error.<span class="text-blue-400">getMessage</span>());
+    } <span class="text-purple-400">finally</span> {
+        <span class="text-yellow-300">ConnectionFactory</span>.<span class="text-blue-400">closeConnection</span>();
+    }
+}</code></pre>
+                            <p class="text-[11px] font-sans text-slate-400 mt-2.5 pt-2 border-t border-slate-800/80">
+                                <code>Main</code> no sabe construir objetos: solo arranca y cierra recursos de forma segura.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Código Completo y Vertical de AppInitializer (7 cols) -->
+                    <div class="lg:col-span-7 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden font-mono text-xs shadow-2xl">
+                        <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                                <span class="text-xs text-white font-semibold">AppInitializer.java</span>
+                            </div>
+                            <span class="text-[10px] text-cyan-300 bg-cyan-950/80 border border-cyan-500/40 px-2 py-0.5 rounded-full font-mono">
+                                13 dependencias cableadas
+                            </span>
+                        </div>
+                        <pre class="p-4 sm:p-5 text-slate-300 overflow-x-auto leading-relaxed text-[11px] max-h-[540px]"><code><span class="text-purple-400">public static</span> <span class="text-yellow-300">MainMenuCli</span> <span class="text-blue-400">init</span>() {
+    <span class="text-slate-500">// 1. Capa de Datos (DAOs)</span>
+    <span class="text-yellow-300">TaskDAO</span>  taskDao  = <span class="text-purple-400">new</span> <span class="text-yellow-300">TaskDAOAdapter</span>();
+    <span class="text-yellow-300">NoteDAO</span>  noteDao  = <span class="text-purple-400">new</span> <span class="text-yellow-300">NoteDAOAdapter</span>();
+    <span class="text-yellow-300">EventDAO</span> eventDao = <span class="text-purple-400">new</span> <span class="text-yellow-300">EventDAOAdapter</span>();
+
+    <span class="text-slate-500">// 2. Capa de Dominio (Repositorios desacoplados)</span>
+    <span class="text-yellow-300">TaskRepository</span>  taskRepository  = <span class="text-purple-400">new</span> <span class="text-yellow-300">DAOTaskRepository</span>(taskDao);
+    <span class="text-yellow-300">NoteRepository</span>  noteRepository  = <span class="text-purple-400">new</span> <span class="text-yellow-300">DAONoteRepository</span>(noteDao);
+    <span class="text-yellow-300">EventRepository</span> eventRepository = <span class="text-purple-400">new</span> <span class="text-yellow-300">DAOEventRepository</span>(eventDao);
+
+    <span class="text-slate-500">// 3. Capa de Negocio (Dependencias cruzadas inyectadas)</span>
+    <span class="text-yellow-300">TaskService</span>  taskService  = <span class="text-purple-400">new</span> <span class="text-yellow-300">TaskService</span>(taskRepository);
+    <span class="text-yellow-300">NoteService</span>  noteService  = <span class="text-purple-400">new</span> <span class="text-yellow-300">NoteService</span>(noteRepository, taskRepository);
+    <span class="text-yellow-300">EventService</span> eventService = <span class="text-purple-400">new</span> <span class="text-yellow-300">EventService</span>(eventRepository, taskRepository);
+
+    <span class="text-slate-500">// 4. Capa de Presentación (CLI de consola)</span>
+    <span class="text-yellow-300">TaskCli</span>  taskCli  = <span class="text-purple-400">new</span> <span class="text-yellow-300">TaskCli</span>(taskService);
+    <span class="text-yellow-300">NoteCli</span>  noteCli  = <span class="text-purple-400">new</span> <span class="text-yellow-300">NoteCli</span>(noteService, taskService);
+    <span class="text-yellow-300">EventCli</span> eventCli = <span class="text-purple-400">new</span> <span class="text-yellow-300">EventCli</span>(eventService, taskService);
+
+    <span class="text-slate-500">// 5. Menú Principal orquestado</span>
+    <span class="text-purple-400">return new</span> <span class="text-yellow-300">MainMenuCli</span>(taskCli, noteCli, eventCli);
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 8: DECISIÓN 7 - SINGLETON CONNECTIONFACTORY
+        =========================================== -->
+        <section id="slide-8" class="slide flex-col max-w-5xl mx-auto w-full py-4 relative min-h-[460px] justify-center">
+
+            <!-- INTRO CINEMÁTICA / HANDSHAKE VS TÚNEL SINGLETON (SLIDE 8) -->
+            <div id="conn-intro-overlay" onclick="finishConnJokeImmediately()" class="absolute inset-0 flex flex-col items-center justify-center z-40 select-none cursor-pointer" title="Haz clic para saltar directo al contenido">
+                <div class="w-full max-w-3xl px-4 flex flex-col items-center">
+                    
+                    <!-- Cabecera -->
+                    <div class="mb-5 text-center">
+                        <span id="conn-badge" class="px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2">
+                            RENDIMIENTO JDBC &bull; PATRÓN SINGLETON
+                        </span>
+                        <h3 id="conn-title" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2">
+                            ¿Conexión efímera o Túnel persistente? ⚡
+                        </h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full items-stretch">
+                        <!-- CAJA IZQUIERDA: Sin Singleton (Handshake repetitivo) -->
+                        <div id="conn-bad-card" class="rounded-2xl bg-slate-900/90 border border-red-500/30 p-5 flex flex-col justify-between transition-all duration-700 opacity-0 transform -translate-x-4 shadow-xl">
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-3 border-b border-slate-800 pb-2">
+                                    <span class="text-red-400 font-bold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-arrows-rotate"></i> Sin Singleton (Efímera)
+                                    </span>
+                                    <span class="text-slate-500 text-[10px]">Overhead continuo</span>
+                                </div>
+
+                                <div class="space-y-2 font-mono text-[11px] text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800/80">
+                                    <div class="flex items-center justify-between text-slate-400 border-b border-slate-800/60 pb-1.5">
+                                        <span>Query 1: SELECT</span>
+                                        <span class="text-red-400 font-semibold">+25ms</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 flex items-center gap-1">
+                                        <i class="fa-solid fa-arrow-turn-down text-[8px] text-red-400"></i>
+                                        <span>TCP Handshake ➔ TLS Neg ➔ Auth ➔ Close</span>
+                                    </div>
+
+                                    <div class="flex items-center justify-between text-slate-400 border-b border-slate-800/60 pb-1.5 pt-1">
+                                        <span>Query 2: INSERT</span>
+                                        <span class="text-red-400 font-semibold">+25ms</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 flex items-center gap-1">
+                                        <i class="fa-solid fa-arrow-turn-down text-[8px] text-red-400"></i>
+                                        <span>TCP Handshake ➔ TLS Neg ➔ Auth ➔ Close</span>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-red-300/90 mt-3 leading-relaxed">
+                                    Negociar socket y credenciales en cada operación genera latencia innecesaria y satura descriptores del sistema.
+                                </p>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                                <span class="text-[10px] text-slate-500 font-mono">10 consultas = 10 handshakes</span>
+                                <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-red-950/80 border border-red-500/40 text-red-300 font-mono font-bold">
+                                    Lento ❌
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- CAJA DERECHA: Con Singleton (Túnel persistente) -->
+                        <div id="conn-good-card" class="rounded-2xl bg-slate-900/90 border border-emerald-500/40 p-5 flex flex-col justify-between transition-all duration-700 opacity-0 transform translate-x-4 shadow-xl shadow-emerald-500/5">
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-3 border-b border-slate-800 pb-2">
+                                    <span class="text-emerald-400 font-bold flex items-center gap-1.5">
+                                        <i class="fa-solid fa-network-wired"></i> ConnectionFactory (Singleton)
+                                    </span>
+                                    <span class="text-emerald-400 font-semibold text-[10px] bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full">Solución Real</span>
+                                </div>
+
+                                <!-- Túnel Visual -->
+                                <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80 font-mono text-[11px] space-y-2">
+                                    <div id="conn-tunnel-pulse" class="flex items-center justify-between px-3 py-1.5 rounded-lg bg-emerald-950/50 border border-emerald-500/40 text-emerald-300 font-bold transition-all duration-500">
+                                        <span class="flex items-center gap-1.5 text-[10px]">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                            Túnel persistente activo
+                                        </span>
+                                        <span class="text-[10px] text-emerald-400">1 Socket</span>
+                                    </div>
+
+                                    <div class="space-y-1 text-slate-300 text-[10px] pt-1">
+                                        <div class="flex items-center justify-between">
+                                            <span>&bull; TaskDAO.showAllTasks()</span>
+                                            <span class="text-cyan-400 font-semibold">~0.1ms</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span>&bull; NoteDAO.save(note)</span>
+                                            <span class="text-cyan-400 font-semibold">~0.1ms</span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <span>&bull; EventDAO.findUpcoming()</span>
+                                            <span class="text-cyan-400 font-semibold">~0.1ms</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-slate-300 mt-3 leading-relaxed">
+                                    La conexión se abre una sola vez al inicio y se reutiliza. <code>isValid(2)</code> reconecta si MySQL se reinicia.
+                                </p>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                                <span class="text-[10px] text-slate-500 font-mono">1 Socket &bull; 0 overhead TCP</span>
+                                <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 font-mono font-bold">
+                                    Instantáneo ✨
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BANNER INFORMATIVO INFERIOR -->
+                    <div id="conn-summary-banner" class="mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2">
+                        <span class="text-cyan-300 font-bold">CLI Monousuario:</span> Reutilizar una sola conexión física mantiene la respuesta interactiva en tiempo real.
+                    </div>
+
+                    <div id="conn-hint" class="mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2">
+                        <span>Haz clic para ver la implementación</span>
+                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO REAL DE LA DIAPOSITIVA (Aparece al terminar la animación) -->
+            <div id="conn-real-content" class="w-full transition-opacity duration-700 opacity-0 pointer-events-none">
+                <div class="mb-6">
+                    <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 7 &bull; Rendimiento JDBC</span>
+                    <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Patrón Singleton en <code>ConnectionFactory</code></h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div class="space-y-4">
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-cyan-400"></span> Conexión física compartida
+                            </h4>
+                            <p class="text-sm text-slate-300 leading-relaxed">
+                                La CLI es una aplicación <strong>monousuario y monohilo</strong>. Abrir y cerrar una conexión TCP/TLS en cada <code>SELECT</code> o <code>INSERT</code> añadiría una latencia apreciable. Se gestiona una única conexión persistente.
+                            </p>
+                        </div>
+
+                        <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                            <h4 class="text-xs font-mono uppercase text-slate-400 mb-2 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Resiliencia y Cierre Limpio
+                            </h4>
+                            <ul class="text-xs sm:text-sm text-slate-300 space-y-2">
+                                <li>&bull; <strong>Auto-reconexión:</strong> Si MySQL reinicia, <code>isValid(2)</code> detecta la desconexión y reconecta de forma transparente.</li>
+                                <li>&bull; <strong>Cero conexiones huérfanas:</strong> <code>Main.java</code> asegura la invocación de <code>closeConnection()</code> al salir de la terminal.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Código Singleton -->
+                    <div class="rounded-xl bg-slate-950 border border-slate-800 overflow-hidden font-mono text-xs shadow-2xl">
+                        <div class="px-4 py-2.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-slate-400">
+                            <span>ConnectionFactory.java</span>
+                            <span class="text-[10px] text-cyan-400 font-sans">Thread-safe Singleton</span>
+                        </div>
+                        <pre class="p-5 text-slate-300 overflow-x-auto leading-relaxed"><code><span class="text-purple-400">public class</span> <span class="text-yellow-300">ConnectionFactory</span> {
+    <span class="text-purple-400">private static</span> <span class="text-cyan-300">Connection</span> sharedConnection;
+
+    <span class="text-slate-500">// Constructor privado: impide instanciación externa</span>
+    <span class="text-purple-400">private</span> <span class="text-yellow-300">ConnectionFactory</span>() {}
+
+    <span class="text-purple-400">public static synchronized</span> <span class="text-cyan-300">Connection</span> <span class="text-blue-400">getConnection</span>() {
+        <span class="text-purple-400">if</span> (sharedConnection == <span class="text-purple-400">null</span> 
+                || sharedConnection.isClosed() 
+                || !sharedConnection.isValid(<span class="text-orange-400">2</span>)) {
+            sharedConnection = openConnection();
+        }
+        <span class="text-purple-400">return</span> sharedConnection;
+    }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 9: DECISIÓN 8 - INFRAESTRUCTURA & DOCKER
+        =========================================== -->
+        <section id="slide-9" class="slide flex-col max-w-5xl mx-auto w-full py-4">
+            <div class="mb-6">
+                <span class="text-xs font-mono uppercase tracking-widest text-cyan-400">Decisión 8 &bull; Infraestructura y DevOps</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white tracking-tight mt-1">Ejecución dual y Docker Multi-stage</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                    <div class="text-cyan-400 text-lg mb-3"><i class="fa-solid fa-code"></i></div>
+                    <h3 class="text-sm font-semibold text-white mb-2">Opción A: Híbrida (IDE)</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        MySQL en Docker + App en IntelliJ con breakpoints. Permite depuración paso a paso instantánea sin reconstruir imágenes.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                    <div class="text-indigo-400 text-lg mb-3"><i class="fa-brands fa-docker"></i></div>
+                    <h3 class="text-sm font-semibold text-white mb-2">Opción B: 100% Docker</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Evaluación sin instalar Java ni Maven en el equipo anfitrión. Con perfil <code>profiles: ["app"]</code> para no congelar la CLI.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl bg-surface border border-borderSubtle">
+                    <div class="text-emerald-400 text-lg mb-3"><i class="fa-solid fa-layer-group"></i></div>
+                    <h3 class="text-sm font-semibold text-white mb-2">Multi-stage Build</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Etapa 1 (Maven 3.9 + JDK 25) compila; Etapa 2 (JRE 25 ligero) ejecuta. La imagen final pesa una fracción y no lleva fuentes.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 p-4 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-hard-drive text-cyan-400"></i>
+                    <span><strong>Persistencia con volumen <code>mysql-data</code>:</strong> <code>down</code> conserva los datos; <code>down -v</code> purga el volumen para testing limpio.</span>
+                </span>
+                <span class="font-mono text-cyan-400 text-[11px] bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shrink-0">
+                    docker compose down -v
+                </span>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             SLIDE 10: DEMO EN VIVO
+        =========================================== -->
+        <section id="slide-10" class="slide flex-col justify-center items-center text-center max-w-4xl mx-auto py-8">
+            <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl mb-6 border border-emerald-500/20">
+                <i class="fa-solid fa-play"></i>
+            </div>
+
+            <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4">
+                Demostración en Vivo
+            </h2>
+
+            <p class="text-sm sm:text-base text-slate-400 max-w-lg mx-auto mb-8">
+                Lanzamos la agenda interactiva en un solo comando gracias al alias configurado.
+            </p>
+
+            <!-- Command Box -->
+            <div class="p-4 px-6 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-6 font-mono text-base shadow-2xl mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-emerald-400 font-bold">$</span>
+                    <span class="text-white font-semibold">agendita</span>
+                </div>
+                <button onclick="copyCommand()" class="text-xs font-sans px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors flex items-center gap-1.5">
+                    <i class="fa-regular fa-copy"></i> Copiar
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500 font-mono">
+                docker compose up -d && docker compose run --rm app
+            </p>
+
+            <div class="mt-12 flex gap-4">
+                <button onclick="goToSlide(0)" class="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Volver al inicio
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Barra de navegación inferior -->
+    <footer class="h-16 px-6 sm:px-12 border-t border-slate-900 bg-[#0a0d14]/90 backdrop-blur flex items-center justify-between z-40 select-none">
+        <!-- Indicador de slide actual -->
+        <div class="flex items-center gap-3 text-xs">
+            <span id="slide-counter" class="font-mono text-cyan-400 font-bold">01 / 11</span>
+            <span class="text-slate-700 hidden sm:inline">&bull;</span>
+            <span id="slide-title-preview" class="text-slate-400 truncate max-w-[200px] sm:max-w-md hidden sm:inline">Portada</span>
+        </div>
+
+        <!-- Controles Anterior / Siguiente -->
+        <div class="flex items-center gap-2">
+            <button id="prev-btn" onclick="prevSlide()" class="px-4 py-2 rounded-xl border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-medium transition-all disabled:opacity-30 disabled:pointer-events-none flex items-center gap-1.5">
+                <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                <span>Anterior</span>
+            </button>
+            <button id="next-btn" onclick="nextSlide()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-white text-slate-950 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
+                <span>Siguiente</span>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Modal de Índice Rápido -->
+    <div id="index-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-surface border border-slate-800 w-full max-w-xl rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-list-ul text-cyan-400 text-sm"></i>
+                    Índice de la Presentación
+                </h3>
+                <button onclick="toggleIndexModal()" class="text-slate-400 hover:text-white text-sm p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto text-xs" id="index-list">
+                <!-- Se rellena automáticamente con JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de control de diapositivas y lluvia -->
+    <script>
+        const totalSlides = 11;
+        let currentSlide = 0;
+
+        const slideTitles = [
+            "Portada",
+            "Metodología y Organización en Pareja",
+            "Decisión 1: Value Objects (DDD)",
+            "Decisión 2: Barrera de DTOs",
+            "Decisión 3: Identidad UUID y restore()",
+            "Decisión 4: Descarte de Observer (KISS)",
+            "Decisión 5: Interfaz Repository e InRam",
+            "Decisión 6: Inyección de Dependencias (AppInitializer)",
+            "Decisión 7: Singleton en ConnectionFactory",
+            "Decisión 8: Ejecución dual y Docker",
+            "Demostración en Vivo"
+        ];
+
+        function updateSlideUI() {
+            // Actualizar visibilidad de slides
+            document.querySelectorAll('.slide').forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            // Actualizar contador y título
+            const formattedCurrent = String(currentSlide + 1).padStart(2, '0');
+            const formattedTotal = String(totalSlides).padStart(2, '0');
+            document.getElementById('slide-counter').textContent = `${formattedCurrent} / ${formattedTotal}`;
+            document.getElementById('slide-title-preview').textContent = slideTitles[currentSlide];
+
+            // Barra de progreso
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+
+            // Botón anterior deshabilitado en primera slide
+            document.getElementById('prev-btn').disabled = (currentSlide === 0);
+
+            // Texto botón siguiente en última slide
+            const nextBtn = document.getElementById('next-btn');
+            if (currentSlide === totalSlides - 1) {
+                nextBtn.innerHTML = `<span>Finalizar</span> <i class="fa-solid fa-check text-[10px]"></i>`;
+            } else {
+                nextBtn.innerHTML = `<span>Siguiente</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>`;
+            }
+
+            // Actualizar URL hash
+            history.replaceState(null, null, `#slide-${currentSlide}`);
+
+            // Gestión de las intros cinemáticas
+            manageHeroSlideAnimation();
+            manageVoSlideAnimation();
+            manageDtoSlideAnimation();
+            manageUuidSlideAnimation();
+            manageObserverSlideAnimation();
+            manageRepoSlideAnimation();
+            manageDiSlideAnimation();
+            manageConnSlideAnimation();
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA KEYNOTE PORTADA (SLIDE 0)
+        // ========================================================
+        let heroTimers = [];
+
+        function cleanUpHeroEffects() {
+            heroTimers.forEach(t => clearTimeout(t));
+            heroTimers = [];
+        }
+
+        function finishHeroIntroImmediately() {
+            cleanUpHeroEffects();
+            const overlay = document.getElementById('hero-intro-overlay');
+            const content = document.getElementById('hero-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+                content.classList.add('opacity-100', 'scale-100');
+            }
+        }
+
+        function manageHeroSlideAnimation() {
+            cleanUpHeroEffects();
+
+            const overlay = document.getElementById('hero-intro-overlay');
+            const spotlight = document.getElementById('hero-spotlight');
+            const wrap = document.getElementById('hero-credits-wrap');
+            const createdLabel = document.getElementById('hero-created-label');
+            const authorsTitle = document.getElementById('hero-authors-title');
+            const glowLine = document.getElementById('hero-glow-line');
+            const subBadge = document.getElementById('hero-sub-badge');
+            const content = document.getElementById('hero-real-content');
+
+            if (!overlay || !spotlight || !wrap || !createdLabel || !authorsTitle || !glowLine || !subBadge || !content) return;
+
+            if (currentSlide !== 0) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100', 'scale-100');
+                content.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 0: Ocultamos contenido final y preparamos Keynote Intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100', 'scale-100');
+            content.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+
+            // Reset inicial de estados
+            spotlight.className = "absolute w-72 h-72 sm:w-[460px] sm:h-[260px] rounded-full bg-gradient-to-tr from-cyan-500/20 via-indigo-500/15 to-emerald-500/20 blur-3xl pointer-events-none transition-all duration-1000 opacity-0 transform scale-50";
+            wrap.className = "relative z-10 flex flex-col items-center px-6 transition-all duration-700 opacity-100 transform scale-100";
+
+            createdLabel.className = "font-mono text-xs sm:text-sm uppercase text-cyan-400/90 font-semibold mb-3 transition-all duration-1000 opacity-0 transform translate-y-3";
+            createdLabel.style.letterSpacing = "0.05em";
+            createdLabel.style.filter = "blur(6px)";
+
+            authorsTitle.className = "text-4xl sm:text-6xl md:text-7xl font-black tracking-tight keynote-names-shimmer drop-shadow-[0_0_35px_rgba(6,182,212,0.35)] py-2 transition-all duration-1000 opacity-0 transform scale-90";
+            authorsTitle.style.filter = "blur(14px)";
+
+            glowLine.className = "h-[2px] w-0 opacity-0 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_20px_#22d3ee] my-6 transition-all duration-1000 ease-out";
+            subBadge.className = "inline-flex items-center gap-2 text-xs font-mono text-slate-400 transition-all duration-700 opacity-0 transform translate-y-2";
+
+            // PASO 1 (0.2s): Se enciende el halo de luz ambiental
+            heroTimers.push(setTimeout(() => {
+                spotlight.classList.remove('opacity-0', 'scale-50');
+                spotlight.classList.add('opacity-100', 'scale-100');
+            }, 200));
+
+            // PASO 2 (0.5s): "Created by" expande su espaciado y la línea de luz se traza desde el centro
+            heroTimers.push(setTimeout(() => {
+                createdLabel.classList.remove('opacity-0', 'translate-y-3');
+                createdLabel.classList.add('opacity-100', 'translate-y-0');
+                createdLabel.style.letterSpacing = "0.35em";
+                createdLabel.style.filter = "blur(0px)";
+
+                glowLine.classList.remove('w-0', 'opacity-0');
+                glowLine.classList.add('w-64', 'sm:w-96', 'opacity-100');
+            }, 500));
+
+            // PASO 3 (1.1s): Emerge "Aránzazu & Richard" con enfoque cinemático y barrido de luz
+            heroTimers.push(setTimeout(() => {
+                authorsTitle.classList.remove('opacity-0', 'scale-90');
+                authorsTitle.classList.add('opacity-100', 'scale-100');
+                authorsTitle.style.filter = "blur(0px)";
+            }, 1100));
+
+            // PASO 4 (2.0s): Aparece el subtítulo inferior del proyecto
+            heroTimers.push(setTimeout(() => {
+                subBadge.classList.remove('opacity-0', 'translate-y-2');
+                subBadge.classList.add('opacity-100', 'translate-y-0');
+            }, 2000));
+
+            // PASO 5 (4.8s): Fundido de salida cinemático de la intro
+            heroTimers.push(setTimeout(() => {
+                wrap.classList.remove('opacity-100', 'scale-100');
+                wrap.classList.add('opacity-0', 'scale-105');
+                spotlight.classList.remove('opacity-100', 'scale-100');
+                spotlight.classList.add('opacity-0', 'scale-110');
+            }, 4800));
+
+            // PASO 6 (5.5s): Revelar portada principal
+            heroTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 5500));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA Y LLUVIA DE VALUE OBJECTS (SLIDE 2)
+        // ========================================================
+        let voTimers = [];
+
+        function cleanUpVoEffects() {
+            voTimers.forEach(t => clearTimeout(t));
+            voTimers = [];
+            // Eliminar todas las etiquetas que estén cayendo
+            document.querySelectorAll('.vo-falling-badge').forEach(el => el.remove());
+        }
+
+        function finishVoJokeImmediately() {
+            cleanUpVoEffects();
+            const overlay = document.getElementById('vo-intro-overlay');
+            const content = document.getElementById('vo-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageVoSlideAnimation() {
+            cleanUpVoEffects();
+
+            const overlay = document.getElementById('vo-intro-overlay');
+            const bigText = document.getElementById('vo-big-text');
+            const content = document.getElementById('vo-real-content');
+
+            if (!overlay || !bigText || !content) return;
+
+            if (currentSlide !== 2) {
+                // Si no estamos en la Slide 2, reseteamos a estado inicial silencioso
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 2: Ocultamos el contenido y preparamos la cinemática
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            bigText.textContent = '';
+            bigText.className = "text-3xl sm:text-5xl md:text-6xl font-black font-mono tracking-tight text-center px-6 transition-all duration-700 opacity-0 transform scale-90 text-cyan-300 italic drop-shadow-[0_0_35px_rgba(6,182,212,0.6)]";
+
+            // PASO 1 (0.4s): Aparece en el centro y en grande "Once you try it, you never go back..."
+            voTimers.push(setTimeout(() => {
+                bigText.textContent = "Once you try it, you never go back...";
+                bigText.classList.remove('opacity-0', 'scale-90');
+                bigText.classList.add('opacity-100', 'scale-100');
+            }, 400));
+
+            // PASO 2 (2.8s): Desvanece la primera frase
+            voTimers.push(setTimeout(() => {
+                bigText.classList.remove('opacity-100', 'scale-100');
+                bigText.classList.add('opacity-0', 'scale-105');
+            }, 2800));
+
+            // PASO 3 (3.4s): Aparece "Value objects everywhere..." Y EMPIEZA A LLOVER
+            voTimers.push(setTimeout(() => {
+                bigText.textContent = "Value objects everywhere...";
+                bigText.classList.remove('opacity-0', 'scale-105');
+                bigText.classList.add('opacity-100', 'scale-100');
+                startVoRain();
+            }, 3400));
+
+            // PASO 4 (6.2s): Desvanece la frase del centro
+            voTimers.push(setTimeout(() => {
+                bigText.classList.remove('opacity-100', 'scale-100');
+                bigText.classList.add('opacity-0', 'scale-105');
+            }, 6200));
+
+            // PASO 5 (6.8s): Al terminar la animación, desaparece el overlay y APARECE EL CONTENIDO
+            voTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 6800));
+        }
+
+        // Lluvia torrencial de Value Objects cayendo por la pantalla
+        function startVoRain() {
+            if (currentSlide !== 2) return;
+
+            const rainItems = [
+                { text: 'Value Object', left: '6%', rot: '-8deg', speed: '1.8s', delay: 0 },
+                { text: 'TaskTitle', left: '16%', rot: '10deg', speed: '1.5s', delay: 100 },
+                { text: 'Value Objects everywhere', left: '26%', rot: '-5deg', speed: '2.1s', delay: 250 },
+                { text: 'TaskDueDate', left: '38%', rot: '7deg', speed: '1.7s', delay: 150 },
+                { text: 'Value Object ✨', left: '48%', rot: '-12deg', speed: '1.9s', delay: 50 },
+                { text: 'EventCelebDate', left: '58%', rot: '9deg', speed: '1.6s', delay: 200 },
+                { text: 'Value Objects', left: '68%', rot: '-6deg', speed: '2.2s', delay: 350 },
+                { text: 'NoteContent', left: '78%', rot: '11deg', speed: '1.7s', delay: 120 },
+                { text: 'Value Object', left: '88%', rot: '-10deg', speed: '1.5s', delay: 300 },
+
+                // Segunda tanda de lluvia
+                { text: 'Value Objects everywhere', left: '10%', rot: '6deg', speed: '1.9s', delay: 400 },
+                { text: 'EventTitle', left: '22%', rot: '-9deg', speed: '1.6s', delay: 550 },
+                { text: 'Value Object', left: '33%', rot: '12deg', speed: '2.0s', delay: 650 },
+                { text: 'NoteTaskID', left: '44%', rot: '-7deg', speed: '1.8s', delay: 480 },
+                { text: 'Value Object ✨', left: '55%', rot: '8deg', speed: '1.5s', delay: 750 },
+                { text: 'EventTaskId', left: '65%', rot: '-11deg', speed: '2.1s', delay: 600 },
+                { text: 'Value Objects everywhere', left: '75%', rot: '5deg', speed: '1.7s', delay: 850 },
+                { text: 'Value Object', left: '85%', rot: '-8deg', speed: '1.6s', delay: 700 },
+                { text: 'Record Inmutable', left: '92%', rot: '10deg', speed: '1.9s', delay: 900 },
+
+                // Tercera tanda rápida final
+                { text: 'Value Object', left: '14%', rot: '-5deg', speed: '1.5s', delay: 1100 },
+                { text: 'Auto-validación', left: '28%', rot: '9deg', speed: '1.7s', delay: 1250 },
+                { text: 'Value Objects everywhere', left: '52%', rot: '-10deg', speed: '1.8s', delay: 1050 },
+                { text: 'Value Object ✨', left: '72%', rot: '7deg', speed: '1.6s', delay: 1300 },
+                { text: 'TaskTitle.of(...)', left: '82%', rot: '-9deg', speed: '1.5s', delay: 1200 },
+            ];
+
+            rainItems.forEach(drop => {
+                const badge = document.createElement('div');
+                badge.className = "vo-falling-badge font-mono text-xs font-bold text-cyan-200 bg-cyan-950/90 border border-cyan-400/50 px-3.5 py-1.5 rounded-full shadow-lg shadow-cyan-500/25 whitespace-nowrap backdrop-blur-sm select-none";
+                badge.textContent = drop.text;
+                badge.style.left = drop.left;
+                badge.style.setProperty('--rot', drop.rot);
+                badge.style.animationDuration = drop.speed;
+                badge.style.animationDelay = `${drop.delay}ms`;
+
+                document.body.appendChild(badge);
+
+                // Auto-eliminación tras caer
+                const totalLifetime = drop.delay + (parseFloat(drop.speed) * 1000) + 200;
+                voTimers.push(setTimeout(() => {
+                    badge.remove();
+                }, totalLifetime));
+            });
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA CLUB EXCLUSIVO DTOs (SLIDE 3)
+        // ========================================================
+        let dtoTimers = [];
+
+        function cleanUpDtoEffects() {
+            dtoTimers.forEach(t => clearTimeout(t));
+            dtoTimers = [];
+        }
+
+        function finishDtoJokeImmediately() {
+            cleanUpDtoEffects();
+            const overlay = document.getElementById('dto-intro-overlay');
+            const content = document.getElementById('dto-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageDtoSlideAnimation() {
+            cleanUpDtoEffects();
+
+            const overlay = document.getElementById('dto-intro-overlay');
+            const icon = document.getElementById('dto-badge-icon');
+            const bigTitle = document.getElementById('dto-big-title');
+            const subTitle = document.getElementById('dto-sub-title');
+            const content = document.getElementById('dto-real-content');
+
+            if (!overlay || !icon || !bigTitle || !subTitle || !content) return;
+
+            if (currentSlide !== 3) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 3: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset visual inicial (con espacio reservado para cero saltos de layout)
+            icon.classList.remove('opacity-100', 'scale-100');
+            icon.classList.add('opacity-0', 'scale-75');
+
+            bigTitle.classList.remove('opacity-100', 'scale-100');
+            bigTitle.classList.add('opacity-0', 'scale-90');
+
+            subTitle.classList.remove('opacity-100', 'translate-y-0');
+            subTitle.classList.add('opacity-0', 'translate-y-2');
+
+            // PASO 1 (0.4s): Icono Cámara y Título en grande "Look, but don't touch..."
+            dtoTimers.push(setTimeout(() => {
+                icon.classList.remove('opacity-0', 'scale-75');
+                icon.classList.add('opacity-100', 'scale-100');
+
+                bigTitle.classList.remove('opacity-0', 'scale-90');
+                bigTitle.classList.add('opacity-100', 'scale-100');
+            }, 400));
+
+            // PASO 2 (1.8s): Subtítulo (el espacio ya estaba reservado, NADA se mueve)
+            dtoTimers.push(setTimeout(() => {
+                subTitle.classList.remove('opacity-0', 'translate-y-2');
+                subTitle.classList.add('opacity-100', 'translate-y-0');
+            }, 1800));
+
+            // PASO 3 (4.0s): Desvanecimiento suave (sin flash)
+            dtoTimers.push(setTimeout(() => {
+                icon.classList.remove('opacity-100');
+                icon.classList.add('opacity-0');
+
+                bigTitle.classList.remove('opacity-100', 'scale-100');
+                bigTitle.classList.add('opacity-0', 'scale-105');
+
+                subTitle.classList.remove('opacity-100');
+                subTitle.classList.add('opacity-0');
+            }, 4000));
+
+            // PASO 4 (4.6s): Revelar contenido completo de la diapositiva
+            dtoTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 4600));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA MEME DRAKE UUID (SLIDE 4)
+        // ========================================================
+        let uuidTimers = [];
+
+        function cleanUpUuidEffects() {
+            uuidTimers.forEach(t => clearTimeout(t));
+            uuidTimers = [];
+        }
+
+        function finishUuidJokeImmediately() {
+            cleanUpUuidEffects();
+            const overlay = document.getElementById('uuid-intro-overlay');
+            const content = document.getElementById('uuid-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageUuidSlideAnimation() {
+            cleanUpUuidEffects();
+
+            const overlay = document.getElementById('uuid-intro-overlay');
+            const card = document.getElementById('drake-meme-card');
+            const topText = document.getElementById('drake-top-text');
+            const bottomText = document.getElementById('drake-bottom-text');
+            const content = document.getElementById('uuid-real-content');
+
+            if (!overlay || !card || !topText || !bottomText || !content) return;
+
+            if (currentSlide !== 4) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 4: Ocultar contenido y arrancar meme
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset visual
+            card.classList.remove('opacity-100', 'scale-100');
+            card.classList.add('opacity-0', 'scale-90');
+
+            topText.classList.remove('opacity-100', 'translate-y-0');
+            topText.classList.add('opacity-0', '-translate-y-2');
+
+            bottomText.classList.remove('opacity-100', 'translate-y-0');
+            bottomText.classList.add('opacity-0', 'translate-y-2');
+
+            // PASO 1 (0.3s): Aparece el meme de Drake escalando suavemente
+            uuidTimers.push(setTimeout(() => {
+                card.classList.remove('opacity-0', 'scale-90');
+                card.classList.add('opacity-100', 'scale-100');
+            }, 300));
+
+            // PASO 2 (0.7s): Aparece el texto de rechazo "AUTO_INCREMENT ❌"
+            uuidTimers.push(setTimeout(() => {
+                topText.classList.remove('opacity-0', '-translate-y-2');
+                topText.classList.add('opacity-100', 'translate-y-0');
+            }, 700));
+
+            // PASO 3 (1.6s): Aparece el texto de aprobación "UUID en Java ✨"
+            uuidTimers.push(setTimeout(() => {
+                bottomText.classList.remove('opacity-0', 'translate-y-2');
+                bottomText.classList.add('opacity-100', 'translate-y-0');
+            }, 1600));
+
+            // PASO 4 (5.0s): Desvanecimiento del meme (+0.5s duración)
+            uuidTimers.push(setTimeout(() => {
+                card.classList.remove('opacity-100', 'scale-100');
+                card.classList.add('opacity-0', 'scale-105');
+            }, 5000));
+
+            // PASO 5 (5.6s): Revelar contenido completo de la diapositiva
+            uuidTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 5600));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA EXPECTATIVA vs REALIDAD KISS (SLIDE 5)
+        // ========================================================
+        let observerTimers = [];
+
+        function cleanUpObserverEffects() {
+            observerTimers.forEach(t => clearTimeout(t));
+            observerTimers = [];
+        }
+
+        function finishObserverJokeImmediately() {
+            cleanUpObserverEffects();
+            const overlay = document.getElementById('observer-intro-overlay');
+            const content = document.getElementById('observer-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageObserverSlideAnimation() {
+            cleanUpObserverEffects();
+
+            const overlay = document.getElementById('observer-intro-overlay');
+            const badge = document.getElementById('observer-badge');
+            const title = document.getElementById('observer-title');
+            const gofBox = document.getElementById('observer-gof-box');
+            const stamp = document.getElementById('observer-stamp');
+            const kissBox = document.getElementById('observer-kiss-box');
+            const kissBadge = document.getElementById('observer-kiss-badge');
+            const kissText = document.getElementById('observer-kiss-text');
+            const hint = document.getElementById('observer-hint');
+            const content = document.getElementById('observer-real-content');
+
+            if (!overlay || !badge || !title || !gofBox || !stamp || !kissBox || !hint || !content) return;
+
+            if (currentSlide !== 5) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 5: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset de estilos
+            badge.classList.remove('opacity-100', 'translate-y-0');
+            badge.classList.add('opacity-0', '-translate-y-2');
+
+            title.classList.remove('opacity-100', 'translate-y-0');
+            title.classList.add('opacity-0', '-translate-y-2');
+
+            gofBox.classList.remove('opacity-100', 'translate-x-0');
+            gofBox.classList.add('opacity-0', '-translate-x-4');
+
+            stamp.classList.remove('opacity-100', 'scale-100');
+            stamp.classList.add('opacity-0', 'scale-110');
+
+            kissBox.classList.remove('opacity-100', 'translate-x-0');
+            kissBox.classList.add('opacity-0', 'translate-x-4');
+
+            if (kissBadge) kissBadge.classList.remove('kiss-pulse-glow');
+            if (kissText) kissText.classList.remove('text-glow-emerald');
+
+            hint.classList.remove('opacity-100');
+            hint.classList.add('opacity-0');
+
+            // PASO 1 (0.3s): Título y badge ("Sobreingeniería vs Necesidad")
+            observerTimers.push(setTimeout(() => {
+                badge.classList.remove('opacity-0', '-translate-y-2');
+                badge.classList.add('opacity-100', 'translate-y-0');
+
+                title.classList.remove('opacity-0', '-translate-y-2');
+                title.classList.add('opacity-100', 'translate-y-0');
+            }, 300));
+
+            // PASO 2 (0.7s): Entra la caja de sobreingeniería GoF (tiempo extendido para leer)
+            observerTimers.push(setTimeout(() => {
+                gofBox.classList.remove('opacity-0', '-translate-x-4');
+                gofBox.classList.add('opacity-100', 'translate-x-0');
+            }, 700));
+
+            // PASO 3 (4.2s): ¡Estampado de YAGNI / DESCARTADO! (da 3.5s para leer tranquilamente)
+            observerTimers.push(setTimeout(() => {
+                stamp.classList.remove('opacity-0', 'scale-110');
+                stamp.classList.add('opacity-100', 'scale-100');
+            }, 4200));
+
+            // PASO 4 (5.8s): Entra la solución KISS en estático para leer primero
+            observerTimers.push(setTimeout(() => {
+                kissBox.classList.remove('opacity-0', 'translate-x-4');
+                kissBox.classList.add('opacity-100', 'translate-x-0');
+            }, 5800));
+
+            // PASO 4.5 (7.0s): Tras 1.2s de lectura, arranca el latido y el brillo esmeralda
+            observerTimers.push(setTimeout(() => {
+                if (kissBadge) kissBadge.classList.add('kiss-pulse-glow');
+                if (kissText) kissText.classList.add('text-glow-emerald');
+            }, 7000));
+
+            // PASO 5 (7.8s): Pista de continuar
+            observerTimers.push(setTimeout(() => {
+                hint.classList.remove('opacity-0');
+                hint.classList.add('opacity-100');
+            }, 7800));
+
+            // PASO 6 (12.2s): Desvanecer y mostrar contenido real (segunda caja dura >6.4s en total)
+            observerTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 12200));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA PLUG & PLAY CON SVGs (SLIDE 6)
+        // ========================================================
+        let repoTimers = [];
+
+        function cleanUpRepoEffects() {
+            repoTimers.forEach(t => clearTimeout(t));
+            repoTimers = [];
+        }
+
+        function finishRepoJokeImmediately() {
+            cleanUpRepoEffects();
+            const overlay = document.getElementById('repo-intro-overlay');
+            const content = document.getElementById('repo-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageRepoSlideAnimation() {
+            cleanUpRepoEffects();
+
+            const overlay = document.getElementById('repo-intro-overlay');
+            const badge = document.getElementById('repo-badge');
+            const title = document.getElementById('repo-title');
+            const socket = document.getElementById('repo-socket-box');
+            const socketIcon = document.getElementById('repo-socket-icon');
+            const socketStatus = document.getElementById('repo-socket-status');
+            const ramCard = document.getElementById('repo-ram-card');
+            const ramBadge = document.getElementById('repo-ram-badge');
+            const mysqlCard = document.getElementById('repo-mysql-card');
+            const mysqlBadge = document.getElementById('repo-mysql-badge');
+            const msgBanner = document.getElementById('repo-msg-banner');
+            const hint = document.getElementById('repo-hint');
+            const content = document.getElementById('repo-real-content');
+
+            if (!overlay || !badge || !title || !socket || !socketIcon || !socketStatus || !ramCard || !ramBadge || !mysqlCard || !mysqlBadge || !msgBanner || !hint || !content) return;
+
+            if (currentSlide !== 6) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 6: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset inicial de estados
+            badge.className = "px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2";
+            title.className = "text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2";
+            socket.className = "w-full p-4 rounded-2xl bg-slate-900/90 border-2 border-dashed border-slate-700 shadow-2xl flex items-center justify-between gap-3 font-mono transition-all duration-700 opacity-0 transform -translate-y-3";
+            socketIcon.className = "w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-400 transition-colors duration-500";
+            socketStatus.className = "text-xs px-3 py-1 rounded-full bg-slate-950 text-slate-400 border border-slate-800 font-semibold transition-all duration-500";
+            socketStatus.textContent = "Esperando módulo...";
+
+            ramCard.className = "rounded-2xl bg-slate-900/90 border-2 border-slate-800 p-4 flex flex-col items-center text-center transition-all duration-700 opacity-0 transform translate-y-4";
+            ramBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono transition-all duration-500";
+            ramBadge.textContent = "Modo memoria";
+
+            mysqlCard.className = "rounded-2xl bg-slate-900/90 border-2 border-slate-800 p-4 flex flex-col items-center text-center transition-all duration-700 opacity-0 transform translate-y-4";
+            mysqlBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-950 border border-slate-800 text-slate-400 font-mono transition-all duration-500";
+            mysqlBadge.textContent = "Persistencia real";
+
+            msgBanner.className = "mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2";
+            msgBanner.innerHTML = "";
+
+            hint.className = "mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2";
+
+            // PASO 1 (0.3s): Título y badge
+            repoTimers.push(setTimeout(() => {
+                badge.classList.remove('opacity-0', '-translate-y-2');
+                badge.classList.add('opacity-100', 'translate-y-0');
+
+                title.classList.remove('opacity-0', '-translate-y-2');
+                title.classList.add('opacity-100', 'translate-y-0');
+            }, 300));
+
+            // PASO 2 (0.7s): Entra el Socket de la Interfaz
+            repoTimers.push(setTimeout(() => {
+                socket.classList.remove('opacity-0', '-translate-y-3');
+                socket.classList.add('opacity-100', 'translate-y-0');
+            }, 700));
+
+            // PASO 3 (1.5s): Se enchufa InRamTaskRepository (Chip de RAM)
+            repoTimers.push(setTimeout(() => {
+                ramCard.classList.remove('opacity-0', 'translate-y-4', 'border-slate-800');
+                ramCard.classList.add('opacity-100', 'translate-y-0', 'border-cyan-400', 'shadow-[0_0_25px_rgba(6,182,212,0.25)]');
+
+                socket.classList.remove('border-slate-700');
+                socket.classList.add('border-cyan-400', 'shadow-[0_0_25px_rgba(6,182,212,0.25)]');
+
+                socketIcon.classList.remove('text-slate-400', 'border-slate-800');
+                socketIcon.classList.add('text-cyan-300', 'border-cyan-400', 'bg-cyan-950/80');
+
+                socketStatus.className = "text-xs px-3 py-1 rounded-full bg-cyan-950/90 text-cyan-300 border border-cyan-400 font-bold transition-all duration-500 shadow-sm";
+                socketStatus.innerHTML = '<i class="fa-solid fa-bolt text-[10px] mr-1"></i> Enchufado: InRamTaskRepo';
+
+                ramBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-400 font-mono font-bold transition-all duration-500";
+                ramBadge.textContent = "Conectado al Servicio ✓";
+
+                msgBanner.classList.remove('opacity-0', 'translate-y-2');
+                msgBanner.classList.add('opacity-100', 'translate-y-0');
+                msgBanner.innerHTML = '<span class="text-cyan-300 font-bold">Fase 1:</span> Desarrollamos la CLI completa y suites de tests en RAM a 0ms de latencia.';
+            }, 1500));
+
+            // PASO 4 (4.8s): Se enchufa DAOTaskRepository (MySQL) y se conserva InRam
+            repoTimers.push(setTimeout(() => {
+                mysqlCard.classList.remove('opacity-0', 'translate-y-4', 'border-slate-800');
+                mysqlCard.classList.add('opacity-100', 'translate-y-0', 'border-emerald-400', 'shadow-[0_0_30px_rgba(16,185,129,0.25)]');
+
+                mysqlBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-400 font-mono font-bold transition-all duration-500";
+                mysqlBadge.textContent = "Conectado a Producción ✓";
+
+                // El socket pasa a brillar en verde MySQL
+                socket.classList.remove('border-cyan-400', 'shadow-[0_0_25px_rgba(6,182,212,0.25)]');
+                socket.classList.add('border-emerald-400', 'shadow-[0_0_25px_rgba(16,185,129,0.25)]');
+
+                socketIcon.classList.remove('text-cyan-300', 'border-cyan-400', 'bg-cyan-950/80');
+                socketIcon.classList.add('text-emerald-300', 'border-emerald-400', 'bg-emerald-950/80');
+
+                socketStatus.className = "text-xs px-3 py-1 rounded-full bg-emerald-950/90 text-emerald-300 border border-emerald-400 font-bold transition-all duration-500 shadow-sm";
+                socketStatus.innerHTML = '<i class="fa-solid fa-database text-[10px] mr-1"></i> Enchufado: DAOTaskRepo';
+
+                // InRam no se borra: se destaca como base de tests y caché
+                ramCard.classList.remove('border-cyan-400', 'shadow-[0_0_25px_rgba(6,182,212,0.25)]');
+                ramCard.classList.add('border-indigo-500/60', 'shadow-[0_0_20px_rgba(99,102,241,0.15)]');
+
+                ramBadge.className = "mt-2.5 text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-950/90 text-indigo-300 border border-indigo-400/60 font-mono font-bold transition-all duration-500";
+                ramBadge.textContent = "Conservado: Tests & Caché L1 ✨";
+
+                msgBanner.innerHTML = '<span class="text-emerald-300 font-bold">Fase 2:</span> Conectamos MySQL y la CLI requirió <span class="text-white underline decoration-cyan-400 font-bold">exactamente 0 cambios</span>.';
+            }, 4800));
+
+            // PASO 5 (8.4s): Mensaje de conclusión e indicación
+            repoTimers.push(setTimeout(() => {
+                msgBanner.innerHTML = '<span class="text-yellow-300 font-bold">Inversión de Dependencias:</span> Dos implementaciones, cero acoplamiento.';
+                hint.classList.remove('opacity-0');
+                hint.classList.add('opacity-100');
+            }, 8400));
+
+            // PASO 6 (12.6s): Desvanecer overlay y revelar contenido real
+            repoTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 12600));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA CADENA DE MONTAJE DI (SLIDE 7)
+        // ========================================================
+        let diTimers = [];
+
+        function cleanUpDiEffects() {
+            diTimers.forEach(t => clearTimeout(t));
+            diTimers = [];
+        }
+
+        function finishDiJokeImmediately() {
+            cleanUpDiEffects();
+            const overlay = document.getElementById('di-intro-overlay');
+            const content = document.getElementById('di-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageDiSlideAnimation() {
+            cleanUpDiEffects();
+
+            const overlay = document.getElementById('di-intro-overlay');
+            const badge = document.getElementById('di-badge');
+            const title = document.getElementById('di-title');
+            const step1 = document.getElementById('di-step-1');
+            const arrow1 = document.getElementById('di-arrow-1');
+            const step2 = document.getElementById('di-step-2');
+            const arrow2 = document.getElementById('di-arrow-2');
+            const step3 = document.getElementById('di-step-3');
+            const arrow3 = document.getElementById('di-arrow-3');
+            const step4 = document.getElementById('di-step-4');
+            const arrowDown = document.getElementById('di-arrow-down');
+            const finalCard = document.getElementById('di-final-card');
+            const summaryBanner = document.getElementById('di-summary-banner');
+            const hint = document.getElementById('di-hint');
+            const content = document.getElementById('di-real-content');
+
+            if (!overlay || !badge || !title || !step1 || !step2 || !step3 || !step4 || !finalCard || !summaryBanner || !hint || !content) return;
+
+            if (currentSlide !== 7) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 7: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset inicial de clases y estilos
+            badge.className = "px-3 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2";
+            title.className = "text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2";
+
+            step1.className = "flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3";
+            if (arrow1) arrow1.className = "text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block";
+
+            step2.className = "flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3";
+            if (arrow2) arrow2.className = "text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block";
+
+            step3.className = "flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3";
+            if (arrow3) arrow3.className = "text-slate-600 transition-all duration-500 opacity-0 transform -translate-x-1 hidden sm:block";
+
+            step4.className = "flex-1 min-w-[130px] p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-center shadow-lg transition-all duration-500 opacity-0 transform translate-y-3";
+            if (arrowDown) arrowDown.className = "my-2.5 text-slate-600 transition-all duration-500 opacity-0 transform -translate-y-1";
+
+            finalCard.className = "w-full max-w-xl p-3.5 px-5 rounded-2xl bg-slate-900/95 border-2 border-slate-800 shadow-2xl flex items-center justify-between gap-4 font-mono transition-all duration-700 opacity-0 transform scale-95";
+            summaryBanner.className = "mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2";
+            hint.className = "mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2";
+
+            // PASO 1 (0.3s): Título y badge
+            diTimers.push(setTimeout(() => {
+                badge.classList.remove('opacity-0', '-translate-y-2');
+                badge.classList.add('opacity-100', 'translate-y-0');
+
+                title.classList.remove('opacity-0', '-translate-y-2');
+                title.classList.add('opacity-100', 'translate-y-0');
+            }, 300));
+
+            // PASO 2 (0.8s): 1. DAO (Datos)
+            diTimers.push(setTimeout(() => {
+                step1.classList.remove('opacity-0', 'translate-y-3');
+                step1.classList.add('opacity-100', 'translate-y-0', 'border-blue-500/70', 'shadow-[0_0_20px_rgba(59,130,246,0.25)]');
+            }, 800));
+
+            // PASO 3 (1.7s): Flecha 1 y 2. Repository (Dominio)
+            diTimers.push(setTimeout(() => {
+                if (arrow1) {
+                    arrow1.classList.remove('opacity-0', '-translate-x-1', 'text-slate-600');
+                    arrow1.classList.add('opacity-100', 'translate-x-0', 'text-cyan-400');
+                }
+                step2.classList.remove('opacity-0', 'translate-y-3');
+                step2.classList.add('opacity-100', 'translate-y-0', 'border-cyan-500/70', 'shadow-[0_0_20px_rgba(6,182,212,0.25)]');
+            }, 1700));
+
+            // PASO 4 (2.6s): Flecha 2 y 3. Service (Lógica)
+            diTimers.push(setTimeout(() => {
+                if (arrow2) {
+                    arrow2.classList.remove('opacity-0', '-translate-x-1', 'text-slate-600');
+                    arrow2.classList.add('opacity-100', 'translate-x-0', 'text-purple-400');
+                }
+                step3.classList.remove('opacity-0', 'translate-y-3');
+                step3.classList.add('opacity-100', 'translate-y-0', 'border-purple-500/70', 'shadow-[0_0_20px_rgba(168,85,247,0.25)]');
+            }, 2600));
+
+            // PASO 5 (3.5s): Flecha 3 y 4. CLI (Presentación)
+            diTimers.push(setTimeout(() => {
+                if (arrow3) {
+                    arrow3.classList.remove('opacity-0', '-translate-x-1', 'text-slate-600');
+                    arrow3.classList.add('opacity-100', 'translate-x-0', 'text-emerald-400');
+                }
+                step4.classList.remove('opacity-0', 'translate-y-3');
+                step4.classList.add('opacity-100', 'translate-y-0', 'border-emerald-500/70', 'shadow-[0_0_20px_rgba(16,185,129,0.25)]');
+            }, 3500));
+
+            // PASO 6 (4.6s): Flecha hacia abajo y Producto ensamblado (MainMenuCli)
+            diTimers.push(setTimeout(() => {
+                if (arrowDown) {
+                    arrowDown.classList.remove('opacity-0', '-translate-y-1', 'text-slate-600');
+                    arrowDown.classList.add('opacity-100', 'translate-y-0', 'text-emerald-400');
+                }
+                finalCard.classList.remove('opacity-0', 'scale-95', 'border-slate-800');
+                finalCard.classList.add('opacity-100', 'scale-100', 'border-emerald-400/90', 'shadow-[0_0_35px_rgba(16,185,129,0.3)]');
+            }, 4600));
+
+            // PASO 7 (5.8s): Banner de resumen de impacto y pista
+            diTimers.push(setTimeout(() => {
+                summaryBanner.classList.remove('opacity-0', 'translate-y-2');
+                summaryBanner.classList.add('opacity-100', 'translate-y-0');
+
+                hint.classList.remove('opacity-0');
+                hint.classList.add('opacity-100');
+            }, 5800));
+
+            // PASO 8 (11.5s): Desvanecer overlay y revelar contenido real
+            diTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 11500));
+        }
+
+        // ========================================================
+        // SECUENCIA CINEMÁTICA COMPARATIVA HANDSHAKE VS SINGLETON (SLIDE 8)
+        // ========================================================
+        let connTimers = [];
+
+        function cleanUpConnEffects() {
+            connTimers.forEach(t => clearTimeout(t));
+            connTimers = [];
+        }
+
+        function finishConnJokeImmediately() {
+            cleanUpConnEffects();
+            const overlay = document.getElementById('conn-intro-overlay');
+            const content = document.getElementById('conn-real-content');
+            if (overlay) overlay.style.display = 'none';
+            if (content) {
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }
+        }
+
+        function manageConnSlideAnimation() {
+            cleanUpConnEffects();
+
+            const overlay = document.getElementById('conn-intro-overlay');
+            const badge = document.getElementById('conn-badge');
+            const title = document.getElementById('conn-title');
+            const badCard = document.getElementById('conn-bad-card');
+            const goodCard = document.getElementById('conn-good-card');
+            const summaryBanner = document.getElementById('conn-summary-banner');
+            const hint = document.getElementById('conn-hint');
+            const content = document.getElementById('conn-real-content');
+
+            if (!overlay || !badge || !title || !badCard || !goodCard || !summaryBanner || !hint || !content) return;
+
+            if (currentSlide !== 8) {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-100');
+                content.classList.add('opacity-0', 'pointer-events-none');
+                return;
+            }
+
+            // Estamos en Slide 8: Ocultar contenido y arrancar intro
+            overlay.style.display = 'flex';
+            content.classList.remove('opacity-100');
+            content.classList.add('opacity-0', 'pointer-events-none');
+
+            // Reset inicial de clases y estilos
+            badge.className = "px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 inline-block transition-all duration-500 opacity-0 transform -translate-y-2";
+            title.className = "text-2xl sm:text-3xl font-extrabold text-white mt-2 transition-all duration-500 opacity-0 transform -translate-y-2";
+            badCard.className = "rounded-2xl bg-slate-900/90 border border-red-500/30 p-5 flex flex-col justify-between transition-all duration-700 opacity-0 transform -translate-x-4 shadow-xl";
+            goodCard.className = "rounded-2xl bg-slate-900/90 border border-emerald-500/40 p-5 flex flex-col justify-between transition-all duration-700 opacity-0 transform translate-x-4 shadow-xl shadow-emerald-500/5";
+            summaryBanner.className = "mt-4 p-3 px-5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-center font-mono text-slate-300 max-w-xl w-full transition-all duration-500 opacity-0 transform translate-y-2";
+            hint.className = "mt-4 text-xs text-slate-500 font-mono transition-opacity duration-300 opacity-0 flex items-center gap-2";
+
+            // PASO 1 (0.3s): Título y badge ("¿Conexión efímera o Túnel persistente?")
+            connTimers.push(setTimeout(() => {
+                badge.classList.remove('opacity-0', '-translate-y-2');
+                badge.classList.add('opacity-100', 'translate-y-0');
+
+                title.classList.remove('opacity-0', '-translate-y-2');
+                title.classList.add('opacity-100', 'translate-y-0');
+            }, 300));
+
+            // PASO 2 (0.8s): Entra tarjeta roja (Sin Singleton: Handshake repetitivo por query)
+            connTimers.push(setTimeout(() => {
+                badCard.classList.remove('opacity-0', '-translate-x-4');
+                badCard.classList.add('opacity-100', 'translate-x-0');
+            }, 800));
+
+            // PASO 3 (2.4s): Entra tarjeta verde esmeralda (Con Singleton: Túnel persistente)
+            connTimers.push(setTimeout(() => {
+                goodCard.classList.remove('opacity-0', 'translate-x-4');
+                goodCard.classList.add('opacity-100', 'translate-x-0');
+            }, 2400));
+
+            // PASO 4 (4.5s): Banner de resumen de impacto y pista para continuar
+            connTimers.push(setTimeout(() => {
+                summaryBanner.classList.remove('opacity-0', 'translate-y-2');
+                summaryBanner.classList.add('opacity-100', 'translate-y-0');
+
+                hint.classList.remove('opacity-0');
+                hint.classList.add('opacity-100');
+            }, 4500));
+
+            // PASO 5 (10.5s): Desvanecer overlay y revelar contenido real
+            connTimers.push(setTimeout(() => {
+                overlay.style.display = 'none';
+                content.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.add('opacity-100');
+            }, 10500));
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(index) {
+            if (index >= 0 && index < totalSlides) {
+                currentSlide = index;
+                updateSlideUI();
+                closeIndexModal();
+            }
+        }
+
+        // Navegación por teclado
+        window.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('index-modal');
+            if (!modal.classList.contains('hidden') && e.key === 'Escape') {
+                closeIndexModal();
+                return;
+            }
+
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                goToSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                goToSlide(totalSlides - 1);
+            } else if (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'm') {
+                toggleIndexModal();
+            } else if (e.key.toLowerCase() === 'f') {
+                toggleFullscreen();
+            }
+        });
+
+        // Pantalla completa
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // Modal de índice
+        function toggleIndexModal() {
+            const modal = document.getElementById('index-modal');
+            if (modal.classList.contains('hidden')) {
+                openIndexModal();
+            } else {
+                closeIndexModal();
+            }
+        }
+
+        function openIndexModal() {
+            const modal = document.getElementById('index-modal');
+            const list = document.getElementById('index-list');
+            list.innerHTML = '';
+
+            slideTitles.forEach((title, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `p-2.5 rounded-xl border text-left transition-colors flex items-center justify-between ${
+                    idx === currentSlide 
+                    ? 'border-cyan-500/50 bg-cyan-500/10 text-cyan-300 font-semibold' 
+                    : 'border-slate-800 hover:border-slate-700 bg-slate-900/40 text-slate-300'
+                }`;
+                btn.innerHTML = `
+                    <span class="truncate">${idx + 1}. ${title}</span>
+                    <i class="fa-solid fa-arrow-right text-[10px] opacity-40"></i>
+                `;
+                btn.onclick = () => goToSlide(idx);
+                list.appendChild(btn);
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeIndexModal() {
+            document.getElementById('index-modal').classList.add('hidden');
+        }
+
+        function copyCommand() {
+            navigator.clipboard.writeText('agendita');
+            alert('¡Comando "agendita" copiado al portapapeles!');
+        }
+
+        // Leer hash al cargar
+        window.addEventListener('load', () => {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#slide-')) {
+                const num = parseInt(hash.replace('#slide-', ''));
+                if (!isNaN(num) && num >= 0 && num < totalSlides) {
+                    currentSlide = num;
+                }
+            }
+            updateSlideUI();
+        });
+    </script>
+</body>
+</html>

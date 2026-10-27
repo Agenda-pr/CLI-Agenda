@@ -15,7 +15,7 @@ Aplicación de consola en Java 25 para la gestión integral de tareas, notas y e
    - [2. Arquitectura y Patrones de Diseño](#2-arquitectura-y-patrones-de-diseño)
      - [2.1. Descarte de Observer (KISS / YAGNI)](#21-descarte-del-patrón-observer-frente-a-consulta-directa-kiss--yagni)
      - [2.2. Interfaz Repository y caché InRam](#22-interfaz-repository-y-conservación-de-inram)
-     - [2.3. Inyección manual (AppInitializer)](#23-inyección-de-dependencias-manual-con-appinitializer)
+     - [2.3. Inyección de dependencias y Composition Root (AppInitializer)](#23-inyección-de-dependencias-y-composition-root-con-appinitializer)
      - [2.4. Singleton (ConnectionFactory)](#24-patrón-singleton-en-connectionfactory)
    - [3. Infraestructura y DevOps](#3-infraestructura-y-devops)
      - [3.1. Ejecución dual (IDE vs Docker)](#31-enfoque-de-ejecución-dual-ide-vs-docker-completo)
@@ -48,11 +48,15 @@ En lugar de representar los datos del dominio con primitivos sueltos (`String`, 
 
 ```java
 public record TaskTitle(String title) {
-    public static TaskTitle of(String title) {
+    public TaskTitle {
         if (title == null || title.isBlank()) {
             throw new InvalidTaskException("Task title cannot be empty or blank");
         }
-        return new TaskTitle(title.trim());
+        title = title.trim();
+    }
+
+    public static TaskTitle of(String title) {
+        return new TaskTitle(title);
     }
 }
 ```
@@ -155,9 +159,9 @@ Cada dominio define su persistencia mediante una interfaz desacoplada (`TaskRepo
 - **Separación Repository vs DAO:** El DAO encapsula las operaciones puramente SQL (`insert`, `update`, `findById`, `findAll`, `deleteById`), mientras que el repositorio expone el contrato semántico que requiere el dominio (`save`, etc.).
 - **Conservación para futura caché:** Aunque la aplicación opera contra MySQL, las clases `InRam*Repository` **no se eliminaron**. El equipo decidió mantenerlas para su reutilización como capa de **caché en memoria**, aprovechando que implementan exactamente el mismo contrato y devuelven copias seguras mediante `restore()` para evitar fugas de estado mutable.
 
-#### 2.3. Inyección de dependencias manual con AppInitializer
+#### 2.3. Inyección de dependencias y Composition Root con AppInitializer
 
-El ensamblaje de todas las capas de la aplicación se centraliza en [`AppInitializer`](src/main/java/common/config/AppInitializer.java), siguiendo estrictamente el orden de dependencias: **DAO → Repositorio → Servicio → CLI → Menú Principal**:
+El ensamblaje de todas las capas de la aplicación se centraliza en [`AppInitializer`](src/main/java/common/config/AppInitializer.java), que actúa formalmente como el **Composition Root** del sistema: el único lugar donde se instancian las clases concretas y se inyectan estrictamente por constructor, siguiendo el orden: **DAO → Repositorio → Servicio → CLI → Menú Principal**:
 
 ```java
 public static MainMenuCli init() {
@@ -173,8 +177,9 @@ public static MainMenuCli init() {
 `Main` actúa exclusivamente como punto de entrada: invoca `AppInitializer.init()`, ejecuta `mainMenu.showMenu()`, captura `DatabaseException` y asegura el cierre de la conexión en su cláusula `finally`.
 
 **Por qué:**
-- **Simplicidad sin frameworks:** Un contenedor IoC como Spring sería desproporcionado para una herramienta CLI de consola. La inyección manual por constructor proporciona el mismo desacoplamiento con total claridad.
-- **Control y testabilidad:** Ninguna clase instancia sus dependencias mediante `new`, facilitando sustituir cualquier componente en tests unitarios.
+- **Punto único de ensamblaje:** Centraliza todo el cableado e instanciación de dependencias por constructor en una única clase especializada, evitando dispersar operadores `new` por el resto del proyecto.
+- **`Main` limpio y enfocado:** La clase `Main` se mantiene mínima (apenas 10 líneas en su método principal); delega la complejidad del montaje y se concentra exclusivamente en iniciar la aplicación y garantizar el cierre de recursos en su bloque `finally`.
+- **Control y testabilidad:** Ninguna clase instancia internamente sus dependencias, asegurando un desacoplamiento estricto y facilitando sustituir cualquier componente en pruebas.
 
 #### 2.4. Patrón Singleton en ConnectionFactory
 
